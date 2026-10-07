@@ -1,2 +1,3 @@
 # Farm-Client
-Farm Client is alpha test.
+Farm Client is client for Minecraft
+NOW APHLA TEST PLS DON'T DOWNLOAD
