@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><title>Farm Client — зайти в мир</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0c0c0d;color:#eee;font:16px Segoe UI,Arial,sans-serif;text-align:center}
+.c{max-width:440px;padding:32px;border-radius:16px;background:#17171a;border:1px solid #2a2a2e}h1{font-size:22px;color:#e8b23a;margin:0 0 12px}
+a.b{display:inline-block;margin:10px 4px;padding:11px 20px;border-radius:10px;background:#e8b23a;color:#111;font-weight:700;text-decoration:none}a.g{background:#2a2a2e;color:#eee}
+code{background:#000;padding:2px 6px;border-radius:5px}small{color:#999}</style></head>
+<body><div class="c"><h1>Заходим в мир друга…</h1>
+<p id="t">Открываю Farm Client.</p>
+<a class="b" id="open" href="#">Открыть Farm Client</a>
+<a class="b g" id="dl" href="https://github.com/R2D27829/Farm-Client/releases">Скачать Farm Client</a>
+<p><small>Нужен Radmin VPN в той же сети, что и у друга.<br>Адрес: <code id="addr">—</code></small></p></div>
+<script>
+var q=new URLSearchParams(location.search),ip=(q.get('ip')||'').replace(/[^\w.-]/g,''),port=(q.get('port')||'').replace(/\D/g,'');
+if(!ip){document.getElementById('t').textContent='В ссылке нет адреса мира.';}
+else{var a=ip+(port?':'+port:''),link='farmclient://join?ip='+encodeURIComponent(ip)+(port?'&port='+port:'');
+document.getElementById('addr').textContent=a;document.getElementById('open').href=link;location.href=link;
+setTimeout(function(){document.getElementById('t').textContent='Если лаунчер не открылся — установи Farm Client или нажми кнопку ниже.';},2500);}
+</script></body></html>
