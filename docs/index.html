@@ -31,7 +31,7 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--gold),var(--gold
 .mock{display:grid;grid-template-columns:70px 1fr;gap:12px;height:360px}.mock .side{background:#111318;border-radius:12px}
 .mock .main{display:grid;grid-template-rows:120px 1fr;gap:12px}.mock .top{border-radius:12px;background:linear-gradient(120deg,rgba(232,176,74,.25),rgba(232,176,74,.04));display:flex;align-items:center;padding:0 26px;font-weight:900;font-size:30px;letter-spacing:1px}
 .mock .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.mock .cards div{background:#15171d;border:1px solid var(--line);border-radius:12px}
-section{padding:90px 0;scroll-margin-top:72px}header,[id]{scroll-margin-top:72px}.h2{font-size:clamp(30px,4vw,44px);font-weight:850;letter-spacing:-1px;text-align:center}.sub{color:var(--muted);text-align:center;margin:10px auto 50px;max-width:600px}
+section{padding:90px 0;scroll-margin-top:72px}header,[id]{scroll-margin-top:72px}section.wrap{padding:90px 24px}section.wrap.stats-s{padding:10px 24px}.h2{font-size:clamp(30px,4vw,44px);font-weight:850;letter-spacing:-1px;text-align:center}.sub{color:var(--muted);text-align:center;margin:10px auto 50px;max-width:600px}
 .feats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .f{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;transition:.25s;position:relative;overflow:hidden}
 .f:hover{transform:translateY(-4px);border-color:rgba(232,176,74,.4)}.f::after{content:'';position:absolute;inset:auto -40% -60% auto;width:180px;height:180px;background:radial-gradient(circle,rgba(232,176,74,.15),transparent 70%);opacity:0;transition:.3s}.f:hover::after{opacity:1}
@@ -72,7 +72,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-s
   <div class="f reveal"><div class="ic">⚡</div><h3>Быстро и плавно</h3><p>Sodium, Lithium, FerriteCore и другие оптимизации из коробки. Профили настроек под каждый сервер.</p></div>
 </div></section>
 
-<section class="wrap"><div class="stats">
+<section class="wrap stats-s"><div class="stats">
   <div class="reveal"><b>4</b><span>версии Minecraft</span></div><div class="reveal"><b>100+</b><span>модулей</span></div>
   <div class="reveal"><b id="dls">—</b><span>скачиваний</span></div><div class="reveal"><b>1</b><span>клик до игры</span></div>
 </div></section>
