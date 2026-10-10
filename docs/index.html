@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Farm Client — лаунчер и мод для Minecraft</title>
+<meta name="description" content="Farm Client: лаунчер Minecraft с модами, сборками, CurseForge и Modrinth, Discord и игрой с друзьями по сети.">
+<meta property="og:title" content="Farm Client"><meta property="og:description" content="Лаунчер и QoL-мод для Minecraft. Без читов."><meta name="theme-color" content="#e8b04a">
+<style>
+:root{--bg:#0c0d10;--panel:#14161b;--line:#23262e;--text:#ecebe6;--muted:#9a9890;--gold:#e8b04a;--gold2:#ffd27a;--green:#6fd36f}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:16px/1.6 "Segoe UI",system-ui,-apple-system,sans-serif;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.glow{position:fixed;inset:-30vh -10vw auto;height:90vh;background:radial-gradient(60% 60% at 50% 0,rgba(232,176,74,.22),transparent 70%);pointer-events:none;z-index:0}
+.grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:48px 48px;mask-image:linear-gradient(#000,transparent 80%);pointer-events:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+nav{position:sticky;top:0;z-index:5;backdrop-filter:blur(14px);background:rgba(12,13,16,.7);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px}.logo img{width:30px;height:30px;image-rendering:pixelated}
+.logo span{color:var(--gold)}nav .links{display:flex;gap:22px;margin-left:auto;color:var(--muted);font-size:14px}nav .links a:hover{color:var(--text)}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:13px 24px;border-radius:12px;font-weight:700;border:1px solid var(--line);background:var(--panel);transition:.2s;cursor:pointer}
+.btn:hover{transform:translateY(-2px);border-color:#3a3d47}
+.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1407;border:0;box-shadow:0 10px 40px -10px rgba(232,176,74,.6)}
+.btn.gold:hover{box-shadow:0 14px 50px -8px rgba(232,176,74,.8)}
+.hero{padding:110px 0 80px;text-align:center}
+.pill{display:inline-flex;gap:8px;align-items:center;padding:6px 14px;border:1px solid var(--line);border-radius:99px;font-size:13px;color:var(--muted);background:rgba(20,22,27,.7)}
+.pill b{color:var(--green)}
+h1{font-size:clamp(44px,8vw,92px);line-height:1;margin:22px 0 18px;font-weight:900;letter-spacing:-2px}
+h1 em{font-style:normal;background:linear-gradient(135deg,var(--gold),var(--gold2) 60%,#fff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{max-width:640px;margin:0 auto 34px;color:var(--muted);font-size:19px}
+.cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}.cta small{display:block;color:var(--muted);font-size:13px;margin-top:12px}
+.shot{margin:70px auto 0;max-width:980px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#171920,#0f1014);padding:12px;box-shadow:0 40px 120px -30px rgba(0,0,0,.8),0 0 0 1px rgba(232,176,74,.08)}
+.shot .bar{display:flex;gap:6px;padding:4px 6px 12px}.shot .bar i{width:11px;height:11px;border-radius:50%;background:#2c2f37}
+.mock{display:grid;grid-template-columns:70px 1fr;gap:12px;height:360px}.mock .side{background:#111318;border-radius:12px}
+.mock .main{display:grid;grid-template-rows:120px 1fr;gap:12px}.mock .top{border-radius:12px;background:linear-gradient(120deg,rgba(232,176,74,.25),rgba(232,176,74,.04));display:flex;align-items:center;padding:0 26px;font-weight:900;font-size:30px;letter-spacing:1px}
+.mock .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.mock .cards div{background:#15171d;border:1px solid var(--line);border-radius:12px}
+section{padding:90px 0}.h2{font-size:clamp(30px,4vw,44px);font-weight:850;letter-spacing:-1px;text-align:center}.sub{color:var(--muted);text-align:center;margin:10px auto 50px;max-width:600px}
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.f{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;transition:.25s;position:relative;overflow:hidden}
+.f:hover{transform:translateY(-4px);border-color:rgba(232,176,74,.4)}.f::after{content:'';position:absolute;inset:auto -40% -60% auto;width:180px;height:180px;background:radial-gradient(circle,rgba(232,176,74,.15),transparent 70%);opacity:0;transition:.3s}.f:hover::after{opacity:1}
+.f .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:rgba(232,176,74,.12);margin-bottom:14px}
+.f h3{font-size:18px;margin-bottom:6px}.f p{color:var(--muted);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center}.stats div{padding:26px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.stats b{display:block;font-size:38px;color:var(--gold);font-weight:900}.stats span{color:var(--muted);font-size:14px}
+.news{display:grid;gap:12px;max-width:780px;margin:0 auto}.n{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.n small{color:var(--gold);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px}.n h3{margin:4px 0}.n p{color:var(--muted);font-size:14px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:s}.st{padding:24px;border-radius:16px;border:1px dashed #33363f;counter-increment:s}
+.st::before{content:counter(s);display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--gold);color:#1a1407;font-weight:900;margin-bottom:12px}.st p{color:var(--muted);font-size:14px}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 20px;max-width:780px;margin:0 auto 10px}summary{cursor:pointer;font-weight:700}details p{color:var(--muted);margin-top:8px;font-size:14px}
+footer{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-size:14px}footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1)}.reveal.in{opacity:1;transform:none}
+@media (max-width:860px){.feats,.steps{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}nav .links{display:none}.mock .cards{grid-template-columns:1fr 1fr}}
+</style></head>
+<body><div class="glow"></div><div class="grid-bg"></div>
+<nav><div class="wrap"><a class="logo" href="#"><img src="https://raw.githubusercontent.com/R2D27829/Farm-Client/main/assets/logo.png" alt="" onerror="this.remove()">FARM <span>CLIENT</span></a>
+<div class="links"><a href="#features">Возможности</a><a href="#news">Новости</a><a href="#how">Как начать</a><a href="#faq">FAQ</a></div>
+<a class="btn gold" href="#download" style="padding:9px 16px;font-size:14px">Скачать</a></div></nav>
+
+<header class="hero wrap">
+  <span class="pill"><b>●</b> <span id="ver">Последняя версия</span> · Windows</span>
+  <h1>Minecraft<br><em>по-фермерски</em></h1>
+  <p>Лаунчер и QoL-мод в одном: моды и сборки с Modrinth и CurseForge, Discord, игра с друзьями по сети и десятки удобных модулей. Без читов.</p>
+  <div class="cta" id="download"><div><a class="btn gold" id="dl" href="https://github.com/R2D27829/Farm-Client/releases/latest">⬇ Скачать для Windows</a><small id="dl-info">Бесплатно · портативный .exe</small></div>
+  <div><a class="btn" href="https://github.com/R2D27829/Farm-Client">GitHub</a></div></div>
+  <div class="shot reveal"><div class="bar"><i></i><i></i><i></i></div><div class="mock"><div class="side"></div><div class="main"><div class="top">FARM CLIENT</div><div class="cards"><div></div><div></div><div></div><div></div></div></div></div></div>
+</header>
+
+<section id="features" class="wrap"><h2 class="h2 reveal">Всё, что нужно — уже внутри</h2><p class="sub reveal">Ставишь лаунчер, жмёшь «Играть» — моды, оптимизация и Java скачаются сами.</p>
+<div class="feats">
+  <div class="f reveal"><div class="ic">🧩</div><h3>Моды и сборки</h3><p>Каталоги Modrinth и CurseForge: моды, ресурспаки, шейдеры и целые сборки в один клик. «Обновить всё» — тоже.</p></div>
+  <div class="f reveal"><div class="ic">🤝</div><h3>Сборки для друзей</h3><p>Отправь другу код или файл .farmpack — у него поставится такая же сборка с конфигами.</p></div>
+  <div class="f reveal"><div class="ic">🌐</div><h3>Игра по сети</h3><p>Radmin VPN, ZeroTier, Hamachi: видно друзей и их миры, «Зайти к нему» и общие метки прямо в игре.</p></div>
+  <div class="f reveal"><div class="ic">💬</div><h3>Discord</h3><p>Статус «Сервер / Одиночная игра», кнопка «Присоединиться», скрин в канал одной клавишей, краш-репорты.</p></div>
+  <div class="f reveal"><div class="ic">🎛️</div><h3>ClickGUI и HUD</h3><p>Три стиля меню, свои вкладки, редактор HUD со слотами раскладок и кодами для обмена.</p></div>
+  <div class="f reveal"><div class="ic">⚡</div><h3>Быстро и плавно</h3><p>Sodium, Lithium, FerriteCore и другие оптимизации из коробки. Профили настроек под каждый сервер.</p></div>
+</div></section>
+
+<section class="wrap"><div class="stats">
+  <div class="reveal"><b>4</b><span>версии Minecraft</span></div><div class="reveal"><b>100+</b><span>модулей</span></div>
+  <div class="reveal"><b id="dls">—</b><span>скачиваний</span></div><div class="reveal"><b>0</b><span>читов</span></div>
+</div></section>
+
+<section id="news" class="wrap"><h2 class="h2 reveal">Что нового</h2><p class="sub reveal">Те же новости видно на главной в лаунчере.</p><div class="news" id="news-list"><div class="n"><p>Загрузка…</p></div></div></section>
+
+<section id="how" class="wrap"><h2 class="h2 reveal">Как начать</h2><p class="sub reveal">Три шага — и ты в игре.</p>
+<div class="steps"><div class="st reveal"><h3>Скачай</h3><p>Файл FarmClient-Setup.exe — ничего устанавливать не нужно, просто запусти.</p></div>
+<div class="st reveal"><h3>Войди</h3><p>Лицензия Microsoft, Ely.by или офлайн-ник. Можно привязать Discord.</p></div>
+<div class="st reveal"><h3>Играй</h3><p>Выбери версию и жми «Играть». Друзья — во вкладке «Сеть».</p></div></div></section>
+
+<section id="faq" class="wrap"><h2 class="h2 reveal">Вопросы</h2><p class="sub reveal"></p>
+<details class="reveal"><summary>Это чит?</summary><p>Нет. Farm Client — QoL и визуальные улучшения: HUD, меню, метки, оптимизация. Ничего, что даёт нечестное преимущество.</p></details>
+<details class="reveal"><summary>Windows ругается на файл</summary><p>Лаунчер не подписан сертификатом, поэтому SmartScreen может предупредить. Нажми «Подробнее» → «Выполнить в любом случае».</p></details>
+<details class="reveal"><summary>Как играть с другом?</summary><p>Оба в одной сети Radmin VPN → хост открывает мир для сети → друг видит его во вкладке «Сеть» и жмёт «Зайти». Или отправь ссылку-приглашение из Discord.</p></details>
+<details class="reveal"><summary>Не скачиваются моды</summary><p>Проверь интернет/VPN. Для CurseForge некоторые авторы запрещают скачивание из сторонних лаунчеров — такие моды ставь вручную.</p></details>
+</section>
+
+<footer><div class="wrap"><span>© Farm Client · не связан с Mojang и Microsoft</span><span><a href="https://github.com/R2D27829/Farm-Client/releases">Все версии</a> · <a href="join.html">Приглашение в игру</a></span></div></footer>
+<script>
+const R='R2D27829/Farm-Client';
+fetch('https://api.github.com/repos/'+R+'/releases?per_page=30').then(r=>r.json()).then(l=>{if(!Array.isArray(l)||!l.length)return;const t=l[0];
+document.getElementById('ver').textContent='Версия '+t.tag_name.replace(/^v/,'');const a=(t.assets||[]).find(x=>/\.exe$/i.test(x.name));
+if(a){document.getElementById('dl').href=a.browser_download_url;document.getElementById('dl-info').textContent='Бесплатно · '+(a.size/1048576).toFixed(0)+' МБ · '+new Date(t.published_at).toLocaleDateString('ru')}
+const n=l.reduce((s,r)=>s+(r.assets||[]).filter(x=>/\.exe$/i.test(x.name)).reduce((q,x)=>q+x.download_count,0),0);document.getElementById('dls').textContent=n>999?(n/1000).toFixed(1)+'k':n}).catch(()=>{});
+const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+fetch('news.json?t='+Date.now()).then(r=>r.json()).then(l=>{document.getElementById('news-list').innerHTML=l.slice(0,6).map(n=>`<div class="n reveal in"><small>${esc(n.tag||'Новость')} · ${esc(n.date)}</small><h3>${esc(n.title)}</h3><p>${esc(n.text)}</p></div>`).join('')}).catch(()=>{});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach((e,i)=>{e.style.transitionDelay=(i%3)*80+'ms';io.observe(e)});
+</script></body></html>
