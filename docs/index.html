@@ -23,7 +23,7 @@ nav .wrap{display:flex;align-items:center;gap:28px;height:64px}
 .pill{display:inline-flex;gap:8px;align-items:center;padding:6px 14px;border:1px solid var(--line);border-radius:99px;font-size:13px;color:var(--muted);background:rgba(20,22,27,.7)}
 .pill b{color:var(--green)}
 h1{font-size:clamp(44px,8vw,92px);line-height:1;margin:22px 0 18px;font-weight:900;letter-spacing:-2px}
-h1 em{font-style:normal;background:linear-gradient(135deg,var(--gold),var(--gold2) 60%,#fff);-webkit-background-clip:text;background-clip:text;color:transparent}
+h1 em{font-style:normal;}h1 em.tag{font-size:.72em;padding-right:.08em}h1 em i{font-style:italic}h1 em{background:linear-gradient(135deg,var(--gold),var(--gold2) 60%,#fff);-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero p{max-width:640px;margin:0 auto 34px;color:var(--muted);font-size:19px}
 .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}.cta small{display:block;color:var(--muted);font-size:13px;margin-top:12px}
 .shot{margin:70px auto 0;max-width:980px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#171920,#0f1014);padding:12px;box-shadow:0 40px 120px -30px rgba(0,0,0,.8),0 0 0 1px rgba(232,176,74,.08)}
@@ -55,7 +55,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-s
 
 <header class="hero wrap">
   <span class="pill"><b>●</b> <span id="ver">Последняя версия</span> · Windows</span>
-  <h1>Minecraft<br><em>Лучше с Farm Client</em></h1>
+  <h1>Minecraft<br><em class="tag"><i><b>Лучше с Farm Client</b></i></em></h1>
   <p>Лаунчер и QoL-мод в одном: моды и сборки с Modrinth и CurseForge, Discord, игра с друзьями по сети и десятки удобных модулей.</p>
   <div class="cta" id="download"><div><a class="btn gold" id="dl" href="https://github.com/R2D27829/Farm-Client/releases/latest">⬇ Скачать для Windows</a><small id="dl-info">Бесплатно · портативный .exe</small></div>
   <div><a class="btn" href="https://github.com/R2D27829/Farm-Client">GitHub</a></div></div>
@@ -66,8 +66,8 @@ footer{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-s
 <div class="feats">
   <div class="f reveal"><div class="ic">🧩</div><h3>Моды и сборки</h3><p>Каталоги Modrinth и CurseForge: моды, ресурспаки, шейдеры и целые сборки в один клик. «Обновить всё» — тоже.</p></div>
   <div class="f reveal"><div class="ic">🤝</div><h3>Сборки для друзей</h3><p>Отправь другу код или файл .farmpack — у него поставится такая же сборка с конфигами.</p></div>
-  <div class="f reveal"><div class="ic">🌐</div><h3>Игра по сети</h3><p>Radmin VPN, ZeroTier, Hamachi: видно друзей и их миры, «Зайти к нему» и общие метки прямо в игре.</p></div>
-  <div class="f reveal"><div class="ic">💬</div><h3>Discord</h3><p>Статус «Сервер / Одиночная игра», кнопка «Присоединиться», скрин в канал одной клавишей, краш-репорты.</p></div>
+  <div class="f reveal"><div class="ic">💬</div><h3>Друзья и мессенджер</h3><p>Пиши друзьям по @нику Discord или Minecraft — через интернет, с шифрованием. Плюс Radmin VPN / ZeroTier: миры друзей, «Зайти к нему», общие метки.</p></div>
+  <div class="f reveal"><div class="ic">🎮</div><h3>Discord</h3><p>Статус «Сервер / Одиночная игра», кнопка «Присоединиться», скрин в канал одной клавишей, краш-репорты.</p></div>
   <div class="f reveal"><div class="ic">🎛️</div><h3>ClickGUI и HUD</h3><p>Три стиля меню, свои вкладки, редактор HUD со слотами раскладок и кодами для обмена.</p></div>
   <div class="f reveal"><div class="ic">⚡</div><h3>Быстро и плавно</h3><p>Sodium, Lithium, FerriteCore и другие оптимизации из коробки. Профили настроек под каждый сервер.</p></div>
 </div></section>
@@ -82,12 +82,13 @@ footer{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-s
 <section id="how" class="wrap"><h2 class="h2 reveal">Как начать</h2><p class="sub reveal">Три шага — и ты в игре.</p>
 <div class="steps"><div class="st reveal"><h3>Скачай</h3><p>Файл FarmClient-Setup.exe — ничего устанавливать не нужно, просто запусти.</p></div>
 <div class="st reveal"><h3>Войди</h3><p>Лицензия Microsoft, Ely.by или офлайн-ник. Можно привязать Discord.</p></div>
-<div class="st reveal"><h3>Играй</h3><p>Выбери версию и жми «Играть». Друзья — во вкладке «Сеть».</p></div></div></section>
+<div class="st reveal"><h3>Играй</h3><p>Выбери версию и жми «Играть». Друзья и чат — во вкладке «Друзья».</p></div></div></section>
 
 <section id="faq" class="wrap"><h2 class="h2 reveal">Вопросы</h2><p class="sub reveal"></p>
 <details class="reveal"><summary>Windows ругается на файл</summary><p>Лаунчер не подписан сертификатом, поэтому SmartScreen может предупредить. Нажми «Подробнее» → «Выполнить в любом случае».</p></details>
-<details class="reveal"><summary>Как играть с другом?</summary><p>Оба в одной сети Radmin VPN → хост открывает мир для сети → друг видит его во вкладке «Сеть» и жмёт «Зайти». Или отправь ссылку-приглашение из Discord.</p></details>
+<details class="reveal"><summary>Как играть с другом?</summary><p>Оба в одной сети Radmin VPN → хост открывает мир для сети → друг видит его во вкладке «Друзья» → «Сеть» и жмёт «Зайти». Или отправь ссылку-приглашение из Discord.</p></details>
 <details class="reveal"><summary>Не скачиваются моды</summary><p>Проверь интернет/VPN. Для CurseForge некоторые авторы запрещают скачивание из сторонних лаунчеров — такие моды ставь вручную.</p></details>
+<details class="reveal"><summary>Как написать другу?</summary><p>Вкладка «Друзья» → «Мессенджер» → впиши @ник друга (Discord или Minecraft) и пиши. Сообщения идут через интернет и дойдут, даже если друг был не в сети (до 12 часов). Друзья по Radmin VPN появляются в списке сами.</p></details>
 </section>
 
 <footer><div class="wrap"><span>© Farm Client · не связан с Mojang и Microsoft</span><span><a href="https://github.com/R2D27829/Farm-Client/releases">Все версии</a> · <a href="join.html">Приглашение в игру</a></span></div></footer>
