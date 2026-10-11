@@ -25,7 +25,7 @@
 ### О проекте
 Farm Client — лаунчер Minecraft и клиентский Fabric-мод, которые работают в связке. Лаунчер ставит Minecraft, загрузчик, Java и моды; мод получает от лаунчера аккаунт, Discord, друзей и настройки и отдаёт обратно события из игры.
 
-Текущие версии: **лаунчер 1.17.0**, **мод 1.32.0**.
+Текущие версии: **лаунчер 1.19.1**, **мод 1.32.0**.
 
 ### Возможности
 
@@ -37,7 +37,7 @@ Farm Client — лаунчер Minecraft и клиентский Fabric-мод, 
 - **Обмен сборками** — код `FARMPACK:` или файл `.farmpack` (манифест + конфиги, `options.txt`, локальные jar). Импорт «От друга».
 - **Управление сборкой** в стиле Prism Launcher: память, JVM-аргументы, разрешение, версия загрузчика.
 - **Главная** — новости, избранные серверы с пингом (SLP + SRV) и кнопкой «Зайти», статистика игры по дням и серверам.
-- **Сеть** — друзья по Radmin VPN / ZeroTier / Hamachi / LAN: видно, кто в сети и какой мир открыт, «Зайти к нему», общие метки.
+- **Друзья** — мессенджер: пиши по @нику Discord или Minecraft через интернет (шифрование, доставка офлайн до 12 ч), общий чат и личка по локалке; сеть: друзья по Radmin VPN / ZeroTier / Hamachi / LAN: видно, кто в сети и какой мир открыт, «Зайти к нему», общие метки.
 - **Discord** — Rich Presence (лаунчер / одиночная игра / сервер), кнопка «Присоединиться», привязка аккаунта через OAuth2, вебхук: скриншоты, краш-репорты, вход и выход с сервера.
 - **Интерфейс** — темы (включая «Яблочный» Liquid Glass и «Минимализм»), свой CSS, масштаб, шрифты, мини-плеер и «Сейчас играет» (Spotify / Яндекс Музыка / любой медиаплеер Windows), трей, автообновление, свой установщик.
 - **Локализация** — русский и английский (лаунчер, установщик, мод).
@@ -66,7 +66,7 @@ Farm Client — лаунчер Minecraft и клиентский Fabric-мод, 
 ### About
 Farm Client is a Minecraft launcher and a client-side Fabric mod that work as a pair. The launcher installs Minecraft, the mod loader, Java and mods; the mod receives the account, Discord, friends and settings from the launcher and reports in-game events back.
 
-Current versions: **launcher 1.17.0**, **mod 1.32.0**.
+Current versions: **launcher 1.19.1**, **mod 1.32.0**.
 
 ### Features
 
@@ -78,7 +78,7 @@ Current versions: **launcher 1.17.0**, **mod 1.32.0**.
 - **Pack sharing** — a `FARMPACK:` code or a `.farmpack` file (manifest + configs, `options.txt`, local jars). "From a friend" import.
 - **Per-instance management** à la Prism Launcher: memory, JVM args, resolution, loader version.
 - **Home** — news, favourite servers with live ping (SLP + SRV) and "Join", playtime stats by day and server.
-- **Network** — friends over Radmin VPN / ZeroTier / Hamachi / LAN: who is online, open worlds, "Join them", shared waypoints.
+- **Friends** — messenger: message by Discord or Minecraft @nick over the internet (encrypted, offline delivery up to 12 h), LAN group chat and DMs; network: friends over Radmin VPN / ZeroTier / Hamachi / LAN: who is online, open worlds, "Join them", shared waypoints.
 - **Discord** — Rich Presence (launcher / singleplayer / server), "Join" button, OAuth2 account linking, webhook for screenshots, crash reports, server join/leave.
 - **UI** — themes (incl. "Apple" Liquid Glass and "Minimal"), custom CSS, scaling, fonts, mini player and Now Playing (Spotify / Yandex Music / any Windows media session), tray, auto-updates, custom installer.
 - **Localization** — Russian and English (launcher, installer, mod).
