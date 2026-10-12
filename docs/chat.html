@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Мессенджер — Farm Client</title><link rel="stylesheet" href="fc.css?v=3"><meta name="theme-color" content="#e8b04a">
+<script src="fc.js?v=3"></script>
+<style>
+.chat{display:grid;grid-template-columns:240px 1fr;height:calc(100vh - 170px);min-height:420px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
+.side{border-right:1px solid var(--line);display:flex;flex-direction:column}.side form{display:flex;gap:6px;padding:10px}.side input{flex:1}
+.cl{overflow:auto;flex:1}.c{padding:10px 14px;cursor:pointer;border-top:1px solid var(--line)}.c.on{background:var(--panel2)}.c small{display:block;color:var(--muted)}
+.main{display:flex;flex-direction:column;min-width:0}.head{padding:12px 16px;border-bottom:1px solid var(--line);font-weight:700}
+.msgs{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:8px}.msgs.drop{outline:2px dashed var(--gold);outline-offset:-8px}
+.m{max-width:72%;padding:8px 12px;border-radius:12px;background:var(--panel2);align-self:flex-start;white-space:pre-wrap;word-wrap:break-word}.m.me{align-self:flex-end;background:rgba(232,176,74,.2)}
+.m small{display:block;color:var(--muted);font-size:11px}.m img,.m video{display:block;max-width:min(360px,100%);max-height:320px;border-radius:10px;margin:4px 0}
+.inp{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}.inp input[type=text]{flex:1}
+@media (max-width:700px){.chat{grid-template-columns:1fr}.side{display:none}}
+</style></head><body>
+<main class="wrap">
+  <h1 style="margin-top:24px">Мессенджер</h1>
+  <p class="muted small" style="margin-bottom:12px">Те же чаты, что во вкладке «Друзья → Мессенджер» лаунчера: пиши по @нику Discord или Minecraft. Сообщения шифруются и идут через ntfy.sh, офлайн хранятся до 12 ч.</p>
+  <div class="card row" id="me-box" style="margin-top:0"><span>Твой ник:</span><input id="me" placeholder="ник Discord или Minecraft" style="width:240px"><button class="btn sm gold" id="me-go">Подключиться</button><span id="st" class="muted small"></span></div>
+  <div class="chat">
+    <aside class="side"><form id="add"><input id="add-n" placeholder="@ник друга"><button class="btn sm">＋</button></form><div class="cl" id="list"></div></aside>
+    <section class="main"><div class="head" id="head">Выбери чат слева</div><div class="msgs" id="msgs"></div>
+      <form class="inp" id="form"><label class="btn sm" title="Фото, GIF или видео до 15 МБ">📎<input type="file" id="file" accept="image/*,video/*" hidden></label><input type="text" id="text" maxlength="1000" placeholder="Сообщение…" autocomplete="off"><button class="btn gold sm">Отправить</button></form></section>
+  </div>
+</main>
+<script>
+FC.nav('chat');
+const $ = (s) => document.querySelector(s);
+const NTFY = 'https://ntfy.sh', MAX = 15 * 1024 * 1024, CHUNK = 1900 * 1024;
+const te = new TextEncoder(), td = new TextDecoder();
+const nname = (s) => String(s || '').trim().replace(/^@/, '').toLowerCase().replace(/[^\w.\u0400-\u04FF-]/g, '').slice(0, 40);
+const hexs = (b) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
+const b64 = (b) => { let s = ''; const u = new Uint8Array(b); for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode(...u.subarray(i, i + 32768)); return btoa(s); };
+const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+const topic = async (n) => 'fc' + hexs(await crypto.subtle.digest('SHA-256', te.encode('farmclient-chat:' + nname(n)))).slice(0, 30);
+const key = async (a, b) => crypto.subtle.importKey('raw', await crypto.subtle.digest('SHA-256', te.encode('fcchat|' + [nname(a), nname(b)].sort().join('|'))), 'AES-GCM', false, ['encrypt', 'decrypt']);
+// формат лаунчера: ct и tag (16 байт) отдельно
+async function encBytes(a, b, data) { const iv = crypto.getRandomValues(new Uint8Array(12)); const out = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await key(a, b), data)); return { iv, ct: out.slice(0, -16), tag: out.slice(-16) }; }
+async function decBytes(a, b, iv, ct, tag) { const all = new Uint8Array(ct.length + tag.length); all.set(ct); all.set(tag, ct.length); return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, await key(a, b), all)); }
+async function envelope(from, to, text) { const e = await encBytes(from, to, te.encode(text)); return { fc: 1, v: 1, from, to, iv: b64(e.iv), ct: b64(e.ct), tag: b64(e.tag) }; }
+const openText = async (o) => td.decode(await decBytes(o.from, o.to, unb64(o.iv), unb64(o.ct), unb64(o.tag)));
+
+let ME = localStorage.getItem('fc_chat_me') || '', CUR = '', es = null;
+const DB = JSON.parse(localStorage.getItem('fc_chat_db') || '{}'); // {ник: [{from, text, ts, me, id}]}; медиа — только в этой вкладке
+const saveDb = () => { const slim = {}; for (const [k, l] of Object.entries(DB)) slim[k] = l.filter((m) => !m.blob).slice(-200); localStorage.setItem('fc_chat_db', JSON.stringify(slim)); };
+const parts = new Map();
+function push(k, m) { const l = (DB[k] = DB[k] || []); if (m.id && l.some((x) => x.id === m.id)) return; l.push(m); saveDb(); if (k === CUR) render(); else FC.toast('💬 ' + m.from + ': ' + (m.text || '📎 файл').slice(0, 60)); list(); }
+function list() {
+  $('#list').innerHTML = Object.keys(DB).map((k) => `<div class="c${k === CUR ? ' on' : ''}" data-k="${FC.esc(k)}">@${FC.esc(k)}<small>${FC.esc(((DB[k].slice(-1)[0] || {}).text || '').slice(0, 40))}</small></div>`).join('') || '<p class="muted small" style="padding:12px">Впиши @ник друга сверху.</p>';
+  document.querySelectorAll('.c').forEach((e) => (e.onclick = () => openChat(e.dataset.k)));
+}
+function render() {
+  const l = DB[CUR] || [], t = (ts) => new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  $('#msgs').innerHTML = l.map((m) => `<div class="m${m.me ? ' me' : ''}"><small>${m.me ? 'Ты' : FC.esc(m.from)} · ${t(m.ts)}</small>${m.blob ? (/^video/.test(m.mime) ? `<video src="${m.blob}" controls></video>` : `<img src="${m.blob}" alt="">`) : ''}${FC.esc(m.text || '')}</div>`).join('') || '<p class="muted" style="margin:auto">Сообщений пока нет 👋</p>';
+  $('#msgs').scrollTop = $('#msgs').scrollHeight;
+}
+function openChat(k) { CUR = k; DB[k] = DB[k] || []; $('#head').textContent = '@' + k + ' · через интернет'; list(); render(); $('#text').focus(); }
+
+async function onEvent(e) {
+  let o; try { o = JSON.parse(e.message); } catch { return; }
+  if (!o || o.fc !== 1 || nname(o.to) !== nname(ME) || nname(o.from) === nname(ME)) return;
+  const from = nname(o.from), ts = (e.time || Date.now() / 1000) * 1000;
+  try {
+    if (o.v === 1) return push(from, { id: e.id, from: o.from, text: (await openText(o)).slice(0, 1000), ts });
+    const meta = JSON.parse(await openText(o));
+    let enc;
+    if (o.v === 3 && o.f && o.f.url) enc = new Uint8Array(await (await fetch(o.f.url)).arrayBuffer());
+    else if (o.v === 2 && o.f && e.attachment) {
+      const g = o.f.g || e.id, p = parts.get(g) || []; p[o.f.i | 0] = new Uint8Array(await (await fetch(e.attachment.url)).arrayBuffer()); parts.set(g, p);
+      if (p.filter(Boolean).length < (o.f.n | 0 || 1)) return;
+      parts.delete(g); const len = p.reduce((s, x) => s + x.length, 0); enc = new Uint8Array(len); let off = 0; for (const x of p) { enc.set(x, off); off += x.length; }
+    } else return;
+    const data = await decBytes(o.from, o.to, unb64(o.f.iv), enc, unb64(o.f.tag));
+    push(from, { id: 'f' + (o.f.g || e.id), from: o.from, text: meta.text || '', ts, mime: meta.mime, blob: URL.createObjectURL(new Blob([data], { type: meta.mime })) });
+  } catch (err) { console.warn('chat', err); }
+}
+async function connect() {
+  ME = nname($('#me').value); if (!ME) return FC.toast('Впиши свой ник', true);
+  localStorage.setItem('fc_chat_me', ME); if (es) es.close();
+  const since = localStorage.getItem('fc_chat_since_' + ME) || '12h';
+  es = new EventSource(`${NTFY}/${await topic(ME)}/sse?since=${encodeURIComponent(since)}`);
+  es.onopen = () => ($('#st').textContent = '🟢 на связи как @' + ME);
+  es.onerror = () => ($('#st').textContent = '🟡 переподключение…');
+  es.onmessage = (m) => { let e; try { e = JSON.parse(m.data); } catch { return; } if (e.event !== 'message') return; localStorage.setItem('fc_chat_since_' + ME, e.id); onEvent(e); };
+}
+async function sendText(text) {
+  const env = await envelope(ME, CUR, text);
+  const r = await fetch(`${NTFY}/${await topic(CUR)}`, { method: 'POST', body: JSON.stringify(env) });
+  if (!r.ok) throw new Error('ntfy.sh: HTTP ' + r.status);
+  push(CUR, { id: 'm' + Date.now(), from: ME, text, ts: Date.now(), me: true });
+}
+async function sendFile(f) {
+  if (!/^(image|video)\//.test(f.type)) return FC.toast('Только фото, GIF и видео', true);
+  if (f.size > MAX) return FC.toast('Файл больше 15 МБ', true);
+  const text = $('#text').value.trim(), data = new Uint8Array(await f.arrayBuffer());
+  const e = await encBytes(ME, CUR, data), tag = b64(e.tag), meta = JSON.stringify({ name: f.name, mime: f.type, size: f.size, text });
+  FC.toast('📎 Отправляю…');
+  let sent = false;
+  if (window.FC_API && FC.token) { // свой сервер: один файл, хранится 2 суток
+    try { const up = await FC.api('POST', '/api/media', { raw: e.ct }); const env = { ...(await envelope(ME, CUR, meta)), v: 3, f: { iv: b64(e.iv), tag, url: up.url } }; sent = (await fetch(`${NTFY}/${await topic(CUR)}`, { method: 'POST', body: JSON.stringify(env) })).ok; } catch {}
+  }
+  if (!sent) { // иначе частями по 1.9 МБ через вложения ntfy.sh
+    const g = hexs(crypto.getRandomValues(new Uint8Array(9))), n = Math.max(1, Math.ceil(e.ct.length / CHUNK)), t = await topic(CUR);
+    for (let i = 0; i < n; i++) {
+      const env = { ...(await envelope(ME, CUR, meta)), v: 2, f: { iv: b64(e.iv), tag, g, i, n } };
+      const r = await fetch(`${NTFY}/${t}?message=${encodeURIComponent(JSON.stringify(env))}&filename=fc${i}.bin`, { method: 'PUT', body: e.ct.subarray(i * CHUNK, (i + 1) * CHUNK) });
+      if (!r.ok) return FC.toast('ntfy.sh не принял файл (лимит бесплатного тарифа) — войди в кабинет, тогда файлы пойдут через сервер Farm ID', true);
+    }
+  }
+  $('#text').value = '';
+  push(CUR, { id: 'f' + Date.now(), from: ME, text, ts: Date.now(), me: true, mime: f.type, blob: URL.createObjectURL(f) });
+}
+$('#me-go').onclick = connect;
+$('#add').onsubmit = (e) => { e.preventDefault(); const n = nname($('#add-n').value); if (n) { $('#add-n').value = ''; openChat(n); } };
+$('#form').onsubmit = async (e) => { e.preventDefault(); const t = $('#text').value.trim(); if (!t || !CUR) return; if (!ME) return FC.toast('Сначала подключись под своим ником', true); $('#text').value = ''; try { await sendText(t); } catch (err) { FC.toast(err.message, true); } };
+$('#file').onchange = () => { const f = $('#file').files[0]; $('#file').value = ''; if (f && CUR && ME) sendFile(f); else if (f) FC.toast('Выбери чат и подключись', true); };
+const box = $('#msgs');
+box.ondragover = (e) => { e.preventDefault(); box.classList.add('drop'); }; box.ondragleave = () => box.classList.remove('drop');
+box.ondrop = (e) => { e.preventDefault(); box.classList.remove('drop'); const f = e.dataTransfer.files[0]; if (f && CUR && ME) sendFile(f); };
+$('#text').onpaste = (e) => { const it = [...e.clipboardData.items].find((x) => x.kind === 'file'); if (it && CUR && ME) { e.preventDefault(); sendFile(it.getAsFile()); } };
+// ник: сохранённый или из кабинета (Discord / ник Minecraft)
+(async () => {
+  if (!ME && FC.token && window.FC_API) { try { const me = await FC.api('GET', '/api/me'); const d = me.links.find((l) => l.provider === 'discord'); ME = nname(d ? (d.name.match(/@([\w.]+)/) || [])[1] : me.name); } catch {} }
+  $('#me').value = ME; list(); if (ME) connect();
+})();
+</script></body></html>
