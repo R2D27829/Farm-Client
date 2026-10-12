@@ -35,16 +35,22 @@ function tgWidget(box, r) {
 }
 async function start(provider, mode, box) {
   try {
-    const r = await FC.api('POST', `/api/link/${provider}/start`, { body: { mode }, auth: mode === 'link' });
-    if (r.url) location.href = r.url; else if (r.bot) { tgWidget(box, r); FC.toast('Нажми кнопку Telegram ниже'); }
+    const app = !!window.FarmApp && /FarmClientApp/.test(navigator.userAgent);
+    const r = await FC.api('POST', `/api/link/${provider}/start`, { body: { mode, app }, auth: mode === 'link' });
+    if (r.url && app && FarmApp.openExternal) { FarmApp.openExternal(r.url); FC.toast('Подтверди вход — потом вернёшься в приложение'); }
+    else if (r.url) location.href = r.url; else if (r.bot) { tgWidget(box, r); FC.toast('Нажми кнопку Telegram ниже'); }
   } catch (e) { FC.toast(e.message, true); }
 }
+// какие соцсети настроены на сервере — остальные кнопки прячем
+let PROV = { discord: true, telegram: true, vk: true };
+const provReady = FC.api('GET', '/api/link/providers', { auth: false }).then((r) => { PROV = r; document.querySelectorAll('[data-login]').forEach((b) => b.classList.toggle('hidden', !PROV[b.dataset.login])); }).catch(() => {});
 async function loadMe() {
   let me; try { me = await FC.api('GET', '/api/me'); } catch (e) { FC.token = ''; return showLogin(e.message); }
   $('#login').classList.add('hidden'); $('#me').classList.remove('hidden');
   $('#me-name').textContent = me.name || 'Игрок'; $('#me-id').innerHTML = `Farm ID <code>${FC.esc(me.id)}</code>${me.role === 'admin' ? ' · 🛡️ админ' : ''} · с ${FC.date(me.created)}`;
   const l = me.license; $('#me-lic').innerHTML = l ? `Лицензия <code>${FC.esc(l.id)}</code> · ${{ hwid: 'по HWID', free: 'без HWID', admin: 'админская' }[l.type] || l.type} · ${l.exp ? 'до ' + FC.date(l.exp) : 'бессрочно'} ${l.revoked ? '<span class="err">· отозвана</span>' : '<span class="ok">· активна</span>'}` : '<span class="muted">Лицензия не активирована</span>';
-  $('#links').innerHTML = Object.entries(P).map(([k, [name, color]]) => {
+  await provReady;
+  $('#links').innerHTML = Object.entries(P).filter(([k]) => PROV[k] || me.links.some((y) => y.provider === k)).map(([k, [name, color]]) => {
     const x = me.links.find((y) => y.provider === k);
     return `<div class="link-row">${x && x.avatar ? `<img src="${FC.esc(x.avatar)}" alt="">` : `<div class="ic" style="background:${color}">${name[0]}</div>`}<div style="flex:1"><b>${name}</b><div class="muted small">${x ? FC.esc(x.name) : 'не привязан'}</div></div>
       ${x ? `<button class="btn sm red" data-unlink="${k}">Отвязать</button>` : `<button class="btn sm gold" data-link="${k}">Привязать</button>`}</div>`;
