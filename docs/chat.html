@@ -9,7 +9,7 @@
 .main{display:flex;flex-direction:column;min-width:0}.head{padding:12px 16px;border-bottom:1px solid var(--line);font-weight:700}
 .msgs{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:8px}.msgs.drop{outline:2px dashed var(--gold);outline-offset:-8px}
 .m{max-width:72%;padding:8px 12px;border-radius:12px;background:var(--panel2);align-self:flex-start;white-space:pre-wrap;word-wrap:break-word}.m.me{align-self:flex-end;background:rgba(232,176,74,.2)}
-.m small{display:block;color:var(--muted);font-size:11px}.m img,.m video{display:block;max-width:min(360px,100%);max-height:320px;border-radius:10px;margin:4px 0}
+.m small{display:block;color:var(--muted);font-size:11px}.m a.lnk{color:var(--accent,#e8b04a);word-break:break-all}.m .gifm{cursor:pointer}.m img,.m video{display:block;max-width:min(360px,100%);max-height:320px;border-radius:10px;margin:4px 0}
 .inp{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}.inp input[type=text]{flex:1}
 @media (max-width:700px){.chat{grid-template-columns:1fr}.side{display:none}}
 </style></head><body>
@@ -49,10 +49,43 @@ function list() {
   $('#list').innerHTML = Object.keys(DB).map((k) => `<div class="c${k === CUR ? ' on' : ''}" data-k="${FC.esc(k)}">@${FC.esc(k)}<small>${FC.esc(((DB[k].slice(-1)[0] || {}).text || '').slice(0, 40))}</small></div>`).join('') || '<p class="muted small" style="padding:12px">Впиши @ник друга сверху.</p>';
   document.querySelectorAll('.c').forEach((e) => (e.onclick = () => openChat(e.dataset.k)));
 }
+// GIF по ссылке: прямые файлы, Giphy, Imgur .gifv, страницы Tenor
+const GIF_RE = /https:\/\/[^\s<>"'`]+/g;
+function gifDirect(u) {
+  let x; try { x = new URL(u); } catch { return null; }
+  if (x.protocol !== 'https:' || u.length > 600) return null;
+  const h = x.hostname.toLowerCase(), p = x.pathname.toLowerCase(); let m;
+  if (/(^|\.)imgur\.com$/.test(h) && /\.gifv$/.test(p)) return { t: 'vid', src: 'https://' + h + x.pathname.replace(/\.gifv$/i, '.mp4') };
+  if (/^(www\.)?tenor\.com$/.test(h)) return null;
+  if (/(^|\.)giphy\.com$/.test(h) && !/^(media\d*|i)\./.test(h) && (m = x.pathname.match(/^\/(?:gifs|stickers|embed|clips)\/(?:[\w-]*-)?([A-Za-z0-9]{6,})\/?$/))) return { t: 'img', src: `https://media.giphy.com/media/${m[1]}/giphy.gif` };
+  if (/\.(gif|webp|png|jpe?g|avif)$/.test(p)) return { t: 'img', src: u };
+  if (/\.(mp4|webm)$/.test(p)) return { t: 'vid', src: u };
+  return null;
+}
+function gifPage(u) { try { const x = new URL(u); return x.protocol === 'https:' && /^(www\.)?tenor\.com$/i.test(x.hostname) && /^\/([a-z]{2}(-[a-z]{2})?\/)?(view\/[\w-]+|[\w]+\.gif)$/i.test(x.pathname); } catch { return false; } }
+const gifCand = (u) => !!(gifDirect(u) || gifPage(u));
+const GIFC = {};
+const gifTag = (r, u) => r.t === 'vid' ? `<video class="gifm" src="${FC.esc(r.src)}" autoplay loop muted playsinline data-u="${FC.esc(u)}"></video>` : `<img class="gifm" src="${FC.esc(r.src)}" data-u="${FC.esc(u)}" alt="GIF" loading="lazy">`;
+function linkify(s) { let out = '', i = 0; s = String(s || '');
+  for (const m of s.matchAll(GIF_RE)) { const u = m[0].replace(/[),.!?;:]+$/, ''); out += FC.esc(s.slice(i, m.index)); i = m.index + u.length;
+    const c = GIFC[u]; out += c && c.t ? gifTag(c, u) : `<a class="lnk${gifCand(u) && c !== false ? ' gif' : ''}" href="${FC.esc(u)}" target="_blank" rel="noopener noreferrer">${FC.esc(u)}</a>`; }
+  return out + FC.esc(s.slice(i)); }
+function gifs(box) {
+  box.querySelectorAll('.gifm').forEach((e) => { e.onclick = () => window.open(e.dataset.u, '_blank', 'noopener'); });
+  box.querySelectorAll('a.gif').forEach(async (a) => { const u = a.getAttribute('href');
+    if (!(u in GIFC)) GIFC[u] = Promise.resolve(gifDirect(u) || FC.api('GET', '/api/gif?u=' + encodeURIComponent(u), { auth: false }).catch(() => null));
+    const r = await GIFC[u]; GIFC[u] = r && r.t ? r : false; if (!GIFC[u] || !a.isConnected) return;
+    const t = document.createElement('template'); t.innerHTML = gifTag(r, u); const el = t.content.firstChild;
+    const stick = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+    el.onclick = () => window.open(u, '_blank', 'noopener'); el.onerror = () => { GIFC[u] = false; el.replaceWith(a); };
+    el.addEventListener(el.tagName === 'IMG' ? 'load' : 'loadedmetadata', () => { if (stick) box.scrollTop = box.scrollHeight; }, { once: true });
+    a.replaceWith(el); });
+}
 function render() {
   const l = DB[CUR] || [], t = (ts) => new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  $('#msgs').innerHTML = l.map((m) => `<div class="m${m.me ? ' me' : ''}"><small>${m.me ? 'Ты' : FC.esc(m.from)} · ${t(m.ts)}</small>${m.blob ? (/^video/.test(m.mime) ? `<video src="${m.blob}" controls></video>` : `<img src="${m.blob}" alt="">`) : ''}${FC.esc(m.text || '')}</div>`).join('') || '<p class="muted" style="margin:auto">Сообщений пока нет 👋</p>';
+  $('#msgs').innerHTML = l.map((m) => `<div class="m${m.me ? ' me' : ''}"><small>${m.me ? 'Ты' : FC.esc(m.from)} · ${t(m.ts)}</small>${m.blob ? (/^video/.test(m.mime) ? `<video src="${m.blob}" controls></video>` : `<img src="${m.blob}" alt="">`) : ''}${linkify(m.text)}</div>`).join('') || '<p class="muted" style="margin:auto">Сообщений пока нет 👋</p>';
   $('#msgs').scrollTop = $('#msgs').scrollHeight;
+  gifs($('#msgs'));
 }
 function openChat(k) { CUR = k; DB[k] = DB[k] || []; $('#head').textContent = '@' + k + ' · через интернет'; list(); render(); $('#text').focus(); }
 
