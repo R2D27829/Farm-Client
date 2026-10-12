@@ -32,7 +32,7 @@ async function load(append) {
   let l = [];
   try { const so = $('#sort').value; l = await FC.api('GET', `/api/uploads?kind=${kind}&sort=${so === 'verified' ? 'top' : so}${so === 'verified' ? '&verified=1' : ''}&q=${encodeURIComponent($('#q').value.trim())}&offset=${off}`, { auth: false }); }
   catch (e) { $('#list').innerHTML = `<p class="muted">${FC.esc(e.message)}</p>`; return; }
-  const html = l.map((x) => `<div class="card item" style="margin:0"><span class="tag">${KN[x.kind]}</span> <span class="muted small">${FC.esc(x.author || '')}${x.verified ? ' <span class="vbadge" title="Проверенный автор">✔</span>' : ''} · ${FC.date(x.created)}</span>
+  const html = l.map((x) => `<div class="card item" style="margin:0"><span class="tag">${KN[x.kind]}</span> <span class="muted small">${FC.esc(x.author || '')}${x.verified ? ' <span class="vbadge" title="Проверенный автор">✓</span>' : ''} · ${FC.date(x.created)}</span>
     <h3>${FC.esc(x.title)}</h3><p>${FC.esc(x.descr || '')}</p>
     <div class="row"><a class="btn gold sm" href="farmclient://import?id=${encodeURIComponent(x.id)}">Открыть в лаунчере</a><a class="btn sm" href="${window.FC_API}/api/uploads/${encodeURIComponent(x.id)}/file">⬇ ${FC.size(x.size)}</a><span class="muted small">⬇ ${x.downloads}</span></div></div>`).join('');
   $('#list').innerHTML = append ? $('#list').innerHTML + html : html || '<p class="muted">Пока пусто — опубликуй первым!</p>';
