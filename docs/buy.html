@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Купить лицензию — Farm Client</title><link rel="stylesheet" href="fc.css?v=3"><meta name="theme-color" content="#e8b04a">
-<script src="fc.js?v=3"></script>
+<script src="fc.js?v=4"></script>
 <style>.plan{display:flex;flex-direction:column;gap:8px}.plan .price{font-size:30px;font-weight:800;color:var(--gold)}.plan .btn{margin-top:auto}
 .key{font-family:ui-monospace,monospace;font-size:12px;word-break:break-all;background:#0c0d10;border:1px solid var(--line);border-radius:10px;padding:10px;user-select:all}</style>
 </head><body>
@@ -28,6 +28,7 @@
   <div class="row small muted" id="method-row" style="margin-top:12px"><span>Оплата:</span>
     <label><input type="radio" name="m" value="AC" checked> банковская карта</label>
     <label><input type="radio" name="m" value="PC"> кошелёк ЮMoney</label></div>
+  <form class="row small" id="promo-row" style="margin-top:10px"><input id="promo" placeholder="Промокод" maxlength="24" style="max-width:200px;text-transform:uppercase"><button class="btn sm">Применить</button><span class="muted" id="promo-st"></span></form>
 
   <section id="orders-s" class="card hidden"><h2>Мои покупки</h2><div id="orders"></div></section>
 </main>
@@ -36,7 +37,9 @@ FC.nav('buy');
 const $ = (s) => document.querySelector(s), E = FC.esc;
 const ST = { new: 'ожидает оплаты', paid: '✅ оплачен', underpaid: '⚠️ недоплата — напиши администратору' };
 const term = (d) => (d ? d + ' дн.' : 'навсегда');
-let shop = { enabled: false, plans: [] };
+let shop = { enabled: false, plans: [] }, PROMO = null;
+const promoOk = (p) => PROMO && (!PROMO.plans || PROMO.plans.split(',').map((x) => x.trim()).includes(p.id));
+const promoPrice = (p) => Math.max(1, Math.round(p.price * (100 - PROMO.pct)) / 100);
 
 function keyBox(k) { return `<div class="key">${E(k)}</div><div class="row" style="margin-top:8px"><button class="btn sm gold" data-copy="${E(k)}">Скопировать ключ</button><span class="muted small">В лаунчере ключ появится сам (или нажми «Я купил — проверить»).</span></div>`; }
 function bindCopy() { document.querySelectorAll('[data-copy]').forEach((b) => (b.onclick = async () => { await navigator.clipboard.writeText(b.dataset.copy); FC.toast('Ключ скопирован'); })); }
@@ -57,7 +60,8 @@ function renderPlans() {
     ? `Пиши админу в Discord: <b class="ds-nick" style="cursor:pointer" title="Скопировать">@${E(ds)}</b> — он выдаст код активации.`
     : `Связь с администратором: <a href="${E(cHref)}" target="_blank" rel="noopener">${E(shop.contact)}</a>`;
   $('#method-row').classList.toggle('hidden', !shop.enabled || !shop.plans.length);
-  $('#plans').innerHTML = shop.plans.map((p) => `<div class="card plan" style="margin:0"><h2 style="margin:0">${E(p.title)}</h2><div class="price">${p.price} ₽</div>
+  $('#promo-row').classList.toggle('hidden', !shop.enabled || !shop.plans.length);
+  $('#plans').innerHTML = shop.plans.map((p) => `<div class="card plan" style="margin:0"><h2 style="margin:0">${E(p.title)}</h2><div class="price">${promoOk(p) ? `<s style="opacity:.45;font-size:20px">${p.price}</s> ${promoPrice(p)}` : p.price} ₽</div>
     <div class="muted small">${p.desc ? E(p.desc) : 'Срок: ' + term(p.days) + (p.hwid ? ' · привязка к ПК' : ' · без привязки к ПК')}</div>
     ${shop.enabled ? `<button class="btn gold" data-buy="${E(p.id)}">Купить</button>` : shop.contact ? `<a class="btn gold buy-admin" href="${E(cHref)}" target="_blank" rel="noopener">Купить у админа</a>` : '<button class="btn gold" disabled>Скоро</button>'}</div>`).join('');
   document.querySelectorAll('[data-buy]').forEach((b) => (b.onclick = () => buy(b.dataset.buy, b)));
@@ -69,7 +73,7 @@ async function buy(plan, btn) {
   if (!FC.token) { $('#login').classList.remove('hidden'); $('#login').scrollIntoView({ behavior: 'smooth' }); return FC.toast('Сначала войди через лаунчер', true); }
   btn.disabled = true;
   try {
-    const r = await FC.api('POST', '/api/shop/order', { body: { plan, method: (document.querySelector('[name=m]:checked') || {}).value } });
+    const r = await FC.api('POST', '/api/shop/order', { body: { plan, method: (document.querySelector('[name=m]:checked') || {}).value, promo: PROMO ? PROMO.code : undefined } });
     const f = document.createElement('form'); f.method = 'POST'; f.action = r.action;
     for (const [k, v] of Object.entries(r.form)) { const i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = v; f.append(i); }
     document.body.append(f); f.submit();
@@ -101,6 +105,13 @@ $('#code-form').onsubmit = async (e) => {
   e.preventDefault(); const code = $('#code').value.trim().toUpperCase(); if (!code) return;
   try { const r = await FC.api('POST', '/api/site/login', { body: { code }, auth: false }); FC.token = r.token; FC.toast('Ты вошёл'); $('#login').classList.add('hidden'); loadOrders(); } catch (er) { FC.toast(er.message, true); }
 };
+$('#promo-row').onsubmit = async (e) => {
+  e.preventDefault(); const c = $('#promo').value.trim().toUpperCase();
+  if (!c) { PROMO = null; $('#promo-st').textContent = ''; return renderPlans(); }
+  try { const r = await FC.api('GET', '/api/shop/promo?code=' + encodeURIComponent(c), { auth: false }); if (!r) throw new Error('Нет такого промокода'); PROMO = r; $('#promo-st').textContent = '✓ скидка ' + r.pct + '%' + (r.plans ? ' на ' + r.plans : ''); renderPlans(); }
+  catch (er) { PROMO = null; $('#promo-st').textContent = ''; renderPlans(); FC.toast(er.message, true); }
+};
+{ const pc = new URLSearchParams(location.search).get('promo'); if (pc) { $('#promo').value = pc; setTimeout(() => $('#promo-row').requestSubmit(), 600); } }
 init();
 </script>
 </body></html>
