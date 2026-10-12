@@ -19,7 +19,7 @@ const FC = {
   nav(active) {
     const n = document.createElement('nav');
     n.innerHTML = `<div class="wrap"><a class="logo" href="index.html">FARM <span>CLIENT</span></a><div class="links">
-      <a href="index.html">Главная</a><a href="gallery.html" class="${active === 'gallery' ? 'on' : ''}">Галерея</a><a href="chat.html" class="${active === 'chat' ? 'on' : ''}">Мессенджер</a><a href="buy.html" class="${active === 'buy' ? 'on' : ''}">Купить</a><a href="account.html" class="${active === 'account' ? 'on' : ''}">Кабинет</a></div></div>`;
+      <a href="index.html">Главная</a><a href="gallery.html" class="${active === 'gallery' ? 'on' : ''}">Галерея</a><a href="chat.html" class="${active === 'chat' ? 'on' : ''}">Мессенджер</a><a href="clans.html" class="${active === 'clans' ? 'on' : ''}">Кланы</a><a href="faq.html" class="${active === 'faq' ? 'on' : ''}">Помощь</a><a href="buy.html" class="${active === 'buy' ? 'on' : ''}">Купить</a><a href="account.html" class="${active === 'account' ? 'on' : ''}">Кабинет</a><a href="en.html" title="English">EN</a></div></div>`;
     document.body.prepend(n); const g = document.createElement('div'); g.className = 'glow'; document.body.prepend(g);
   },
   size: (n) => (n > 1048576 ? (n / 1048576).toFixed(1) + ' МБ' : Math.max(1, Math.round(n / 1024)) + ' КБ'),
