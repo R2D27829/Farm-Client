@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Галерея — темы, конфиги и сборки Farm Client</title><link rel="stylesheet" href="fc.css"><meta name="theme-color" content="#e8b04a">
+<script src="fc.js"></script>
+<style>.tabs{display:flex;gap:6px;margin:18px 0}.tabs button{background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:8px 16px;border-radius:999px;cursor:pointer;font:inherit}.tabs button.on{color:#1a1407;background:var(--gold);border-color:var(--gold);font-weight:700}
+.item h3{font-size:16px;margin:6px 0 4px}.item p{color:var(--muted);font-size:13.5px;min-height:20px;white-space:pre-wrap}.item .row{margin-top:12px}</style></head><body>
+<main class="wrap">
+  <h1>Галерея</h1><p class="muted">Темы лаунчера, конфиги мода и сборки от игроков. «Открыть в лаунчере» сразу ставит выбранное.</p>
+  <div class="row" style="margin-top:14px"><div class="tabs" id="tabs"><button data-k="theme" class="on">🎨 Темы</button><button data-k="config">⚙️ Конфиги</button><button data-k="pack">📦 Сборки</button></div>
+    <input id="q" placeholder="Поиск…" style="flex:1;min-width:180px"><select id="sort"><option value="new">Новые</option><option value="top">Популярные</option></select></div>
+  <div class="grid" id="list"></div>
+  <div style="text-align:center;margin:16px 0"><button class="btn hidden" id="more">Показать ещё</button></div>
+  <section class="card" id="upload">
+    <h2>Опубликовать</h2>
+    <div id="up-need" class="muted small">Чтобы публиковать, <a href="account.html" style="text-decoration:underline">войди в кабинет</a> кодом из лаунчера.</div>
+    <form id="up-form" class="hidden" style="display:grid;gap:10px;max-width:560px">
+      <select id="up-kind"><option value="theme">Тема лаунчера (.css или экспорт оформления .json)</option><option value="config">Конфиг мода (.json, .zip, бинды .txt)</option><option value="pack">Сборка (.farmpack, .mrpack, .zip)</option></select>
+      <input id="up-title" placeholder="Название" maxlength="80" required>
+      <textarea id="up-desc" placeholder="Описание (необязательно)" maxlength="500" rows="3"></textarea>
+      <input id="up-file" type="file" required>
+      <div class="row"><button class="btn gold" id="up-go">Опубликовать</button><span class="muted small">до 10 МБ</span></div>
+    </form>
+  </section>
+</main>
+<script>
+FC.nav('gallery');
+const $ = (s) => document.querySelector(s);
+let kind = 'theme', off = 0;
+const KN = { theme: 'тема', config: 'конфиг', pack: 'сборка' };
+async function load(append) {
+  if (!append) off = 0;
+  let l = [];
+  try { l = await FC.api('GET', `/api/uploads?kind=${kind}&sort=${$('#sort').value}&q=${encodeURIComponent($('#q').value.trim())}&offset=${off}`, { auth: false }); }
+  catch (e) { $('#list').innerHTML = `<p class="muted">${FC.esc(e.message)}</p>`; return; }
+  const html = l.map((x) => `<div class="card item" style="margin:0"><span class="tag">${KN[x.kind]}</span> <span class="muted small">${FC.esc(x.author || '')} · ${FC.date(x.created)}</span>
+    <h3>${FC.esc(x.title)}</h3><p>${FC.esc(x.descr || '')}</p>
+    <div class="row"><a class="btn gold sm" href="farmclient://import?id=${encodeURIComponent(x.id)}">Открыть в лаунчере</a><a class="btn sm" href="${window.FC_API}/api/uploads/${encodeURIComponent(x.id)}/file">⬇ ${FC.size(x.size)}</a><span class="muted small">⬇ ${x.downloads}</span></div></div>`).join('');
+  $('#list').innerHTML = append ? $('#list').innerHTML + html : html || '<p class="muted">Пока пусто — опубликуй первым!</p>';
+  off += l.length; $('#more').classList.toggle('hidden', l.length < 30);
+}
+document.querySelectorAll('#tabs button').forEach((b) => (b.onclick = () => { document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x === b)); kind = b.dataset.k; load(); }));
+let qt; $('#q').oninput = () => { clearTimeout(qt); qt = setTimeout(() => load(), 300); };
+$('#sort').onchange = () => load(); $('#more').onclick = () => load(true);
+if (FC.token) { $('#up-need').classList.add('hidden'); $('#up-form').classList.remove('hidden'); }
+$('#up-form').onsubmit = async (e) => {
+  e.preventDefault(); const f = $('#up-file').files[0]; if (!f) return;
+  if (f.size > 10 * 1024 * 1024) return FC.toast('Файл больше 10 МБ', true);
+  $('#up-go').disabled = true;
+  try {
+    const q = new URLSearchParams({ kind: $('#up-kind').value, title: $('#up-title').value, desc: $('#up-desc').value, filename: f.name });
+    await FC.api('POST', '/api/uploads?' + q, { raw: f });
+    FC.toast('Опубликовано!'); $('#up-form').reset(); kind = $('#up-kind').value;
+    document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x.dataset.k === kind)); load();
+  } catch (err) { FC.toast(err.message, true); }
+  $('#up-go').disabled = false;
+};
+load();
+</script></body></html>
