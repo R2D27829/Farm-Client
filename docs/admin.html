@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Админ-панель — Farm Client</title><link rel="stylesheet" href="fc.css?v=3"><meta name="theme-color" content="#e8b04a"><meta name="robots" content="noindex">
+<script src="fc.js?v=3"></script><script src="admin.js?v=1"></script></head><body>
+<main class="wrap" style="max-width:1000px">
+  <h1>🛡️ Админ-панель</h1>
+  <p class="muted small" id="adm-who">Проверка доступа…</p>
+  <section class="card hidden" id="adm-root"></section>
+  <section class="card hidden" id="adm-deny"><p>Эта страница только для администраторов Farm Client.</p><a class="btn gold sm" href="account.html" style="margin-top:12px">Войти в кабинет</a></section>
+</main>
+<script>
+FC.nav('account');
+(async () => {
+  const who = document.getElementById('adm-who');
+  let me = null; try { if (FC.token) me = await FC.api('GET', '/api/me'); } catch {}
+  if (!me || me.role !== 'admin') { who.textContent = me ? 'Нет прав администратора.' : 'Сначала войди в кабинет.'; document.getElementById('adm-deny').classList.remove('hidden'); return; }
+  who.innerHTML = `Вошёл как <b>${FC.esc(me.name)}</b> · то же самое есть в лаунчере: Настройки → Админ-панель`;
+  const root = document.getElementById('adm-root'); root.classList.remove('hidden');
+  FarmAdmin.mount(root, (m, p, body) => FC.api(m, p, body === undefined ? {} : { body }), { toast: FC.toast, tab: (location.hash.slice(1) || 'keys') });
+})();
+</script>
+</body></html>
