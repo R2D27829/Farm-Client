@@ -63,7 +63,7 @@
       const deco = () => root.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach((i) => i.classList.add(opts.inputClass));
       new MutationObserver(deco).observe(root, { childList: true, subtree: true });
     }
-    const tabs = [['keys', '🔑 Ключи'], ['codes', '🎟️ Коды'], ['users', '👥 Игроки'], ['shop', '🛒 Тарифы'], ['orders', '📦 Заказы'], ['verify', '✓ Галочки']];
+    const tabs = [['stats', '📊 Статистика'], ['keys', '🔑 Ключи'], ['codes', '🎟️ Коды'], ['promo', '🏷️ Промокоды'], ['users', '👥 Игроки'], ['shop', '🛒 Тарифы'], ['orders', '📦 Заказы'], ['news', '📰 Новости'], ['verify', '✓ Галочки'], ['log', '📜 Журнал']];
     root.classList.add('fa');
     root.innerHTML = `<div class="fa-tabs">${tabs.map(([k, t]) => `<button data-fa-tab="${k}">${t}</button>`).join('')}</div>${tabs.map(([k]) => `<div data-fa-pane="${k}" hidden></div>`).join('')}`;
     const pane = (k) => root.querySelector(`[data-fa-pane="${k}"]`);
@@ -75,6 +75,73 @@
     }
     root.querySelectorAll('[data-fa-tab]').forEach((b) => (b.onclick = () => show(b.dataset.faTab)));
     const R = {};
+
+
+    // ---------- статистика ----------
+    const bars = (l, label) => { const mx = Math.max(1, ...l.map((x) => x.n)); return `<div class="fa-sub" style="margin:10px 0 4px">${label}</div><div style="display:flex;align-items:flex-end;gap:3px;height:70px">${l.map((x) => `<div title="${E(x.d)}: ${x.n}" style="flex:1;min-width:6px;height:${Math.max(4, x.n / mx * 100)}%;background:var(--gold,var(--accent,#e8b04a));border-radius:3px 3px 0 0;opacity:.85"></div>`).join('') || '<span class="fa-empty">нет данных</span>'}</div>`; };
+    R.stats = (el) => {
+      async function load() {
+        const r = await run(() => call('GET', '/api/admin/stats')); if (!r) return;
+        const box = (v, t) => `<div style="flex:1;min-width:120px;padding:12px;border:1px solid var(--fa-line);border-radius:12px"><div style="font-size:22px;font-weight:800">${v}</div><div class="fa-sub">${t}</div></div>`;
+        el.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:8px">${box(r.online, 'онлайн сейчас')}${box(r.inGame, 'в игре')}${box(r.users, 'всего игроков')}${box('+' + r.new24, 'за сутки')}${box('+' + r.new7, 'за неделю')}${box(r.activeLicenses, 'активных ключей')}${box(r.paidOrders + ' · ' + r.revenue + ' ₽', 'оплачено заказов')}${box(r.vouchersUsed, 'кодов активировано')}${box(r.trials, 'пробных периодов')}${box(r.clans, 'кланов')}${box(r.uploads + ' · ' + r.downloads, 'публикаций · скачиваний')}</div>
+          ${bars(r.activeByDay, 'Заходили по дням (14 дней)')}${bars(r.registrations, 'Новые игроки по дням')}
+          <div class="fa-form" style="margin-top:16px"><b style="font-size:13px">Пробный период</b><label class="fa-f"><span>Дней</span><input type="number" min="1" max="30" data-t="d" value="3"></label><label class="fa-chk"><input type="checkbox" data-t="off"> выключить</label><button class="btn fa-s" data-t="save">Сохранить</button><button class="btn fa-s" data-t="ref">Обновить статистику</button></div>`;
+        const ti = await run(() => call('GET', '/api/trial/info')); if (ti) { el.querySelector('[data-t="d"]').value = ti.days; el.querySelector('[data-t="off"]').checked = ti.off; }
+        el.querySelector('[data-t="save"]').onclick = () => run(() => call('POST', '/api/admin/trial', { days: el.querySelector('[data-t="d"]').value, off: el.querySelector('[data-t="off"]').checked }), 'Сохранено');
+        el.querySelector('[data-t="ref"]').onclick = load;
+      }
+      load(); R.stats.refresh = load;
+    };
+
+    // ---------- промокоды ----------
+    R.promo = (el) => {
+      el.innerHTML = `<div class="fa-hint">Скидка на тарифы магазина. Игрок вводит промокод на странице «Купить». Можно ограничить число использований, срок и тарифы.</div>
+        <div class="fa-form"><label class="fa-f"><span>Код (пусто = случайный)</span><input data-p="code" maxlength="24" style="width:150px;text-transform:uppercase"></label>
+        <label class="fa-f"><span>Скидка, %</span><input type="number" data-p="pct" min="1" max="99" value="20"></label>
+        <label class="fa-f"><span>Использований (0 = ∞)</span><input type="number" data-p="max" min="0" value="0"></label>
+        ${termHtml('p', 'forever').replace('<option value="days">Своё кол-во дней</option>', '')}
+        <label class="fa-f"><span>Только тарифы (id через запятую)</span><input data-p="plans" style="width:150px" placeholder="все"></label>
+        <label class="fa-f fa-grow"><span>Заметка</span><input data-p="note" maxlength="60"></label><button class="btn gold" data-p="go">Создать</button></div><div class="fa-list" data-p="list"></div>`;
+      const $ = (k) => el.querySelector(`[data-p="${k}"]`); const getTerm = termBind(el, 'p');
+      $('go').onclick = () => run(async () => { const t = getTerm(); const r = await call('POST', '/api/admin/promo', { code: $('code').value.trim(), pct: $('pct').value, maxUses: $('max').value, until: t.until || 0, forever: !t.until, plans: $('plans').value.trim(), note: $('note').value.trim() }); copy(r.code, toast); list(); }, 'Промокод создан и скопирован');
+      async function list() {
+        const l = await run(() => call('GET', '/api/admin/promo')); if (!l) return;
+        $('list').innerHTML = l.map((x) => `<div class="fa-row"><div class="fa-main"><code style="user-select:all">${E(x.code)}</code><span class="fa-pill">−${x.pct}%</span><span class="fa-pill">${x.uses}${x.max_uses ? '/' + x.max_uses : ''} исп.</span>
+          <div class="fa-sub">${x.until ? (x.until < Date.now() / 1000 ? '<span class="fa-bad">истёк</span> ' : 'до ') + D(x.until) : 'бессрочно'}${x.plans ? ' · тарифы: ' + E(x.plans) : ''}${x.note ? ' · ' + E(x.note) : ''}</div></div>
+          <div class="fa-acts"><button class="btn fa-s" data-copy="${E(x.code)}">Копировать</button><button class="btn fa-s red" data-del="${E(x.code)}">Удалить</button></div></div>`).join('') || '<div class="fa-empty">Промокодов нет.</div>';
+        $('list').querySelectorAll('[data-copy]').forEach((b) => (b.onclick = () => copy(b.dataset.copy, toast)));
+        $('list').querySelectorAll('[data-del]').forEach((b) => (b.onclick = () => confirm('Удалить промокод?') && run(() => call('POST', '/api/admin/promo', { delete: b.dataset.del }), 'Удалено').then(list)));
+      }
+      list();
+    };
+
+    // ---------- новости ----------
+    R.news = (el) => {
+      el.innerHTML = `<div class="fa-hint">Новость сразу появится на главной лаунчера, на сайте и в приложении (уведомлением на телефоне). Старые скрываются сами через 2 месяца, закреплённые — нет.</div>
+        <div class="fa-form"><label class="fa-f fa-grow"><span>Заголовок</span><input data-n="title" maxlength="120"></label><label class="fa-f"><span>Метка</span><select data-n="tag"><option>Новость</option><option>Обновление</option><option>Событие</option><option>Альфа-тест</option><option>Сервер</option><option>Важно</option></select></label><label class="fa-chk"><input type="checkbox" data-n="pin"> закрепить</label></div>
+        <div class="fa-form"><label class="fa-f fa-grow"><span>Текст</span><textarea data-n="text" rows="3" maxlength="2000" style="min-height:70px;padding:8px"></textarea></label></div>
+        <div class="fa-form"><label class="fa-f fa-grow"><span>Ссылка (https://…, необязательно)</span><input data-n="url"></label><label class="fa-f fa-grow"><span>Картинка (https://…, необязательно)</span><input data-n="image"></label><button class="btn gold" data-n="go">Опубликовать</button></div>
+        <div class="fa-list" data-n="list"></div>`;
+      const $ = (k) => el.querySelector(`[data-n="${k}"]`);
+      $('go').onclick = () => run(async () => { await call('POST', '/api/admin/news', { title: $('title').value, tag: $('tag').value, text: $('text').value, url: $('url').value.trim(), image: $('image').value.trim(), pinned: $('pin').checked }); $('title').value = $('text').value = ''; list(); }, 'Новость опубликована');
+      async function list() {
+        const l = await run(() => call('GET', '/api/news')); if (!l) return;
+        $('list').innerHTML = l.map((x) => `<div class="fa-row"><div class="fa-main"><b>${E(x.title)}</b><span class="fa-pill">${E(x.tag)}</span>${x.pinned ? '<span class="fa-pill">📌</span>' : ''}<div class="fa-sub">${E(x.date)} · ${E(String(x.text || '').slice(0, 140))}</div></div><div class="fa-acts"><button class="btn fa-s red" data-del="${E(x.id)}">Удалить</button></div></div>`).join('') || '<div class="fa-empty">Новостей из админки пока нет (старые лежат в docs/news.json на GitHub).</div>';
+        $('list').querySelectorAll('[data-del]').forEach((b) => (b.onclick = () => confirm('Удалить новость?') && run(() => call('POST', '/api/admin/news', { delete: b.dataset.del }), 'Удалено').then(list)));
+      }
+      list();
+    };
+
+    // ---------- журнал действий ----------
+    const ACT = { 'license.issue': '🔑 выдал ключ', 'license.revoke': '⛔ отозвал ключ', 'license.unrevoke': '↩️ вернул ключ', 'user.update': '👤 изменил игрока', 'vouchers.create': '🎟️ создал коды', 'shop.update': '🛒 изменил тарифы', 'order.manualPaid': '📦 подтвердил оплату', 'promo.create': '🏷️ промокод', 'promo.delete': '🏷️ удалил промокод', 'news.post': '📰 новость', 'news.delete': '📰 удалил новость', 'trial.settings': '⏳ пробный период' };
+    R.log = (el) => {
+      async function list() {
+        const l = await run(() => call('GET', '/api/admin/log')); if (!l) return;
+        el.innerHTML = `<div class="fa-acts" style="margin-bottom:6px"><button class="btn fa-s">Обновить</button></div><div class="fa-list">${l.map((x) => `<div class="fa-row"><div class="fa-main"><b>${E(x.admin_name || x.admin_id)}</b> ${ACT[x.action] || E(x.action)} <code>${E(x.target)}</code><div class="fa-sub">${new Date(x.created * 1000).toLocaleString('ru')} · ${E(x.detail)}</div></div></div>`).join('') || '<div class="fa-empty">Пока пусто.</div>'}</div>`;
+        el.querySelector('button').onclick = list;
+      }
+      list(); R.log.refresh = list;
+    };
 
     // ---------- ключи ----------
     R.keys = (el) => {
@@ -243,7 +310,7 @@
       list();
     };
 
-    show(opts.tab || 'keys');
+    show(opts.tab || 'stats');
     return { show };
   }
   window.FarmAdmin = { mount, termHtml, termBind, term };
