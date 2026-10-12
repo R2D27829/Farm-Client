@@ -20,7 +20,7 @@
       <div id="me-lic" class="small" style="margin-top:10px"></div></div>
     <div class="card" id="app-card"><h2>📱 Войти в приложении</h2><p class="muted small" style="margin-bottom:10px">Android-приложение Farm Client: отсканируй QR камерой телефона или введи код в приложении (Кабинет). Код действует 5 минут.</p>
       <button class="btn gold sm" id="app-code">Получить код</button><div id="app-box" class="hidden" style="margin-top:12px;display:flex;gap:18px;align-items:center;flex-wrap:wrap"><div id="app-qr" style="background:#fff;padding:10px;border-radius:12px;line-height:0"></div><div><div class="muted small">Код</div><div id="app-c" style="font-size:30px;font-weight:800;letter-spacing:3px;user-select:all"></div><div class="muted small" id="app-t"></div></div></div></div>
-    <div class="card" id="ver-card"><h2>Галочка <span class="vbadge">✔</span></h2><div id="ver"></div></div>
+    <div class="card" id="ver-card"><h2>Галочка <span class="vbadge">✓</span></h2><div id="ver"></div></div>
     <div class="card hidden" id="adm-ver"><h2>🛡️ Заявки на галочку</h2><div id="adm-ver-list"></div>
       <form class="row" id="adm-ver-form" style="margin-top:12px"><input id="adm-ver-id" placeholder="Farm ID (u_…)" style="flex:1;min-width:160px"><button class="btn sm gold">Выдать ✔</button><button class="btn sm red" type="button" id="adm-ver-rm">Снять</button></form></div>
     <div class="card"><h2>Привязки</h2><p class="muted small" style="margin-bottom:6px">Привяжи аккаунты — сможешь входить на сайт через них, а друзья увидят тебя в мессенджере.</p><div id="links"></div><div id="tg-link-box" style="margin-top:8px"></div></div>
@@ -53,7 +53,7 @@ const provReady = FC.api('GET', '/api/link/providers', { auth: false }).then((r)
 async function loadMe() {
   let me; try { me = await FC.api('GET', '/api/me'); } catch (e) { FC.token = ''; return showLogin(e.message); }
   $('#login').classList.add('hidden'); $('#me').classList.remove('hidden');
-  $('#me-name').innerHTML = FC.esc(me.name || 'Игрок') + (me.verified ? ' <span class="vbadge" title="Проверенный аккаунт">✔</span>' : '');
+  $('#me-name').innerHTML = FC.esc(me.name || 'Игрок') + (me.verified ? ' <span class="vbadge" title="Проверенный аккаунт">✓</span>' : '');
   renderVerify(me); $('#me-id').innerHTML = `Farm ID <code>${FC.esc(me.id)}</code>${me.role === 'admin' ? ' · 🛡️ админ' : ''} · с ${FC.date(me.created)}`;
   const l = me.license; $('#me-lic').innerHTML = l ? `Лицензия <code>${FC.esc(l.id)}</code> · ${{ hwid: 'по HWID', free: 'без HWID', admin: 'админская' }[l.type] || l.type} · ${l.exp ? 'до ' + FC.date(l.exp) : 'бессрочно'} ${l.revoked ? '<span class="err">· отозвана</span>' : '<span class="ok">· активна</span>'}` : '<span class="muted">Лицензия не активирована</span>';
   await provReady;
