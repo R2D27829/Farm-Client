@@ -109,7 +109,8 @@ const oth=[['Windows',pick.win],['Linux AppImage',pick.app],['Linux .deb',pick.d
 document.getElementById('dl-other').innerHTML=oth.length?'Другие системы: '+oth.map(x=>'<a style="text-decoration:underline" href="'+x[1].browser_download_url+'">'+x[0]+'</a>').join(' · '):'';
 const n=l.reduce((s,r)=>s+(r.assets||[]).filter(x=>/\.(exe|dmg|AppImage|deb)$/i.test(x.name)).reduce((q,x)=>q+x.download_count,0),0);document.getElementById('dls').textContent=n>999?(n/1000).toFixed(1)+'k':n}).catch(()=>{});
 const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-fetch('news.json?t='+Date.now()).then(r=>r.json()).then(l=>{document.getElementById('news-list').innerHTML=l.slice(0,6).map(n=>`<div class="n reveal in"><small>${esc(n.tag||'Новость')} · ${esc(n.date)}</small><h3>${esc(n.title)}</h3><p>${esc(n.text)}</p></div>`).join('')}).catch(()=>{});
+const freshNews=(l)=>{const now=Date.now();let upd=false;return l.filter(x=>{if(x.hide||(x.until&&Date.parse(x.until)<now))return false;if(x.pinned)return true;const t=Date.parse(x.date||'')||0;if(t&&now-t>60*864e5)return false;if(/обновлен|update/i.test(x.tag||'')){if(upd)return false;upd=true}return true}).slice(0,5)};
+fetch('news.json?t='+Date.now()).then(r=>r.json()).then(l=>{document.getElementById('news-list').innerHTML=freshNews(l).map(n=>`<div class="n reveal in"><small>${esc(n.tag||'Новость')} · ${esc(n.date)}</small><h3>${esc(n.title)}</h3><p>${esc(n.text)}</p></div>`).join('')}).catch(()=>{});
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
 document.querySelectorAll('.reveal').forEach((e,i)=>{e.style.transitionDelay=(i%3)*80+'ms';io.observe(e)});
 </script></body></html>
