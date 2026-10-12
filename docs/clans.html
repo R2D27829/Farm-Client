@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Кланы — Farm Client</title><link rel="stylesheet" href="fc.css?v=3"><meta name="theme-color" content="#e8b04a">
+<script src="fc.js?v=4"></script><script src="clans.js?v=2"></script></head><body>
+<main class="wrap" style="max-width:900px">
+  <h1>🛡️ Кланы</h1>
+  <p class="muted small">Как в Clash Royale: лидер, соруководители, старейшины, общий чат, приглашения в мир и 🏆 трофеи за часы в игре. То же самое — в лаунчере: Друзья → Клан.</p>
+  <section class="card" id="root"><p class="muted">Загрузка…</p></section>
+  <section class="card hidden" id="nologin"><p>Чтобы вступить в клан, войди в кабинет.</p><a class="btn gold sm" href="account.html" style="margin-top:12px">Войти</a></section>
+</main>
+<script>
+FC.nav('clans');
+if (!FC.token) { document.getElementById('root').classList.add('hidden'); document.getElementById('nologin').classList.remove('hidden'); }
+else FarmClans.mount(document.getElementById('root'), (m, p, body) => FC.api(m, p, body === undefined ? {} : { body }), {
+  toast: FC.toast, q: new URLSearchParams(location.search).get('q') || '',
+  upload: async (f) => { if (f.size > 15 * 1048576) throw new Error('Файл больше 15 МБ'); return FC.api('POST', '/api/media', { raw: f }); },
+});
+</script>
+</body></html>
