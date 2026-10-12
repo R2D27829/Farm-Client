@@ -49,20 +49,21 @@ function list() {
   $('#list').innerHTML = Object.keys(DB).map((k) => `<div class="c${k === CUR ? ' on' : ''}" data-k="${FC.esc(k)}">@${FC.esc(k)}<small>${FC.esc(((DB[k].slice(-1)[0] || {}).text || '').slice(0, 40))}</small></div>`).join('') || '<p class="muted small" style="padding:12px">Впиши @ник друга сверху.</p>';
   document.querySelectorAll('.c').forEach((e) => (e.onclick = () => openChat(e.dataset.k)));
 }
-// GIF по ссылке: прямые файлы, Giphy, Imgur .gifv, страницы Tenor
+// GIF по ссылке: прямые файлы, Giphy, Imgur .gifv, страницы Tenor / Klipy / Imgur / Gfycat и т.п.
 const GIF_RE = /https:\/\/[^\s<>"'`]+/g;
+const GIF_HOSTS = /(^|\.)(tenor\.com|klipy\.com|giphy\.com|imgur\.com|gfycat\.com|gifer\.com|redgifs\.com|reactiongifs\.com|gifdb\.com|gifcen\.com|tumblr\.com|pinterest\.[a-z.]+|pin\.it|yandex\.ru)$/i;
 function gifDirect(u) {
   let x; try { x = new URL(u); } catch { return null; }
-  if (x.protocol !== 'https:' || u.length > 600) return null;
+  if (x.protocol !== 'https:' || u.length > 800) return null;
   const h = x.hostname.toLowerCase(), p = x.pathname.toLowerCase(); let m;
   if (/(^|\.)imgur\.com$/.test(h) && /\.gifv$/.test(p)) return { t: 'vid', src: 'https://' + h + x.pathname.replace(/\.gifv$/i, '.mp4') };
   if (/^(www\.)?tenor\.com$/.test(h)) return null;
-  if (/(^|\.)giphy\.com$/.test(h) && !/^(media\d*|i)\./.test(h) && (m = x.pathname.match(/^\/(?:gifs|stickers|embed|clips)\/(?:[\w-]*-)?([A-Za-z0-9]{6,})\/?$/))) return { t: 'img', src: `https://media.giphy.com/media/${m[1]}/giphy.gif` };
+  if (/(^|\.)giphy\.com$/.test(h) && !/^(media\d*|i)\./.test(h) && (m = x.pathname.match(/^\/(?:gifs|stickers|embed|clips)\/(?:[^/]*-)?([A-Za-z0-9]{6,})\/?$/))) return { t: 'img', src: `https://media.giphy.com/media/${m[1]}/giphy.gif` };
   if (/\.(gif|webp|png|jpe?g|avif)$/.test(p)) return { t: 'img', src: u };
   if (/\.(mp4|webm)$/.test(p)) return { t: 'vid', src: u };
   return null;
 }
-function gifPage(u) { try { const x = new URL(u); return x.protocol === 'https:' && /^(www\.)?tenor\.com$/i.test(x.hostname) && /^\/([a-z]{2}(-[a-z]{2})?\/)?(view\/[\w-]+|[\w]+\.gif)$/i.test(x.pathname); } catch { return false; } }
+function gifPage(u) { try { const x = new URL(u); if (!/\.[a-z]{2,}$/i.test(x.hostname) || /^(localhost|.*\.local)$/i.test(x.hostname)) return false; return x.protocol === 'https:' && u.length <= 800 && (GIF_HOSTS.test(x.hostname) || /gif/i.test(decodeURIComponent(x.pathname))); } catch { return false; } }
 const gifCand = (u) => !!(gifDirect(u) || gifPage(u));
 const GIFC = {};
 const gifTag = (r, u) => r.t === 'vid' ? `<video class="gifm" src="${FC.esc(r.src)}" autoplay loop muted playsinline data-u="${FC.esc(u)}"></video>` : `<img class="gifm" src="${FC.esc(r.src)}" data-u="${FC.esc(u)}" alt="GIF" loading="lazy">`;
