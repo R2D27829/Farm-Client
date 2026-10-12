@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Мессенджер — Farm Client</title><link rel="stylesheet" href="fc.css?v=3"><meta name="theme-color" content="#e8b04a">
-<script src="fc.js?v=3"></script>
+<script src="fc.js?v=4"></script>
 <style>
 .chat{display:grid;grid-template-columns:240px 1fr;height:calc(100vh - 170px);min-height:420px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
 .side{border-right:1px solid var(--line);display:flex;flex-direction:column}.side form{display:flex;gap:6px;padding:10px}.side input{flex:1}
@@ -156,5 +156,6 @@ $('#text').onpaste = (e) => { const it = [...e.clipboardData.items].find((x) => 
 (async () => {
   if (!ME && FC.token && window.FC_API) { try { const me = await FC.api('GET', '/api/me'); const d = me.links.find((l) => l.provider === 'discord'); ME = nname(d ? (d.name.match(/@([\w.]+)/) || [])[1] : me.name); } catch {} }
   $('#me').value = ME; list(); if (ME) connect();
+  const to = new URLSearchParams(location.search).get('to'); if (to && nname(to)) openChat(nname(to));
 })();
 </script></body></html>
