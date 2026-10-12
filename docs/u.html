@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Профиль игрока — Farm Client</title><link rel="stylesheet" href="fc.css?v=3"><meta name="theme-color" content="#e8b04a">
+<script src="fc.js?v=4"></script>
+<style>.ph{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.ph img{width:96px;height:96px;border-radius:16px;image-rendering:pixelated;background:#1a1c22}
+.ph h1{margin:0;display:flex;align-items:center;gap:8px}.st{display:inline-flex;align-items:center;gap:6px;font-size:14px}.st i{width:9px;height:9px;border-radius:50%;background:#666;display:inline-block}.st.on i{background:#4cd964}.st.game i{background:#e8b04a}.st.dnd i{background:#e0556b}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:18px 0}.kp div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}.kp b{display:block;font-size:24px;color:var(--gold)}.kp span{color:var(--muted);font-size:13px}
+.vbadge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--gold);color:#1a1407;font-size:12px;font-weight:900}
+.ups{display:grid;gap:8px}.ups a{display:flex;justify-content:space-between;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}.ups a:hover{border-color:var(--gold)}</style></head><body>
+<main class="wrap">
+  <form class="row" id="find" style="margin:18px 0"><input id="q" placeholder="Ник или ID игрока" style="flex:1"><button class="btn">Найти</button></form>
+  <div id="out"><p class="muted">Введи ник, чтобы открыть профиль.</p></div>
+</main>
+<script>
+FC.nav('');
+const $ = (s) => document.querySelector(s), E = FC.esc;
+const ST = { menu: 'В лаунчере', game: 'В игре', dnd: 'Не беспокоить', away: 'Отошёл' };
+const KN = { theme: 'тема', config: 'конфиг', pack: 'сборка' }, PN = { discord: 'Discord', telegram: 'Telegram', vk: 'VK', github: 'GitHub' };
+const ago = (t) => { const d = Date.now() / 1000 - t; return d < 3600 ? Math.max(1, Math.round(d / 60)) + ' мин назад' : d < 86400 ? Math.round(d / 3600) + ' ч назад' : new Date(t * 1000).toLocaleDateString('ru'); };
+async function show(id) {
+  if (!id) return; $('#q').value = id; history.replaceState(null, '', '?id=' + encodeURIComponent(id));
+  $('#out').innerHTML = '<p class="muted">Загрузка…</p>';
+  let u; try { u = await FC.api('GET', '/api/users/' + encodeURIComponent(id), { auth: false }); } catch (e) { $('#out').innerHTML = `<p class="muted">${E(e.message)}</p>`; return; }
+  document.title = u.name + ' — Farm Client';
+  const p = u.presence || {}, cls = p.online ? (p.state === 'game' ? 'game' : p.state === 'dnd' ? 'dnd' : 'on') : '';
+  const where = p.online ? (ST[p.state] || 'Онлайн') + (p.state === 'game' ? (p.server ? ' · ' + E(p.server) : p.world ? ' · мир «' + E(p.world) + '»' : '') + (p.version ? ' · ' + E(p.version) : '') : '') : (p.seen ? 'Был ' + ago(p.seen) : 'Не в сети');
+  const likes = (u.uploads || []).reduce((s, x) => s + (x.likes || 0), 0);
+  $('#out').innerHTML = `<section class="card"><div class="ph"><img src="https://mc-heads.net/avatar/${encodeURIComponent(u.name)}/96" alt="" onerror="this.style.visibility='hidden'">
+    <div><h1>${E(u.name)} ${u.verified ? '<span class="vbadge" title="Проверенный">✓</span>' : ''} ${u.role === 'admin' ? '<span class="tag">админ</span>' : ''}</h1>
+    <div class="st ${cls}"><i></i> ${where}</div>
+    ${u.clan ? `<div style="margin-top:6px"><a href="clans.html?q=${encodeURIComponent(u.clan.tag || u.clan.name)}" style="text-decoration:underline">${E(u.clan.badge || '🛡️')} ${E(u.clan.name)}</a> <span class="muted small">${E({ leader: 'лидер', co: 'соруководитель', elder: 'старейшина', member: 'участник' }[u.clan.role] || u.clan.role || '')}</span></div>` : ''}
+    ${(u.links || []).length ? `<div class="muted small" style="margin-top:6px">${u.links.map((l) => E(PN[l.provider] || l.provider) + ': ' + E(l.name || '')).join(' · ')}</div>` : ''}</div></div>
+    <div class="kp"><div><b>${Math.round(u.hours || 0)}</b><span>часов в игре</span></div><div><b>${(u.uploads || []).length}</b><span>публикаций</span></div><div><b>${likes}</b><span>лайков</span></div><div><b>${u.refs || 0}</b><span>приглашено друзей</span></div><div><b>${new Date(u.created * 1000).toLocaleDateString('ru')}</b><span>с нами с</span></div></div>
+    <div class="row"><a class="btn gold sm" href="chat.html?to=${encodeURIComponent(u.name)}">💬 Написать</a></div></section>
+    <section class="card"><h2>Публикации в галерее</h2><div class="ups">${(u.uploads || []).map((x) => `<a href="gallery.html?id=${encodeURIComponent(x.id)}"><span><span class="tag">${KN[x.kind] || x.kind}</span> ${E(x.title)}</span><span class="muted small">❤ ${x.likes || 0} · ⬇ ${x.downloads}</span></a>`).join('') || '<p class="muted">Пока ничего не опубликовано.</p>'}</div></section>`;
+}
+$('#find').onsubmit = (e) => { e.preventDefault(); show($('#q').value.trim()); };
+const qid = new URLSearchParams(location.search).get('id');
+if (qid) show(qid); else if (FC.token) FC.api('GET', '/api/me').then((m) => show(m.id || (m.user && m.user.id))).catch(() => {});
+</script></body></html>
