@@ -51,12 +51,18 @@ async function loadOrders() {
 
 function renderPlans() {
   $('#off').classList.toggle('hidden', shop.enabled);
-  if (!shop.enabled) $('#off-text').innerHTML = shop.contact ? `Связь с администратором: <a href="${E(shop.contact)}" target="_blank" rel="noopener">${E(shop.contact)}</a>` : 'Контакт администратора скоро появится здесь.';
+  const ds = /^discord:/i.test(shop.contact) ? shop.contact.slice(8).trim() : '';
+  const cHref = ds ? 'https://discord.com/channels/@me' : shop.contact;
+  if (!shop.enabled) $('#off-text').innerHTML = !shop.contact ? 'Контакт администратора скоро появится здесь.' : ds
+    ? `Пиши админу в Discord: <b class="ds-nick" style="cursor:pointer" title="Скопировать">@${E(ds)}</b> — он выдаст код активации.`
+    : `Связь с администратором: <a href="${E(cHref)}" target="_blank" rel="noopener">${E(shop.contact)}</a>`;
   $('#method-row').classList.toggle('hidden', !shop.enabled || !shop.plans.length);
   $('#plans').innerHTML = shop.plans.map((p) => `<div class="card plan" style="margin:0"><h2 style="margin:0">${E(p.title)}</h2><div class="price">${p.price} ₽</div>
     <div class="muted small">${p.desc ? E(p.desc) : 'Срок: ' + term(p.days) + (p.hwid ? ' · привязка к ПК' : ' · без привязки к ПК')}</div>
-    ${shop.enabled ? `<button class="btn gold" data-buy="${E(p.id)}">Купить</button>` : shop.contact ? `<a class="btn gold" href="${E(shop.contact)}" target="_blank" rel="noopener">Купить у админа</a>` : '<button class="btn gold" disabled>Скоро</button>'}</div>`).join('');
+    ${shop.enabled ? `<button class="btn gold" data-buy="${E(p.id)}">Купить</button>` : shop.contact ? `<a class="btn gold buy-admin" href="${E(cHref)}" target="_blank" rel="noopener">Купить у админа</a>` : '<button class="btn gold" disabled>Скоро</button>'}</div>`).join('');
   document.querySelectorAll('[data-buy]').forEach((b) => (b.onclick = () => buy(b.dataset.buy, b)));
+  if (ds) { const cp = () => { try { navigator.clipboard.writeText(ds); } catch {} FC.toast('Ник @' + ds + ' скопирован — найди его в Discord и напиши, какой тариф нужен'); };
+    document.querySelectorAll('.buy-admin,.ds-nick').forEach((b) => b.addEventListener('click', cp)); }
 }
 
 async function buy(plan, btn) {
