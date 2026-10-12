@@ -1,6 +1,6 @@
 // Общее для страниц сайта: адрес API, сессия, навигация, тосты.
 // Адрес воркера (server/) — тот же, что apiBase в src/config.js лаунчера.
-window.FC_API = window.FC_API || '';   // например 'https://farmclient-api.<ник>.workers.dev'
+window.FC_API = window.FC_API || 'https://farmclient-api.farmclient.workers.dev';   // например 'https://farmclient-api.<ник>.workers.dev'
 const FC = {
   get token() { return localStorage.getItem('fc_token') || ''; },
   set token(v) { v ? localStorage.setItem('fc_token', v) : localStorage.removeItem('fc_token'); },
