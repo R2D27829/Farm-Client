@@ -81,9 +81,9 @@ h2{font-size:clamp(32px,4.6vw,54px);line-height:1.08;font-weight:800;letter-spac
 .terms-list{list-style:none;display:grid;gap:12px;margin-top:20px}.terms-list li{display:flex;gap:10px;font-size:14.5px;color:var(--muted)}.terms-list li::before{content:"✓";color:var(--gold);font-weight:800;flex:none}.terms-actions{display:flex;margin-top:auto;padding-top:24px}.terms-actions .btn{gap:12px}
 .tagl{display:inline-flex;gap:6px;margin-bottom:14px;font-size:12px;font-weight:700;color:var(--gold2);background:rgba(242,181,68,.10);border:1px solid rgba(242,181,68,.18);padding:3px 10px;border-radius:999px;align-self:flex-start}
 /* визуалы */
-.v-launch{margin:24px -28px -28px 0;flex:1;position:relative;min-height:300px}
-.v-launch img{position:absolute;left:0;top:0;width:120%;max-width:none;border-radius:16px 0 0 0;border:1px solid var(--line2);border-right:0;border-bottom:0;box-shadow:0 30px 80px -30px #000}
-.v-launch::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,var(--card)),linear-gradient(270deg,var(--card),transparent 30%)}
+.v-launch{margin:24px 0 0;flex:none;position:relative;min-height:0;overflow:hidden;border:1px solid var(--line2);border-radius:12px;background:#0c0c0d}
+.v-launch img{display:block;position:static;width:100%;height:auto;max-width:100%;object-fit:contain;image-rendering:auto}
+.v-launch::after{display:none}
 .mini{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:14px;width:100%}
 .clan{display:flex;align-items:center;gap:12px}.clan .bd{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:linear-gradient(135deg,#ffcf6b,#c97a14);box-shadow:0 8px 24px -8px rgba(242,181,68,.6)}
 .clan b{display:block;font-size:15px}.clan small{color:var(--muted);font-size:12px}
@@ -191,7 +191,7 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
 /* адаптив */
 @media (max-width:1100px){.chip.c1{left:-10px}.chip.c2{right:-10px}}
 @media (max-width:980px){.nav .links,.nav .right .hide-m{display:none}.burger{display:grid}.bento{grid-template-columns:1fr 1fr}.s2,.s3,.s4{grid-column:span 1}.s4,.wide-m{grid-column:span 2}.more{grid-template-columns:1fr 1fr}.plans,.news,.steps{grid-template-columns:1fr}.step:not(:last-child)::after{display:none}.stats{grid-template-columns:1fr 1fr}.fgrid{grid-template-columns:1fr 1fr}.chip{display:none}.plans{max-width:480px;margin:0 auto}}
-@media (max-width:640px){.hero{padding-top:130px}.bento{grid-template-columns:1fr}.more{grid-template-columns:1fr 1fr;gap:10px}.sm-card{padding:16px}.sm-card .ic{width:36px;height:36px;font-size:16px;margin-bottom:10px}.sm-card h4{font-size:14px}.sm-card p{font-size:12.5px}h1{font-size:40px}.s4,.wide-m{grid-column:span 1}.v-android{grid-template-columns:1fr}.phone{margin-bottom:-40px}.btn{height:50px;padding:0 22px}.cta .btn{width:100%}.seg button{padding:8px 13px;font-size:13px}section{padding-top:96px}.hero{padding-top:130px}.final{padding:60px 22px;margin-top:96px}.v-launch{min-height:200px}.card{padding:24px}.v-launch{margin-right:-24px;margin-bottom:-24px}}
+@media (max-width:640px){.hero{padding-top:130px}.bento{grid-template-columns:1fr}.more{grid-template-columns:1fr 1fr;gap:10px}.sm-card{padding:16px}.sm-card .ic{width:36px;height:36px;font-size:16px;margin-bottom:10px}.sm-card h4{font-size:14px}.sm-card p{font-size:12.5px}h1{font-size:40px}.s4,.wide-m{grid-column:span 1}.v-android{grid-template-columns:1fr}.phone{margin-bottom:-40px}.btn{height:50px;padding:0 22px}.cta .btn{width:100%}.seg button{padding:8px 13px;font-size:13px}section{padding-top:96px}.hero{padding-top:130px}.final{padding:60px 22px;margin-top:96px}.v-launch{min-height:0}.card{padding:24px}.v-launch{margin:24px 0 0}}
 
 .news-author{font-size:12px;color:var(--muted);margin:8px 0}.news-author.official{color:var(--gold);font-weight:700}
 
@@ -226,7 +226,7 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
 <section id="features" class="wrap">
   <div class="head rv"><span class="eyebrow">Features</span><h2>Everything you need,<br>already <span class="gt">inside</span></h2><p>Install the launcher, press Play — Java, mods, optimizations and settings are handled for you.</p></div>
   <div class="bento">
-    <div class="card s4 rv"><span class="tagl">Launcher</span><h3>One button to play</h3><p>Any version from 1.16.5 to 26.x, Fabric, Forge and Quilt. “Continue” your last server or world in one click, mod conflict check before launch.</p><div class="v-launch"><img src="img/gold_lan.webp" alt="" loading="lazy" width="1100" height="653"></div></div>
+    <div class="card s4 rv"><span class="tagl">Launcher</span><h3>One button to play</h3><p>Any version from 1.16.5 to 26.x, Fabric, Forge and Quilt. “Continue” your last server or world in one click, mod conflict check before launch.</p><div class="v-launch"><img src="img/gold.webp" alt="Farm Client launcher home — Classic style" loading="lazy" width="1100" height="653"></div></div>
     <div class="card s2 rv"><h3>Clans</h3><p>Roles, trophies for hours played, requests and clan chat.</p><div class="vis"><div class="mini">
       <div class="clan"><div class="bd">🛡️</div><div><b>Farm Legends</b><small>#P2Q8LR · open</small></div><div class="tro">🏆 1 284</div></div>
       <div class="mem"><i style="background:#ffcf6b">S</i><i style="background:#7ad3ff">K</i><i style="background:#9cf0a0">M</i><i style="background:#ff9db0">A</i><i style="background:#c9b5ff">+</i><span><b>●</b> 12 online</span></div>
