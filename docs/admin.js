@@ -20,7 +20,7 @@
 .fa-pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;border:1px solid var(--fa-line);margin-left:4px;opacity:.85}
 .fa-bad{color:var(--red,#ef6b6b)}.fa-ok{color:var(--green,#6fd36f)}.fa-empty{opacity:.6;padding:10px 2px}
 .fa-plan{display:grid;grid-template-columns:90px 1fr 90px 130px 80px auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--fa-line)}
-.fa-plan input:not([type=checkbox]),.fa-plan select{height:34px;padding:0 8px;min-width:0;box-sizing:border-box;width:100%}.fa-plan .fa-desc{grid-column:1/-1}
+.fa-plan input:not([type=checkbox]),.fa-plan select{height:34px;padding:0 8px;min-width:0;box-sizing:border-box;width:100%}.fa-plan .fa-desc{grid-column:1/-1}.fa-plan-field{display:flex;flex-direction:column;gap:4px;min-width:0}.fa-plan-field>span{font-size:12px;opacity:.7}
 @media(max-width:720px){.fa-plan{grid-template-columns:1fr 1fr}.fa-plan .fa-desc{grid-column:1/-1}}`;
 
   function termHtml(id, def = 'forever') {
@@ -245,26 +245,29 @@
 
     // ---------- тарифы магазина ----------
     R.shop = (el) => {
-      el.innerHTML = `<div class="fa-hint">Тарифы страницы «Купить». Срок любой (0 = навсегда), с привязкой к ПК или без. Изменения применяются сразу — без перезапуска сервера.</div><div data-s="st" class="fa-sub" style="margin-bottom:8px"></div>
+      el.innerHTML = `<div class="fa-hint">Задай название, цену в ₽ и срок каждого тарифа вручную. Главная и страница «Купить» используют эти настройки. Можно добавлять тарифы, менять привязку к ПК и скрывать их с сайта. После сохранения изменения появятся в течение минуты — без правки кода.</div><div data-s="st" class="fa-sub" style="margin-bottom:8px"></div>
         <div data-s="rows"></div><div class="fa-acts" style="margin:10px 0"><button class="btn fa-s" data-s="add">+ Тариф</button></div>
         <div class="fa-form"><label class="fa-f fa-grow"><span>Контакт «Купить у админа» (если онлайн-оплата выключена)</span><input data-s="contact" maxlength="120" placeholder="discord:ник или https://t.me/…"></label><button class="btn gold" data-s="save">Сохранить</button></div>`;
       const $ = (k) => el.querySelector(`[data-s="${k}"]`);
       const row = (p = {}) => {
         const d = document.createElement('div'); d.className = 'fa-plan';
-        d.innerHTML = `<input data-p="id" placeholder="id" value="${E(p.id || '')}" title="ID латиницей"><input data-p="title" placeholder="Название" value="${E(p.title || '')}"><input data-p="price" type="number" min="1" placeholder="₽" value="${p.price || ''}" title="Цена, ₽">
-          <select data-p="term"><option value="0">Навсегда</option><option value="d"${+p.days ? ' selected' : ''}>Дней:</option></select>
-          <input data-p="days" type="number" min="1" value="${+p.days || 30}" style="${+p.days ? '' : 'visibility:hidden'}">
+        d.innerHTML = `<label class="fa-plan-field"><span>ID тарифа</span><input data-p="id" placeholder="month" maxlength="24" pattern="[A-Za-z0-9_-]+" required value="${E(p.id || '')}" title="Латиница, цифры, дефис или подчёркивание"></label>
+          <label class="fa-plan-field"><span>Название</span><input data-p="title" placeholder="Свой тариф" maxlength="60" required value="${E(p.title || '')}"></label>
+          <label class="fa-plan-field"><span>Цена, ₽</span><input data-p="price" type="number" min="0.01" step="0.01" required placeholder="Введи цену" value="${p.price || ''}"></label>
+          <label class="fa-plan-field"><span>Срок</span><select data-p="term"><option value="0">Навсегда</option><option value="d"${+p.days ? ' selected' : ''}>Своё кол-во дней</option></select></label>
+          <label class="fa-plan-field"><span data-days-label${+p.days ? '' : ' style="visibility:hidden"'}>Дней</span><input data-p="days" type="number" min="1" max="36500" step="1" value="${+p.days || 30}" style="${+p.days ? '' : 'visibility:hidden'}"></label>
           <label class="fa-chk" title="Ключ привязывается к ПК покупателя"><input type="checkbox" data-p="hwid" ${p.hwid !== false ? 'checked' : ''}> HWID</label>
           <button class="btn fa-s red" title="Удалить тариф">Удалить</button>
-          <input class="fa-desc" data-p="desc" placeholder="Описание (необязательно)" value="${E(p.desc || '')}">
-          <label class="fa-chk fa-desc" style="height:22px"><input type="checkbox" data-p="off" ${p.off ? 'checked' : ''}> скрыть с сайта</label>`;
+          <label class="fa-plan-field fa-desc"><span>Описание</span><input data-p="desc" maxlength="160" placeholder="Необязательно" value="${E(p.desc || '')}"></label>
+          <label class="fa-chk fa-desc" style="height:22px"><input type="checkbox" data-p="off" ${p.off ? 'checked' : ''}> Скрыть с главной и из магазина</label>`;
         const t = d.querySelector('[data-p="term"]'), dy = d.querySelector('[data-p="days"]');
-        t.onchange = () => (dy.style.visibility = t.value === 'd' ? '' : 'hidden');
+        t.onchange = () => { const show=t.value==='d'; dy.style.visibility=show?'':'hidden';dy.disabled=!show;d.querySelector('[data-days-label]').style.visibility=show?'':'hidden'; };t.onchange();
         d.querySelector('button').onclick = () => d.remove();
         $('rows').append(d);
       };
       $('add').onclick = () => row({ hwid: true });
       $('save').onclick = () => run(async () => {
+        for(const input of $('rows').querySelectorAll('input')){if(!input.reportValidity())throw new Error('Проверь название, цену, ID и срок тарифа');}
         const plans = [...$('rows').children].map((d) => { const g = (k) => d.querySelector(`[data-p="${k}"]`); return { id: g('id').value.trim(), title: g('title').value.trim(), price: +g('price').value, days: g('term').value === 'd' ? +g('days').value : 0, hwid: g('hwid').checked, desc: g('desc').value.trim(), off: g('off').checked }; });
         await call('POST', '/api/admin/shop', { plans, contact: $('contact').value.trim() }); load();
       }, 'Тарифы сохранены');
