@@ -143,6 +143,8 @@ h2{font-size:clamp(32px,4.6vw,54px);line-height:1.08;font-weight:800;letter-spac
 .stat b{display:block;font-size:clamp(34px,4vw,46px);font-weight:800;letter-spacing:-.03em;line-height:1.1}.stat span{color:var(--muted);font-size:14px}
 /* тарифы */
 .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch}
+.pricing-status{grid-column:span 2;align-self:center;color:var(--muted);text-align:center;padding:32px 24px}.pricing-status[hidden]{display:none}.pricing-status a{color:var(--gold);text-decoration:underline}.plan [hidden]{display:none}.plan .pr{overflow-wrap:anywhere}
+@media(max-width:980px){.pricing-status{grid-column:1/-1}}
 .plan{position:relative;padding:32px 28px;border-radius:26px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column}
 .plan.best{background:linear-gradient(180deg,rgba(242,181,68,.10),var(--card) 40%);border-color:rgba(242,181,68,.45);box-shadow:0 40px 100px -50px rgba(242,181,68,.6)}
 .plan .pop{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:800;padding:5px 14px;border-radius:999px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1b1305;white-space:nowrap}
@@ -237,7 +239,7 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
       <div class="mod"><span class="ic">🟢</span><div>Sodium<small>Modrinth</small></div><span class="tg"></span></div>
       <div class="mod"><span class="ic">✨</span><div>Iris Shaders<small>Modrinth</small></div><span class="tg"></span></div>
       <div class="mod"><span class="ic">🗺️</span><div>Xaero's Minimap<small>CurseForge</small></div><span class="tg off"></span></div></div></div></div>
-    <div class="card s3 rv wide-m purchase-terms"><h3>Purchase terms</h3><p>The launcher is free — you buy a license for the Farm Client mod.</p><ul class="terms-list"><li>Access for 30 days or lifetime, depending on your plan.</li><li>The key is bound to your PC.</li><li>The term starts on activation: Settings → License.</li><li>Contact the administrator if you change PCs.</li></ul><div class="terms-actions"><a class="btn" href="buy.html">Go to the store <span aria-hidden="true">→</span></a></div></div>
+    <div class="card s3 rv wide-m purchase-terms"><h3>Purchase terms</h3><p>The launcher is free — you buy a license for the Farm Client mod.</p><ul class="terms-list"><li>The store shows the price and access term for each plan.</li><li>PC binding depends on the selected plan.</li><li>The term starts on activation: Settings → License.</li><li>Contact the administrator if you change PCs.</li></ul><div class="terms-actions"><a class="btn" href="buy.html">Go to the store <span aria-hidden="true">→</span></a></div></div>
     <div class="card s3 rv wide-m"><span class="tagl">Android 1.3</span><h3>Farm Client on your phone</h3><p>Friends, clans and messenger always with you.</p><div class="v-android"><ul><li>Notifications: news, clan chat</li><li>Launch the game on your PC</li><li>Gallery, account and license store</li></ul>
       <div class="phone"><div class="tm">14:32</div><div class="nt"><span class="ai"></span><div><b>Farm Client 1.21.0</b><small>Clans, profiles and quick start</small></div></div><div class="nt"><span class="ai"></span><div><b>🛡️ Farm Legends</b><small>3 new messages in clan chat</small></div></div><div class="pc">▶ Launch on PC</div></div></div></div>
   </div>
@@ -258,10 +260,10 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
 
 <section id="pricing" class="wrap">
   <div class="head rv"><span class="eyebrow">Pricing</span><h2>Simple <span class="gt">pricing</span></h2><p>The launcher is free. A license unlocks every mod module — try it free first.</p></div>
-  <div class="plans">
+  <div class="plans" id="pricing-plans">
     <div class="plan rv"><h3>Free trial</h3><div class="pr">0 ₽ <small>/ 3 days</small></div><div class="ds">Once per PC — right in the launcher</div><ul><li>All Farm Client modules</li><li>Minecraft 1.21.4 only</li><li>No card needed</li></ul><a class="btn" href="#download">Try it</a></div>
-    <div class="plan rv" id="pl-month"><h3 data-t>30 days</h3><div class="pr"><span data-p>150</span> ₽ <small>/ 30 days</small></div><div class="ds" data-d>Alpha-test price · bound to your PC</div><ul><li>All Farm Client modules</li><li>All updates</li><li>Cloud configs</li></ul><a class="btn" href="buy.html">Buy</a></div>
-    <div class="plan best rv" id="pl-forever"><span class="pop">Best value</span><h3 data-t>Lifetime</h3><div class="pr"><span data-p>400</span> ₽ <small>one-time</small></div><div class="ds" data-d>Alpha-test price · bound to your PC</div><ul><li>All Farm Client modules</li><li>All updates</li><li>Cloud configs</li><li>No renewals, ever</li></ul><a class="btn g" href="buy.html">Buy</a></div>
+    <div class="pricing-status" id="pricing-state" role="status">Loading plans…</div>
+    <template id="paid-plan-template"><div class="plan"><h3 data-t></h3><div class="pr"><span data-p></span> ₽ <small data-term></small></div><div class="ds" data-d></div><ul><li>All Farm Client modules</li><li>All updates</li><li>Cloud configs</li><li data-bind></li></ul><a class="btn" href="buy.html">Buy</a></div></template>
   </div>
   <p class="pnote rv">Have a promo code or a friend’s invite? The discount applies on the <a href="buy.html">purchase page</a>. Prices in RUB.</p>
 </section>
@@ -323,8 +325,28 @@ fetch('https://api.github.com/repos/'+R+'/releases?per_page=30').then(r=>r.json(
  const oth=[['Windows',pk.win],['Linux',pk.app],['Linux .deb',pk.deb],['Android',pk.apk]].filter(x=>x[1]&&x[1]!==a);
  $('#dl-other').innerHTML=oth.length?'· '+L.other+' '+oth.map(x=>'<a href="'+x[1].browser_download_url+'">'+x[0]+'</a>').join(' · '):'';
  const n=l.reduce((s,r)=>s+(r.assets||[]).filter(x=>/\.(exe|dmg|AppImage|deb|apk)$/i.test(x.name)).reduce((q,x)=>q+x.download_count,0),0);const d=$('#dls');if(d)d.textContent=n>999?(n/1000).toFixed(1)+'k':n}).catch(()=>{});
-// тарифы — цены из магазина
-fetch(API+'/api/shop').then(r=>r.json()).then(s=>{for(const p of s.plans||[]){const el=$('#pl-'+p.id);if(!el)continue;el.querySelector('[data-p]').textContent=p.price;if(L.loc==='ru'){el.querySelector('[data-t]').textContent=p.title;if(p.desc)el.querySelector('[data-d]').textContent=p.desc}}}).catch(()=>{});
+// Тарифы — только настройки администратора, без цен и сроков в HTML.
+const pricingGrid=$('#pricing-plans'),pricingState=$('#pricing-state'),paidTemplate=$('#paid-plan-template');
+const pricingRu=document.documentElement.lang==='ru',dayForms=['день','дня','дней'];
+const planTerm=n=>n===0?(pricingRu?'навсегда':'lifetime'):pricingRu?'/ '+n+' '+dayForms[n%10===1&&n%100!==11?0:n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?1:2]:'/ '+n+' '+(n===1?'day':'days');
+let pricingBusy=false;
+async function loadPricing(){
+ if(pricingBusy)return;pricingBusy=true;
+ try{
+  const r=await fetch(API+'/api/shop',{cache:'no-store'});if(!r.ok)throw new Error('shop');const s=await r.json();if(!Array.isArray(s.plans))throw new Error('plans');
+  const plans=s.plans.filter(p=>p&&typeof p.id==='string'&&Number.isFinite(Number(p.price))&&Number(p.price)>0&&Number.isInteger(Number(p.days))&&Number(p.days)>=0&&!p.off);
+  pricingGrid.querySelectorAll('[data-shop-plan]').forEach(el=>el.remove());
+  for(const p of plans){const el=paidTemplate.content.firstElementChild.cloneNode(true);el.dataset.shopPlan=p.id;el.id='pl-'+p.id;
+   el.querySelector('[data-t]').textContent=p.title||p.id;el.querySelector('[data-p]').textContent=new Intl.NumberFormat(pricingRu?'ru-RU':'en-US',{maximumFractionDigits:2}).format(Number(p.price));
+   el.querySelector('[data-term]').textContent=planTerm(Number(p.days));const desc=el.querySelector('[data-d]');desc.textContent=p.desc||'';desc.hidden=!p.desc;
+   el.querySelector('[data-bind]').textContent=p.hwid===false?(pricingRu?'Без привязки к ПК':'Not bound to a PC'):(pricingRu?'Привязка к твоему ПК':'Bound to your PC');pricingGrid.append(el);
+  }
+  pricingState.hidden=!!plans.length;pricingState.textContent=pricingRu?'Платные тарифы сейчас недоступны.':'Paid plans are currently unavailable.';
+ }catch{
+  if(!pricingGrid.querySelector('[data-shop-plan]')){pricingState.hidden=false;pricingState.textContent=pricingRu?'Не удалось загрузить цены. ':'Could not load prices. ';const a=document.createElement('a');a.href='buy.html';a.textContent=pricingRu?'Открыть магазин':'Open the store';pricingState.append(a)}
+ }finally{pricingBusy=false}
+}
+loadPricing();setInterval(()=>{if(!document.hidden)loadPricing()},30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadPricing()});
 // новости
 const fresh=l=>{const now=Date.now();let upd=false;return l.filter(x=>{if(x.hide||(x.until&&Date.parse(x.until)<now))return false;if(x.pinned)return true;const t=Date.parse(x.date||'')||0;if(t&&now-t>60*864e5)return false;if(/обновлен|update/i.test(x.tag||'')){if(upd)return false;upd=true}return true}).slice(0,3)};
 Promise.all([fetch('news.json?t='+Date.now()).then(r=>r.json()).catch(()=>[]),fetch(API+'/api/news').then(r=>r.json()).catch(()=>[])]).then(([a,b])=>{const seen=new Set(),l=[...(Array.isArray(b)?b:[]),...(Array.isArray(a)?a:[])].filter(x=>{const k=(x.title||'').toLowerCase();if(seen.has(k))return false;seen.add(k);return true}).sort((x,y)=>(!!y.pinned-!!x.pinned)||String(y.date||'').localeCompare(String(x.date||'')));
