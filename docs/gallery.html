@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><link rel="icon" href="img/logo.png"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Галерея — темы, конфиги и сборки Farm Client</title><link rel="stylesheet" href="fc.css?v=4"><meta name="theme-color" content="#e8b04a">
-<script src="fc.js?v=6"></script>
+<title>Галерея — темы, конфиги и сборки Farm Client</title><link rel="stylesheet" href="fc.css?v=5"><meta name="theme-color" content="#e8b04a">
+<script src="fc.js?v=7"></script>
 <style>.tabs{display:flex;gap:6px;margin:18px 0}.tabs button{background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:8px 16px;border-radius:999px;cursor:pointer;font:inherit}.tabs button.on{color:#1a1407;background:var(--gold);border-color:var(--gold);font-weight:700}
-.item h3{font-size:16px;margin:6px 0 4px}.item p{color:var(--muted);font-size:13.5px;min-height:20px;white-space:pre-wrap}.item .row{margin-top:12px}.lk{background:none;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:4px 10px;cursor:pointer;font:inherit;font-size:13px}.lk.on{border-color:#e0556b;color:#ff7b8f}.cms{margin-top:10px;border-top:1px solid var(--line);padding-top:8px;display:grid;gap:6px}.cms .c{font-size:13px}.cms .c b{color:var(--gold)}.cms .c button{background:none;border:0;color:var(--muted);cursor:pointer}.vbadge{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:var(--gold);color:#1a1407;font-size:10px;font-weight:900;vertical-align:middle}.author-tag{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid rgba(242,181,68,.3);background:rgba(242,181,68,.1);color:var(--gold);font-size:11px;font-weight:700}.author-tag.personal{border-color:var(--line);background:none;color:var(--muted)}[hidden]{display:none!important}</style></head><body>
+.item h3{font-size:16px;margin:6px 0 4px}.item p{color:var(--muted);font-size:13.5px;min-height:20px;white-space:pre-wrap}.item .row{margin-top:12px}.lk{background:none;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:4px 10px;cursor:pointer;font:inherit;font-size:13px}.lk.on{border-color:#e0556b;color:#ff7b8f}.cms{margin-top:10px;border-top:1px solid var(--line);padding-top:8px;display:grid;gap:6px}.cms .c{font-size:13px}.cms .c b{color:var(--gold)}.cms .c button{background:none;border:0;color:var(--muted);cursor:pointer}.vbadge{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:var(--gold);color:#1a1407;font-size:10px;font-weight:900;vertical-align:middle}.author-tag{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid rgba(242,181,68,.3);background:rgba(242,181,68,.1);color:var(--gold);font-size:11px;font-weight:700}.author-tag.personal{border-color:var(--line);background:none;color:var(--muted)}[hidden]{display:none!important}</style><link rel="stylesheet" href="community.css?v=1"><script src="packs.js?v=1"></script></head><body>
 <main class="wrap">
   <h1>Галерея</h1><p class="muted">Темы лаунчера, конфиги мода и сборки от игроков. «Открыть в лаунчере» сразу ставит выбранное.</p>
   <div class="row" style="margin-top:14px"><div class="tabs" id="tabs"><button data-k="theme" class="on">🎨 Темы</button><button data-k="config">⚙️ Конфиги</button><button data-k="pack">📦 Сборки</button></div>
@@ -18,7 +18,7 @@
       <label id="up-publisher-row" class="hidden" style="display:grid;gap:6px"><span class="muted small">Тег автора</span><select id="up-publisher"><option value="personal">Личный аккаунт</option><option value="official">Официальный Farm Client</option></select></label>
       <input id="up-title" placeholder="Название" maxlength="80" required>
       <textarea id="up-desc" placeholder="Описание (необязательно)" maxlength="500" rows="3"></textarea>
-      <input id="up-file" type="file" required>
+      <input id="up-file" type="file" required><div id="pack-fields" class="feature-form" hidden><label>Версии Minecraft (через запятую)<input id="pack-versions" maxlength="300"></label><label>Загрузчик<select id="pack-loader"><option value="">Не указан</option><option>fabric</option><option>quilt</option><option>forge</option><option>neoforge</option><option>vanilla</option></select></label><label>Список модов (по одному на строку)<textarea id="pack-mods" rows="4"></textarea></label><label>Обложка PNG/JPEG/WebP до 2 МБ<input id="pack-cover-file" type="file" accept="image/png,image/jpeg,image/webp"></label><p class="muted small" id="pack-extract">Для .farmpack/.mrpack попробуем заполнить данные из манифеста. Их можно исправить вручную.</p></div>
       <div class="row"><button class="btn gold" id="up-go">Опубликовать</button><span class="muted small">до 10 МБ</span></div>
     </form>
   </section>
@@ -34,22 +34,24 @@ async function load(append) {
   try { const so = $('#sort').value; l = await FC.api('GET', `/api/uploads?kind=${kind}&sort=${so === 'verified' ? 'top' : so}${so === 'verified' ? '&verified=1' : ''}&q=${encodeURIComponent($('#q').value.trim())}&offset=${off}`, { auth: false }); }
   catch (e) { $('#list').innerHTML = `<p class="muted">${FC.esc(e.message)}</p>`; return; }
   const html = l.map((x) => `<div class="card item" style="margin:0"><span class="tag">${KN[x.kind]}</span> <span class="author-tag${x.official ? '' : ' personal'}">${x.official ? 'Официальный Farm Client' : 'Личный'}</span> <span class="muted small"><a href="u.html?id=${encodeURIComponent(x.uid || x.author || '')}" style="text-decoration:underline">${FC.esc(x.author || '')}</a>${x.verified ? ' <span class="vbadge" title="Проверенный автор">✓</span>' : ''} · ${FC.date(x.created)}</span>
-    <h3>${FC.esc(x.title)}</h3><p>${FC.esc(x.descr || '')}</p>
-    <div class="row"><a class="btn gold sm" href="farmclient://import?id=${encodeURIComponent(x.id)}">Открыть в лаунчере</a><a class="btn sm" href="${window.FC_API}/api/uploads/${encodeURIComponent(x.id)}/file">⬇ ${FC.size(x.size)}</a><span class="muted small">⬇ ${x.downloads}</span><button class="lk" data-like="${FC.esc(x.id)}">❤ <span>${x.likes || 0}</span></button><button class="lk" data-cm="${FC.esc(x.id)}">💬 ${x.comments || 0}</button></div><div class="cms hidden" id="cm-${FC.esc(x.id)}"></div></div>`).join('');
+    <h3>${x.kind==='pack'?`<a href="pack.html?id=${encodeURIComponent(x.id)}">${FC.esc(x.title)}</a>`:FC.esc(x.title)}</h3><p>${FC.esc(x.descr || '')}</p>
+    <div class="row">${x.kind==='pack'?`<a class="btn sm" href="pack.html?id=${encodeURIComponent(x.id)}">Страница сборки</a>`:''}<a class="btn gold sm" href="farmclient://import?id=${encodeURIComponent(x.id)}">Открыть в лаунчере</a><a class="btn sm" href="${window.FC_API}/api/uploads/${encodeURIComponent(x.id)}/file">⬇ ${FC.size(x.size)}</a><span class="muted small">⬇ ${x.downloads}</span><button class="lk" data-like="${FC.esc(x.id)}">❤ <span>${x.likes || 0}</span></button><button class="lk" data-cm="${FC.esc(x.id)}">💬 ${x.comments || 0}</button></div><div class="cms hidden" id="cm-${FC.esc(x.id)}"></div></div>`).join('');
   $('#list').innerHTML = append ? $('#list').innerHTML + html : html || '<p class="muted">Пока пусто — опубликуй первым!</p>';
   off += l.length; $('#more').classList.toggle('hidden', l.length < 30);
 }
 document.querySelectorAll('#tabs button').forEach((b) => (b.onclick = () => { document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x === b)); kind = b.dataset.k; load(); }));
 let qt; $('#q').oninput = () => { clearTimeout(qt); qt = setTimeout(() => load(), 300); };
 $('#sort').onchange = () => load(); $('#more').onclick = () => load(true);
-if (FC.token) { $('#up-need').classList.add('hidden'); $('#up-form').classList.remove('hidden'); FC.api('GET','/api/me').then(me=>{if(me.canPublishOfficial||me.role==='admin'){$('#up-publisher-row').classList.remove('hidden');$('#up-publisher option[value=personal]').textContent='Личный — '+(me.name||me.id)}}).catch(()=>{}); }
+if (FC.token) { $('#up-need').classList.add('hidden'); $('#up-form').classList.remove('hidden'); FC.api('GET','/api/me').then(me=>{if(me.canPublishOfficial||['admin','developer'].includes(me.role)){$('#up-publisher-row').classList.remove('hidden');$('#up-publisher option[value=personal]').textContent='Личный — '+(me.name||me.id)}}).catch(()=>{}); }
 $('#up-form').onsubmit = async (e) => {
   e.preventDefault(); const f = $('#up-file').files[0]; if (!f) return;
   if (f.size > 10 * 1024 * 1024) return FC.toast('Файл больше 10 МБ', true);
   $('#up-go').disabled = true;
   try {
     const q = new URLSearchParams({ kind: $('#up-kind').value, title: $('#up-title').value, desc: $('#up-desc').value, filename: f.name, official: $('#up-publisher').value === 'official' ? '1' : '0' });
-    await FC.api('POST', '/api/uploads?' + q, { raw: f });
+    const cover=$('#pack-cover-file').files[0]; if(cover&&cover.size>2*1048576) throw new Error('Обложка больше 2 МБ');
+    const uploaded = await FC.api('POST', '/api/uploads?' + q, { raw: f });
+    if($('#up-kind').value==='pack'){ await FC.api('POST', `/api/uploads/${uploaded.id}/pack`, {body:{versions:$('#pack-versions').value.split(',').map(x=>x.trim()),loader:$('#pack-loader').value,mods:$('#pack-mods').value.split('\n')}}); if(cover)await FC.api('POST',`/api/uploads/${uploaded.id}/cover`,{raw:cover}); }
     FC.toast('Опубликовано!'); $('#up-form').reset(); kind = $('#up-kind').value;
     document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x.dataset.k === kind)); load();
   } catch (err) { FC.toast(err.message, true); }
@@ -73,5 +75,7 @@ $('#list').addEventListener('submit', async (e) => {
   const f = e.target.closest('[data-cf]'); if (!f) return; e.preventDefault(); const t = f.t.value.trim(); if (!t) return;
   try { await FC.api('POST', `/api/uploads/${encodeURIComponent(f.dataset.cf)}/comments`, { body: { text: t } }); cmLoad(f.dataset.cf); } catch (er) { FC.toast(er.message, true); }
 });
+$('#up-kind').onchange=()=>{$('#pack-fields').hidden=$('#up-kind').value!=='pack';};
+$('#up-file').onchange=async()=>{if($('#up-kind').value!=='pack'||!$('#up-file').files[0])return;try{const m=await FarmPacks.metadata($('#up-file').files[0]);$('#pack-versions').value=m.versions.join(', ');$('#pack-loader').value=m.loader;$('#pack-mods').value=m.mods.join('\n');$('#pack-extract').textContent='Данные прочитаны из манифеста. Проверь их перед публикацией.';}catch(e){$('#pack-extract').textContent=e.message;}};
 load();
 </script></body></html>
