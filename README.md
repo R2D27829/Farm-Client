@@ -26,7 +26,7 @@
 ### О проекте
 Farm Client — лаунчер Minecraft и клиентский Fabric-мод, которые работают в связке. Лаунчер ставит Minecraft, загрузчик, Java и моды; мод получает от лаунчера аккаунт, Discord, друзей и настройки и отдаёт обратно события из игры.
 
-Текущие версии: **лаунчер 1.23.0**, **мод 1.35.0** · идёт **альфа-тест**.
+Текущие версии: **лаунчер 1.23.1**, **мод 1.35.0** · идёт **альфа-тест**.
 
 ### Обновление 1.23.0
 - Общий стиль Farm Gold для сайта, лаунчера, мода и Android-приложения 1.5.
@@ -114,7 +114,7 @@ Farm Client — лаунчер Minecraft и клиентский Fabric-мод, 
 ### About
 Farm Client is a Minecraft launcher and a client-side Fabric mod that work as a pair. The launcher installs Minecraft, the mod loader, Java and mods; the mod receives the account, Discord, friends and settings from the launcher and reports in-game events back.
 
-Current versions: **launcher 1.23.0**, **mod 1.35.0** · **alpha test** in progress.
+Current versions: **launcher 1.23.1**, **mod 1.35.0** · **alpha test** in progress.
 
 ### Features
 
