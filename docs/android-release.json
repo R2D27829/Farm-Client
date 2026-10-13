@@ -1,1 +1,7 @@
-{"version": "1.4", "versionCode": 5, "url": "https://github.com/R2D27829/Farm-Client/releases/download/v1.22.0/FarmClient-1.4.apk", "sha256": "10e5330d74fbdfec569278d0874e62e2b6e9100a59e2a0897008cd4c94d452b1", "notes": "События кланов, поддержка, опросы и уведомления команды. Установи APK поверх предыдущей версии."}
+{
+  "version": "1.5",
+  "versionCode": 6,
+  "url": "https://github.com/R2D27829/Farm-Client/releases/download/v1.23.0/FarmClient-1.5.apk",
+  "sha256": "46ab46a33851a1ab61c5723c047e91cdde5231e4c5fa96998c12f2e2e9bbd7e7",
+  "notes": "Отдельное скрытие каждой соцсети и чёрно-золотое оформление. Установи APK поверх предыдущей версии — аккаунт сохранится."
+}
