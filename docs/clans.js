@@ -79,7 +79,7 @@
       const c = clan, my = RK[c.myRole] ?? -1;
       root.innerHTML = `<div class="fcl-head"><div class="fcl-badge">${E(c.badge)}</div><div style="flex:1;min-width:200px"><h3>${E(c.name)} <span class="fcl-sub">${E(c.tag)}</span></h3><div class="fcl-sub">${E(c.descr || '')}</div>
         <div class="fcl-stats"><span>🏆 <b>${c.trophies}</b></span><span>👥 <b>${c.count}</b>/50</span><span>${TYPE[c.type]}</span>${c.minHours ? `<span>от ${c.minHours} 🏆</span>` : ''}${c.region ? `<span>📍 ${E(c.region)}</span>` : ''}<span>Ты: <b>${ROLE[c.myRole]}</b></span></div></div></div>
-        <div class="fcl-tabs"><button data-t="chat">💬 Чат</button><button data-t="members">👥 Участники</button>${my >= 1 ? `<button data-t="req">📨 Заявки${c.requests.length ? ' (' + c.requests.length + ')' : ''}</button>` : ''}${my >= 2 ? '<button data-t="edit">⚙️ Настройки</button>' : ''}<button data-t="leave">🚪 Выйти</button></div><div data-pane></div>`;
+        <div class="fcl-tabs"><button data-t="chat">💬 Чат</button><button data-t="events">📅 События</button><button data-t="members">👥 Участники</button>${my >= 1 ? `<button data-t="req">📨 Заявки${c.requests.length ? ' (' + c.requests.length + ')' : ''}</button>` : ''}${my >= 2 ? '<button data-t="edit">⚙️ Настройки</button>' : ''}<button data-t="leave">🚪 Выйти</button></div><div data-pane></div>`;
       root.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { tab = b.dataset.t; show(); }));
       show();
     }
@@ -88,6 +88,7 @@
       root.querySelectorAll('[data-t]').forEach((b) => b.classList.toggle('on', b.dataset.t === tab));
       const p = root.querySelector('[data-pane]'), c = clan, my = RK[c.myRole] ?? -1;
       if (tab === 'chat') return chat(p);
+      if (tab === 'events') return events(p);
       if (tab === 'members') {
         p.innerHTML = c.members.map((m, i) => { const st = ST[m.presence.state] || ST.offline;
           return `<div class="fcl-row"><b style="width:22px;opacity:.6">${i + 1}</b><div class="grow"><span class="fcl-dot" style="background:${st[0]}" title="${st[1]}"></span><b>${E(m.name)}</b>${m.verified ? ' ✓' : ''}<span class="fcl-pill">${ROLE[m.role]}</span>
@@ -110,6 +111,14 @@
         p.innerHTML = `<div style="padding:12px">${c.myRole === 'leader' && c.count > 1 ? 'Ты лидер — лидерство перейдёт соруководителю (или самому активному).' : c.count === 1 ? 'Ты последний — клан будет удалён.' : 'Выйти из клана?'}<div class="fcl-acts" style="margin-top:10px"><button class="btn red">Выйти из клана</button></div></div>`;
         p.querySelector('button').onclick = async () => { if (await run(() => call('POST', `/api/clans/${c.id}/leave`, {}), 'Ты вышел из клана')) { clan = null; renderBrowse(); } };
       }
+    }
+    async function events(p) {
+      const r = await run(() => call('GET', `/api/clans/${clan.id}/events`)); if (!r || !p.isConnected) return;
+      const date = (t) => new Date(t*1000).toLocaleString('ru');
+      p.innerHTML = '<p class="fcl-sub">Запишись — напоминание придёт в Android-приложение примерно за час до начала (фоновая проверка ~15 минут).</p>' + r.events.map(e=>`<div class="fcl-row"><div class="grow"><b>${E(e.title)}</b><div class="fcl-sub">${E(date(e.starts_at))} · ${e.going} участников${e.cancelled?' · отменено':''}</div><p style="white-space:pre-wrap">${E(e.descr)}</p>${e.server?'<div class="fcl-sub">Сервер: '+E(e.server)+'</div>':''}${e.version?'<div class="fcl-sub">Версия: '+E(e.version)+'</div>':''}</div><div class="fcl-acts">${!e.cancelled&&e.starts_at>Date.now()/1000?`<button class="btn gold" data-rsvp="${E(e.id)}" data-going="${e.mine?0:1}">${e.mine?'✓ Записан · отказаться':'Я участвую'}</button>`:''}${r.canManage?`<button class="btn" data-cancel="${E(e.id)}" data-value="${e.cancelled?0:1}">${e.cancelled?'Восстановить':'Отменить'}</button>`:''}</div></div>`).join('') + (!r.events.length?'<div class="fcl-empty">Событий пока нет.</div>':'') + (r.canManage?`<form data-event-form style="display:grid;gap:12px;margin-top:24px"><h3>Создать событие</h3><label>Название<input name="title" maxlength="100" minlength="3" required style="width:100%;box-sizing:border-box"></label><label>Дата и время на твоём устройстве<input name="date" type="datetime-local" required style="width:100%;box-sizing:border-box"></label><label>Описание<textarea name="descr" maxlength="1000" rows="3" style="width:100%;box-sizing:border-box"></textarea></label><label>Сервер<input name="server" maxlength="100" style="width:100%;box-sizing:border-box"></label><label>Версия Minecraft<input name="version" maxlength="40" style="width:100%;box-sizing:border-box"></label><button class="btn gold">Создать</button></form>`:'');
+      p.querySelectorAll('[data-rsvp]').forEach(b=>b.onclick=async()=>{if(await run(()=>call('POST',`/api/clans/${clan.id}/events/${b.dataset.rsvp}/rsvp`,{going:b.dataset.going==='1'})))events(p);});
+      p.querySelectorAll('[data-cancel]').forEach(b=>b.onclick=async()=>{if(await run(()=>call('POST',`/api/clans/${clan.id}/events/${b.dataset.cancel}/status`,{cancelled:b.dataset.value==='1'})))events(p);});
+      const f=p.querySelector('[data-event-form]');if(f)f.onsubmit=async e=>{e.preventDefault();const button=f.querySelector('button');button.disabled=true;const d=f.elements;const r=await run(()=>call('POST',`/api/clans/${clan.id}/events`,{title:d.title.value,starts_at:Math.floor(new Date(d.date.value).getTime()/1000),descr:d.descr.value,server:d.server.value,version:d.version.value}));if(r){toast('Событие создано');events(p);}else button.disabled=false;};
     }
     function msgHtml(m) {
       if (m.kind === 'sys') return `<div class="fcl-m sys" data-id="${E(m.id)}">${E(m.text)} · ${T(m.created)}</div>`;
