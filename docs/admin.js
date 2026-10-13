@@ -21,6 +21,12 @@
 .fa-bad{color:var(--red,#ef6b6b)}.fa-ok{color:var(--green,#6fd36f)}.fa-empty{opacity:.6;padding:10px 2px}
 .fa-plan{display:grid;grid-template-columns:90px 1fr 90px 130px 80px auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--fa-line)}
 .fa-plan input:not([type=checkbox]),.fa-plan select{height:34px;padding:0 8px;min-width:0;box-sizing:border-box;width:100%}.fa-plan .fa-desc{grid-column:1/-1}.fa-plan-field{display:flex;flex-direction:column;gap:4px;min-width:0}.fa-plan-field>span{font-size:12px;opacity:.7}
+.fa-chat-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.fa-chat-toolbar span{font-size:14px;opacity:.7}
+.fa-chat-messages{height:340px;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid var(--fa-line);border-radius:16px;background:rgba(0,0,0,.15)}
+.fa-chat-msg{max-width:85%;align-self:flex-start;padding:12px 16px;border:1px solid var(--fa-line);border-radius:14px;background:rgba(255,255,255,.03);min-width:0}.fa-chat-msg.mine{align-self:flex-end;background:rgba(242,181,68,.09)}
+.fa-chat-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:14px;margin-bottom:8px}.fa-chat-meta time{opacity:.6}.fa-chat-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.5}.fa-chat-delete{display:block;margin-top:8px;min-height:44px;color:var(--muted,#aaa);background:none;border:0;cursor:pointer;font:inherit}.fa-chat-delete:hover{color:var(--red,#ef6b6b)}
+.fa-chat-form{display:flex;gap:12px;align-items:flex-end;margin-top:16px}.fa-chat-input{display:flex;flex-direction:column;gap:8px;flex:1;min-width:0;font-size:14px}.fa-chat-input textarea{resize:vertical;min-height:84px;font-size:16px;padding:12px;box-sizing:border-box;width:100%}.fa-chat-form>button{min-height:44px}.fa-chat-toolbar>button{min-height:44px!important}
+@media(max-width:600px){.fa-chat-form{flex-direction:column;align-items:stretch}.fa-chat-msg{max-width:100%;box-sizing:border-box}.fa-chat-messages{padding:12px;height:300px}}
 @media(max-width:720px){.fa-plan{grid-template-columns:1fr 1fr}.fa-plan .fa-desc{grid-column:1/-1}}`;
 
   function termHtml(id, def = 'forever') {
@@ -63,12 +69,14 @@
       const deco = () => root.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach((i) => i.classList.add(opts.inputClass));
       new MutationObserver(deco).observe(root, { childList: true, subtree: true });
     }
-    const tabs = [['stats', '📊 Статистика'], ['keys', '🔑 Ключи'], ['codes', '🎟️ Коды'], ['promo', '🏷️ Промокоды'], ['users', '👥 Игроки'], ['shop', '🛒 Тарифы'], ['orders', '📦 Заказы'], ['news', '📰 Новости'], ['verify', '✓ Галочки'], ['log', '📜 Журнал']];
+    const tabs = [['stats', '📊 Статистика'], ['keys', '🔑 Ключи'], ['codes', '🎟️ Коды'], ['promo', '🏷️ Промокоды'], ['users', '👥 Игроки'], ['shop', '🛒 Тарифы'], ['orders', '📦 Заказы'], ['news', '📰 Новости'], ['chat', '💬 Чат админов'], ['verify', '✓ Галочки'], ['log', '📜 Журнал']];
     root.classList.add('fa');
     root.innerHTML = `<div class="fa-tabs">${tabs.map(([k, t]) => `<button data-fa-tab="${k}">${t}</button>`).join('')}</div>${tabs.map(([k]) => `<div data-fa-pane="${k}" hidden></div>`).join('')}`;
     const pane = (k) => root.querySelector(`[data-fa-pane="${k}"]`);
-    const loaded = {};
+    const loaded = {}; let chatTimer = null;
     function show(k) {
+      if (!tabs.some(([id]) => id === k)) k = 'stats';
+      clearTimeout(chatTimer);
       root.querySelectorAll('[data-fa-tab]').forEach((b) => b.classList.toggle('on', b.dataset.faTab === k));
       root.querySelectorAll('[data-fa-pane]').forEach((p) => (p.hidden = p.dataset.faPane !== k));
       if (!loaded[k]) { loaded[k] = true; R[k](pane(k)); } else if (R[k].refresh) R[k].refresh();
@@ -294,6 +302,50 @@
         el.querySelectorAll('[data-copy]').forEach((b) => (b.onclick = () => copy(b.dataset.copy, toast)));
       }
       el.querySelector('[data-o="ref"]').onclick = list; list();
+    };
+
+    // ---------- общий закрытый чат администраторов ----------
+    R.chat = (el) => {
+      el.innerHTML = `<p class="fa-hint" style="font-size:14px">Общая приватная комната Farm Client. Только действующие администраторы могут читать и отправлять сообщения.</p>
+        <div class="fa-chat-toolbar"><button class="btn fa-s" data-chat="older">Загрузить старые</button><span data-chat="status" role="status">Загрузка…</span></div>
+        <div class="fa-chat-messages" data-chat="messages" role="log" aria-label="Сообщения администраторов"></div>
+        <form class="fa-chat-form"><label class="fa-chat-input"><span>Сообщение команде</span><textarea maxlength="2000" rows="3" placeholder="Напиши другим администраторам…" required></textarea></label><button class="btn gold" type="submit">Отправить</button></form>`;
+      let messages = [], me = '', loading = false;
+      const box = el.querySelector('[data-chat="messages"]'), status = el.querySelector('[data-chat="status"]'), older = el.querySelector('[data-chat="older"]'), form = el.querySelector('form'), input = el.querySelector('textarea'), send = form.querySelector('button');
+      function draw(stick) {
+        box.innerHTML = messages.map((m) => `<article class="fa-chat-msg${m.user_id === me ? ' mine' : ''}"><div class="fa-chat-meta"><b>${E(m.author)}</b><time>${E(new Date(m.created * 1000).toLocaleString('ru'))}</time></div><div class="fa-chat-text">${E(m.text)}</div><button type="button" class="fa-chat-delete" data-delete="${m.id}" aria-label="Удалить сообщение ${m.id}">Удалить</button></article>`).join('') || '<p class="fa-empty">Здесь ещё нет сообщений. Начни разговор с командой.</p>';
+        box.querySelectorAll('[data-delete]').forEach((b) => b.onclick = async () => { if (!confirm('Удалить сообщение из чата админов?')) return; if (await run(() => call('POST', '/api/admin/chat/delete', { id: +b.dataset.delete }))) { messages = messages.filter((m) => m.id !== +b.dataset.delete); draw(false); } });
+        if (stick) box.scrollTop = box.scrollHeight;
+      }
+      async function load(old = false) {
+        if (loading || !root.isConnected || el.hidden) return;
+        loading = true; clearTimeout(chatTimer);
+        try {
+          const first = messages[0] && messages[0].id;
+          const r = await call('GET', '/api/admin/chat' + (old && first ? '?before=' + first : ''));
+          me = r.me; const stick = !messages.length || box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+          const history = old ? [...r.messages, ...messages] : [...messages.filter((m) => r.messages.length && m.id < r.messages[0].id), ...r.messages];
+          const unique = [...new Map(history.map((m) => [m.id, m])).values()].sort((a, b) => a.id - b.id);
+          if (JSON.stringify(unique) !== JSON.stringify(messages)) { const h = box.scrollHeight; messages = unique; draw(!old && stick); if (old) box.scrollTop += box.scrollHeight - h; }
+          else if (!messages.length) draw(false);
+          older.disabled = old && !r.messages.length;
+          status.textContent = 'Только админы · обновлено ' + new Date().toLocaleTimeString('ru');
+          input.disabled = send.disabled = false;
+        } catch (e) {
+          status.textContent = e.message || 'Не удалось загрузить чат';
+          // При отзыве прав не оставляем сообщения на экране; сеть не выдаём за отзыв.
+          if (/администратор|вход|Сессия|заблокирован/i.test(status.textContent)) { messages = []; box.textContent = 'Чат недоступен'; input.disabled = send.disabled = true; }
+        } finally { loading = false; if (root.isConnected && !el.hidden) chatTimer = setTimeout(() => { if (!document.hidden) load(); else chatTimer = setTimeout(() => load(), 5000); }, 5000); }
+      }
+      older.onclick = () => load(true);
+      form.onsubmit = async (e) => {
+        e.preventDefault(); const text = input.value.trim(); if (!text) return;
+        send.disabled = true;
+        try { await call('POST', '/api/admin/chat', { text }); if (input.value.trim() === text) input.value = ''; await load(); }
+        catch (e) { toast(e.message || 'Не удалось отправить', true); }
+        finally { send.disabled = false; }
+      };
+      R.chat.refresh = () => load(); load();
     };
 
     // ---------- галочки ----------
