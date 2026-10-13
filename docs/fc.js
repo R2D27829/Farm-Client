@@ -3,7 +3,9 @@
 window.FC_API = window.FC_API || 'https://farmclient-api.farmclient.workers.dev';   // например 'https://farmclient-api.<ник>.workers.dev'
 const FC = {
   get token() { return localStorage.getItem('fc_token') || ''; },
-  set token(v) { v ? localStorage.setItem('fc_token', v) : localStorage.removeItem('fc_token'); },
+  set token(v) { v ? localStorage.setItem('fc_token', v) : localStorage.removeItem('fc_token'); FC.appSync(); },
+  // Android-приложение 1.3+: передаём токен для фоновых уведомлений
+  appSync() { try { if (window.FarmApp && FarmApp.setToken) FarmApp.setToken(localStorage.getItem('fc_token') || ''); } catch {} },
   async api(method, path, { body, raw, auth = true } = {}) {
     if (!window.FC_API) throw new Error('Сервер ещё не подключён (FC_API в docs/fc.js)');
     const h = {};
@@ -25,3 +27,4 @@ const FC = {
   size: (n) => (n > 1048576 ? (n / 1048576).toFixed(1) + ' МБ' : Math.max(1, Math.round(n / 1024)) + ' КБ'),
   date: (s) => new Date(s * 1000).toLocaleDateString('ru'),
 };
+FC.appSync();
