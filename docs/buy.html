@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><link rel="icon" href="img/logo.png"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Купить лицензию — Farm Client</title><link rel="stylesheet" href="fc.css?v=4"><meta name="theme-color" content="#e8b04a">
-<script src="fc.js?v=6"></script>
+<title>Купить лицензию — Farm Client</title><link rel="stylesheet" href="fc.css?v=5"><meta name="theme-color" content="#e8b04a">
+<script src="fc.js?v=7"></script>
 <style>.plan{display:flex;flex-direction:column;gap:8px}.plan .price{font-size:30px;font-weight:800;color:var(--gold)}.plan .btn{margin-top:auto}
 .key{font-family:ui-monospace,monospace;font-size:12px;word-break:break-all;background:#0c0d10;border:1px solid var(--line);border-radius:10px;padding:10px;user-select:all}</style>
 </head><body>
 <main class="wrap" style="max-width:900px">
   <h1>Лицензия Farm Client</h1>
-  <p class="muted">Без лицензии мод Farm Client не запускается. Ключ работает навсегда (или выбранный срок) и привязывается к твоему ПК.</p>
+  <p class="muted">Без лицензии мод Farm Client не запускается. Ключ работает навсегда (или выбранный срок) — условия привязки к ПК указаны в выбранном тарифе.</p>
 
   <section id="paid" class="card hidden"><h2 id="paid-h">Проверяем оплату…</h2><div id="paid-body" class="muted small">Обычно это занимает до минуты. Страницу можно не закрывать.</div></section>
 
@@ -17,11 +17,11 @@
     <form class="row" id="code-form"><input id="code" placeholder="XXXX-XXXX" maxlength="9" style="width:180px;text-transform:uppercase;letter-spacing:2px;font-weight:700"><button class="btn gold">Войти</button></form>
   </section>
 
-  <section id="off" class="card hidden"><h2>Как купить</h2>
+  <section id="off" class="card hidden"><h2>Как купить</h2><p class="muted small" style="margin-bottom:12px">Для запуска нужен интернет. Мод перепроверяет лицензию каждые 5 минут; если подтверждение не обновляется, игра закрывается по истечении текущего подтверждения (до 10 минут).</p>
     <ol class="muted small" style="padding-left:18px;line-height:1.9">
       <li>Нажми «Купить» у нужного тарифа — откроется чат с администратором. Напиши, какой тариф хочешь.</li>
       <li>Оплати так, как скажет администратор, и получи код вида <b>FARM-XXXX-XXXX-XXXX</b>.</li>
-      <li>В лаунчере: <b>Настройки → Лицензия</b> → вставь код → «Активировать». Ключ привяжется к твоему ПК, срок считается с момента активации.</li>
+      <li>В лаунчере: <b>Настройки → Лицензия</b> → вставь код → «Активировать». Привязка к ПК зависит от тарифа, срок считается с момента активации.</li>
     </ol><p class="muted small" id="off-text"></p></section>
 
   <div class="grid" id="plans" style="margin-top:16px"></div>
