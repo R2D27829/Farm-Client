@@ -26,6 +26,7 @@
 .fa-chat-msg{max-width:85%;align-self:flex-start;padding:12px 16px;border:1px solid var(--fa-line);border-radius:14px;background:rgba(255,255,255,.03);min-width:0}.fa-chat-msg.mine{align-self:flex-end;background:rgba(242,181,68,.09)}
 .fa-chat-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:14px;margin-bottom:8px}.fa-chat-meta time{opacity:.6}.fa-chat-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.5}.fa-chat-delete{display:block;margin-top:8px;min-height:44px;color:var(--muted,#aaa);background:none;border:0;cursor:pointer;font:inherit}.fa-chat-delete:hover{color:var(--red,#ef6b6b)}
 .fa-chat-form{display:flex;gap:12px;align-items:flex-end;margin-top:16px}.fa-chat-input{display:flex;flex-direction:column;gap:8px;flex:1;min-width:0;font-size:14px}.fa-chat-input textarea{resize:vertical;min-height:84px;font-size:16px;padding:12px;box-sizing:border-box;width:100%}.fa-chat-form>button{min-height:44px}.fa-chat-toolbar>button{min-height:44px!important}
+.fa-poll-form{display:grid;gap:14px;margin-bottom:24px}.fa-poll-form label{display:grid;gap:6px;font-size:14px}.fa-poll-form input,.fa-poll-form textarea{font-size:16px;padding:10px;box-sizing:border-box;width:100%}.fa-poll-form button{min-height:44px;justify-self:start}
 @media(max-width:600px){.fa-chat-form{flex-direction:column;align-items:stretch}.fa-chat-msg{max-width:100%;box-sizing:border-box}.fa-chat-messages{padding:12px;height:300px}}
 @media(max-width:720px){.fa-plan{grid-template-columns:1fr 1fr}.fa-plan .fa-desc{grid-column:1/-1}}`;
 
@@ -69,7 +70,7 @@
       const deco = () => root.querySelectorAll('input:not([type=checkbox]),select,textarea').forEach((i) => i.classList.add(opts.inputClass));
       new MutationObserver(deco).observe(root, { childList: true, subtree: true });
     }
-    const tabs = [['stats', '📊 Статистика'], ['keys', '🔑 Ключи'], ['codes', '🎟️ Коды'], ['promo', '🏷️ Промокоды'], ['users', '👥 Игроки'], ['shop', '🛒 Тарифы'], ['orders', '📦 Заказы'], ['news', '📰 Новости'], ['chat', '💬 Чат админов'], ['verify', '✓ Галочки'], ['log', '📜 Журнал']];
+    const tabs = [['stats', '📊 Статистика'], ['keys', '🔑 Ключи'], ['codes', '🎟️ Коды'], ['promo', '🏷️ Промокоды'], ['users', '👥 Игроки'], ['shop', '🛒 Тарифы'], ['orders', '📦 Заказы'], ['news', '📰 Новости'], ['chat', '💬 Чат админов'], ['support', '📨 Поддержка'], ['polls', '🗳️ Опросы'], ['verify', '✓ Галочки'], ['log', '📜 Журнал']];
     root.classList.add('fa');
     root.innerHTML = `<div class="fa-tabs">${tabs.map(([k, t]) => `<button data-fa-tab="${k}">${t}</button>`).join('')}</div>${tabs.map(([k]) => `<div data-fa-pane="${k}" hidden></div>`).join('')}`;
     const pane = (k) => root.querySelector(`[data-fa-pane="${k}"]`);
@@ -233,12 +234,12 @@
       const $ = (k) => el.querySelector(`[data-u="${k}"]`);
       async function list() {
         const l = await run(() => call('GET', '/api/admin/users?q=' + encodeURIComponent($('q').value.trim()))); if (!l) return;
-        $('list').innerHTML = l.map((u) => `<div class="fa-row"><div class="fa-main"><b>${E(u.name || '—')}</b> ${u.verified ? '<span class="fa-pill">✓</span>' : ''}${u.role === 'admin' ? '<span class="fa-pill">🛡️ админ</span>' : ''}${u.banned ? '<span class="fa-pill fa-bad">⛔ бан</span>' : ''} <code>${E(u.id)}</code>
+        $('list').innerHTML = l.map((u) => `<div class="fa-row"><div class="fa-main"><b>${E(u.name || '—')}</b> ${u.verified ? '<span class="fa-pill">✓</span>' : ''}${['admin','developer'].includes(u.role) ? '<span class="fa-pill">'+(u.role==='developer'?'Разработчик':'🛡️ админ')+'</span>' : ''}${u.banned ? '<span class="fa-pill fa-bad">⛔ бан</span>' : ''} <code>${E(u.id)}</code>
           <div class="fa-sub">${u.license_id ? 'Ключ ' + E(u.license_id) + ' · ' + (TYPE[u.license_type] || E(u.license_type)) + ' · ' + exp(u.license_exp) + (u.revoked != null ? ' · <span class="fa-bad">отозван</span>' : '') : 'без ключа'}${u.links ? ' · ' + E(u.links) : ''}${u.hwid ? ' · HWID ' + E(u.hwid) : ''} · с ${D(u.created)}</div></div>
           <div class="fa-acts"><button class="btn fa-s" data-give="${E(u.id)}" data-n="${E(u.name || '')}">Выдать ключ</button>
           ${u.license_id ? (u.revoked != null ? `<button class="btn fa-s" data-unrev="${E(u.license_id)}">Вернуть ключ</button>` : `<button class="btn fa-s" data-rev="${E(u.license_id)}">Отозвать ключ</button>`) : ''}
           <button class="btn fa-s" data-set="${E(u.id)}" data-f="verified" data-v="${u.verified ? 0 : 1}">${u.verified ? 'Снять ✓' : 'Дать ✓'}</button>
-          <button class="btn fa-s" data-set="${E(u.id)}" data-f="role" data-v="${u.role === 'admin' ? 'user' : 'admin'}">${u.role === 'admin' ? 'Убрать админа' : 'Сделать админом'}</button>
+          <button class="btn fa-s" data-set="${E(u.id)}" data-f="role" data-v="${['admin','developer'].includes(u.role) ? 'user' : 'admin'}">${['admin','developer'].includes(u.role) ? 'Убрать админа' : 'Сделать админом'}</button>
           <button class="btn fa-s ${u.banned ? '' : 'red'}" data-set="${E(u.id)}" data-f="banned" data-v="${u.banned ? 0 : 1}">${u.banned ? 'Разбанить' : 'Забанить'}</button></div></div>`).join('') || '<div class="fa-empty">Никого не нашлось.</div>';
         wireRevoke($('list'), list);
         $('list').querySelectorAll('[data-give]').forEach((b) => (b.onclick = () => { show('keys'); R.keys.prefill && R.keys.prefill({ id: b.dataset.give, name: b.dataset.n }); }));
@@ -348,6 +349,19 @@
       R.chat.refresh = () => load(); load();
     };
 
+    // ---------- support inbox ----------
+    R.support = (el) => {
+      el.innerHTML='<p class="fa-hint">Приватные обращения игроков. Открой обращение, чтобы ответить и посмотреть скриншоты.</p><div class="fa-form"><select data-support-filter><option value="open">Открытые</option><option value="closed">Закрытые</option></select><button class="btn" data-support-refresh>Обновить</button></div><div class="fa-list" data-support-list></div>';
+      async function load(){const r=await run(()=>call('GET','/api/admin/support?status='+el.querySelector('[data-support-filter]').value));if(!r)return;el.querySelector('[data-support-list]').innerHTML=r.map(t=>`<div class="fa-row"><div class="fa-main"><b>${E(t.title)}</b><div class="fa-sub">${E(t.name||t.user_id)} · ${D(t.updated)} · ${t.status==='open'?'Открыто':'Закрыто'}</div></div><button class="btn" data-ticket="${E(t.id)}">Ответить</button></div>`).join('')||'<div class="fa-empty">Обращений пока нет</div>';el.querySelectorAll('[data-ticket]').forEach(b=>b.onclick=()=>{const url='support.html?id='+encodeURIComponent(b.dataset.ticket);opts.openSite?opts.openSite(url):location.href=url;});}
+      el.querySelector('[data-support-filter]').onchange=load;el.querySelector('[data-support-refresh]').onclick=load;R.support.refresh=load;load();
+    };
+    // ---------- player polls ----------
+    R.polls = (el) => {
+      el.innerHTML='<p class="fa-hint">Опрос появится на странице «Опросы» сайта и в приложении. Один голос на Farm ID; выбор можно менять до завершения.</p><form class="fa-poll-form"><label>Вопрос<input name="question" maxlength="160" minlength="5" required></label><label>Варианты (2–8, каждый на новой строке)<textarea name="options" rows="4" required placeholder="Новая тема\nНовая версия Minecraft\nУдобнее мессенджер"></textarea></label><label>Дата завершения (необязательно, местное время)<input type="datetime-local" name="closes"></label><button class="btn gold">Опубликовать опрос</button></form><div data-poll-list class="fa-list"></div>';
+      const f=el.querySelector('form');
+      async function load(){const r=await run(()=>call('GET','/api/polls'));if(!r)return;el.querySelector('[data-poll-list]').innerHTML=r.map(p=>`<div class="fa-row"><div class="fa-main"><b>${E(p.question)}</b><div class="fa-sub">${p.closed?'Завершён':'Активен'} · ${p.total} голосов</div><div style="margin-top:8px">${p.options.map(o=>`<div>${E(o.label)} — ${o.votes}</div>`).join('')}</div></div><button class="btn" data-poll="${E(p.id)}" data-closed="${p.closed?1:0}">${p.closed?'Открыть':'Завершить'}</button></div>`).join('')||'<div class="fa-empty">Опросов пока нет</div>';el.querySelectorAll('[data-poll]').forEach(b=>b.onclick=async()=>{if(await run(()=>call('POST','/api/admin/polls/'+b.dataset.poll+'/status',{closed:b.dataset.closed!=='1'})))load();});}
+      f.onsubmit=async e=>{e.preventDefault();const d=f.elements,b=f.querySelector('button');b.disabled=true;const closes=d.closes.value?Math.floor(new Date(d.closes.value).getTime()/1000):0;const r=await run(()=>call('POST','/api/admin/polls',{question:d.question.value,options:d.options.value.split('\n'),closes}),'Опрос опубликован');if(r){f.reset();load();}b.disabled=false;};R.polls.refresh=load;load();
+    };
     // ---------- галочки ----------
     R.verify = (el) => {
       el.innerHTML = `<div class="fa-form"><label class="fa-f fa-grow"><span>Выдать галочку по Farm ID</span><input data-v="id" placeholder="u_…"></label><button class="btn gold" data-v="give">Выдать ✓</button></div><div class="fa-list" data-v="list"></div>`;
