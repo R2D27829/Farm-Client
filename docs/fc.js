@@ -20,7 +20,7 @@ const FC = {
   toast(msg, err) { let t = document.getElementById('toast'); if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.append(t); } t.textContent = msg; t.className = 'on' + (err ? ' err' : ''); clearTimeout(FC._t); FC._t = setTimeout(() => (t.className = ''), 3500); },
   nav(active) {
     const n = document.createElement('nav');
-    n.innerHTML = `<div class="wrap"><a class="logo" href="index.html">FARM <span>CLIENT</span></a><div class="links">
+    n.innerHTML = `<div class="wrap"><a class="logo" href="index.html"><img src="img/logo.png" alt="">FARM <span>CLIENT</span></a><button class="nb" aria-label="Menu" onclick="this.closest('nav').classList.toggle('open')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="links">
       <a href="index.html">Главная</a><a href="gallery.html" class="${active === 'gallery' ? 'on' : ''}">Галерея</a><a href="chat.html" class="${active === 'chat' ? 'on' : ''}">Мессенджер</a><a href="clans.html" class="${active === 'clans' ? 'on' : ''}">Кланы</a><a href="faq.html" class="${active === 'faq' ? 'on' : ''}">Помощь</a><a href="buy.html" class="${active === 'buy' ? 'on' : ''}">Купить</a><a href="account.html" class="${active === 'account' ? 'on' : ''}">Кабинет</a><a href="en.html" title="English">EN</a></div></div>`;
     document.body.prepend(n); const g = document.createElement('div'); g.className = 'glow'; document.body.prepend(g);
   },
