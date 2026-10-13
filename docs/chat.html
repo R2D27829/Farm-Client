@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Мессенджер — Farm Client</title><link rel="stylesheet" href="fc.css?v=3"><meta name="theme-color" content="#e8b04a">
-<script src="fc.js?v=4"></script>
+<script src="fc.js?v=5"></script>
 <style>
 .chat{display:grid;grid-template-columns:240px 1fr;height:calc(100vh - 170px);min-height:420px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
 .side{border-right:1px solid var(--line);display:flex;flex-direction:column}.side form{display:flex;gap:6px;padding:10px}.side input{flex:1}
@@ -20,7 +20,7 @@
   <div class="chat">
     <aside class="side"><form id="add"><input id="add-n" placeholder="@ник друга"><button class="btn sm">＋</button></form><div class="cl" id="list"></div></aside>
     <section class="main"><div class="head" id="head">Выбери чат слева</div><div class="msgs" id="msgs"></div>
-      <form class="inp" id="form"><label class="btn sm" title="Фото, GIF или видео до 15 МБ">📎<input type="file" id="file" accept="image/*,video/*" hidden></label><input type="text" id="text" maxlength="1000" placeholder="Сообщение…" autocomplete="off"><button class="btn gold sm">Отправить</button></form></section>
+      <form class="inp" id="form"><label class="btn sm" title="Фото, GIF или видео до 15 МБ">📎<input type="file" id="file" accept="image/*,video/*,audio/*" hidden></label><input type="text" id="text" maxlength="1000" placeholder="Сообщение…" autocomplete="off"><button class="btn gold sm">Отправить</button></form></section>
   </div>
 </main>
 <script>
@@ -84,7 +84,7 @@ function gifs(box) {
 }
 function render() {
   const l = DB[CUR] || [], t = (ts) => new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  $('#msgs').innerHTML = l.map((m) => `<div class="m${m.me ? ' me' : ''}"><small>${m.me ? 'Ты' : FC.esc(m.from)} · ${t(m.ts)}</small>${m.blob ? (/^video/.test(m.mime) ? `<video src="${m.blob}" controls></video>` : `<img src="${m.blob}" alt="">`) : ''}${linkify(m.text)}</div>`).join('') || '<p class="muted" style="margin:auto">Сообщений пока нет 👋</p>';
+  $('#msgs').innerHTML = l.map((m) => `<div class="m${m.me ? ' me' : ''}"><small>${m.me ? 'Ты' : FC.esc(m.from)} · ${t(m.ts)}</small>${m.blob ? (/^audio/.test(m.mime) ? `<audio src="${m.blob}" controls style="display:block;max-width:100%"></audio>` : /^video/.test(m.mime) ? `<video src="${m.blob}" controls></video>` : `<img src="${m.blob}" alt="">`) : ''}${linkify(m.text)}</div>`).join('') || '<p class="muted" style="margin:auto">Сообщений пока нет 👋</p>';
   $('#msgs').scrollTop = $('#msgs').scrollHeight;
   gifs($('#msgs'));
 }
@@ -124,7 +124,7 @@ async function sendText(text) {
   push(CUR, { id: 'm' + Date.now(), from: ME, text, ts: Date.now(), me: true });
 }
 async function sendFile(f) {
-  if (!/^(image|video)\//.test(f.type)) return FC.toast('Только фото, GIF и видео', true);
+  if (!/^(image|video|audio)\//.test(f.type)) return FC.toast('Только фото, GIF, видео и аудио', true);
   if (f.size > MAX) return FC.toast('Файл больше 15 МБ', true);
   const text = $('#text').value.trim(), data = new Uint8Array(await f.arrayBuffer());
   const e = await encBytes(ME, CUR, data), tag = b64(e.tag), meta = JSON.stringify({ name: f.name, mime: f.type, size: f.size, text });
