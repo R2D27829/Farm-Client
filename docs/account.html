@@ -19,9 +19,9 @@
       </form>
       <form id="email-register-form" class="email-form hidden" role="tabpanel" aria-labelledby="email-register-tab">
         <label for="email-register-address">Почта</label><input id="email-register-address" type="email" autocomplete="username" inputmode="email" maxlength="254" placeholder="you@example.com" required>
-        <label for="email-register-password">Пароль</label><input id="email-register-password" type="password" autocomplete="new-password" minlength="12" maxlength="128" aria-describedby="email-password-hint" required>
-        <p class="muted small" id="email-password-hint">От 12 до 128 символов. Не используй пароль от своей почты.</p>
-        <label for="email-register-confirm">Повтори пароль</label><input id="email-register-confirm" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+        <label for="email-register-password">Пароль</label><input id="email-register-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" aria-describedby="email-password-hint" required>
+        <p class="muted small" id="email-password-hint">От 8 до 128 символов. Не используй пароль от своей почты.</p>
+        <label for="email-register-confirm">Повтори пароль</label><input id="email-register-confirm" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
         <div><button class="btn gold" type="submit">Создать Farm ID</button></div>
       </form>
       <p id="email-auth-note" class="muted small" role="status" style="margin-top:12px">Почта — логин. Подтверждение адреса и автоматический сброс пароля пока не подключены. Сохрани пароль или привяжи соцсеть после входа.</p>
@@ -45,9 +45,9 @@
         <form id="email-account-form" class="email-form" style="margin-top:12px">
           <label for="email-account-address">Почта для входа</label><input id="email-account-address" type="email" autocomplete="username" maxlength="254" required>
           <div id="email-old-password-box" class="email-form hidden"><label for="email-old-password">Текущий пароль</label><input id="email-old-password" type="password" autocomplete="current-password" maxlength="128"></div>
-          <label for="email-account-password">Новый пароль</label><input id="email-account-password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
-          <label for="email-account-confirm">Повтори новый пароль</label><input id="email-account-confirm" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
-          <p class="muted small">От 12 символов. Это добавит вход к текущему Farm ID, а не создаст второй профиль. При смене существующего пароля остальные входы завершаются.</p><div><button class="btn gold">Сохранить</button></div><p id="email-account-error" class="err small hidden" role="alert"></p>
+          <label for="email-account-password">Новый пароль</label><input id="email-account-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+          <label for="email-account-confirm">Повтори новый пароль</label><input id="email-account-confirm" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+          <p class="muted small">От 8 символов. Это добавит вход к текущему Farm ID, а не создаст второй профиль. При смене существующего пароля остальные входы завершаются.</p><div><button class="btn gold">Сохранить</button></div><p id="email-account-error" class="err small hidden" role="alert"></p>
         </form>
       </details>
     </div>
@@ -63,7 +63,7 @@
     <div class="card" id="ver-card"><h2>Галочка <span class="vbadge">✓</span></h2><div id="ver"></div></div>
     <div class="card hidden" id="adm-ver"><div class="row" style="justify-content:space-between;margin-bottom:12px"><h2 style="margin:0">🛡️ Заявки на галочку</h2><a class="btn gold sm" href="admin.html">Админ-панель: ключи, коды, тарифы, игроки</a></div><div id="adm-ver-list"></div>
       <form class="row" id="adm-ver-form" style="margin-top:12px"><input id="adm-ver-id" placeholder="Farm ID (u_…)" style="flex:1;min-width:160px"><button class="btn sm gold">Выдать ✔</button><button class="btn sm red" type="button" id="adm-ver-rm">Снять</button></form></div>
-    <div class="card"><h2>Discord + Farm ID</h2><p class="muted small" style="margin-bottom:12px">Один Farm-профиль с привязанным Discord: вход, ник и голосовые в мессенджере. Farm ID, лицензия и публикации остаются здесь. Привязка не переносит сообщения из самого Discord.</p><div id="chat-identity" style="margin-bottom:16px"></div><div id="links"></div><div id="tg-link-box" style="margin-top:8px"></div></div>
+    <div class="card"><h2>Discord + Farm ID</h2><p class="muted small" style="margin-bottom:12px">Один Farm-профиль с привязанным Discord: вход, ник и голосовые в мессенджере. Farm ID, лицензия и публикации остаются здесь. Привязка не переносит сообщения из самого Discord.</p><div id="chat-identity" style="margin-bottom:16px"></div><div class="privacy-box" style="border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px"><label style="display:flex;align-items:center;gap:12px;min-height:44px;cursor:pointer"><input id="hide-social" type="checkbox" style="width:20px;height:20px;accent-color:var(--gold)"><b>Скрыть соцсети в публичном профиле</b></label><p class="muted small" style="margin:8px 0 0">Другие игроки не увидят привязки и имена соцсетей. Вход через них продолжит работать. Твои привязки ниже видны только тебе.</p><p id="privacy-status" class="muted small" role="status" style="margin:8px 0 0"></p></div><div id="links"></div><div id="tg-link-box" style="margin-top:8px"></div></div>
     <div class="card"><h2>Устройства и помощь</h2><div class="row"><a class="btn gold" href="devices.html">Мои устройства и входы</a><a class="btn" href="support.html">Поддержка</a><a class="btn" href="community.html">Опросы</a></div></div><div class="card"><h2>Облачные конфиги</h2><p class="muted small" style="margin-bottom:6px">Сохраняются из лаунчера (Настройки → Облачные конфиги). Отсюда можно скачать архив.</p><div id="cloud"></div></div>
     <div class="card"><h2>Мои публикации</h2><div id="mine"></div><a class="btn sm" href="gallery.html#upload" style="margin-top:10px">Опубликовать тему / конфиг / сборку</a></div>
   </section>
@@ -104,6 +104,7 @@ async function loadMe() {
   const names = (me.chat && me.chat.names) || [];
   $('#chat-identity').innerHTML = `<div class="small">${me.chat && me.chat.discord ? 'Discord связан с этим Farm-аккаунтом ✅' : 'Привяжи Discord кнопкой ниже; голосовые доступны и по нику Minecraft.'}</div><div class="muted small" style="overflow-wrap:anywhere;margin-top:6px">Тебе можно написать: ${names.map((n) => '@' + FC.esc(n)).join(' · ') || 'укажи ник в лаунчере'}</div><a class="btn gold sm" style="margin-top:12px" href="chat.html">Открыть мессенджер · 🎤 голосовые</a>${['admin','developer'].includes(me.role) ? '<a class="btn sm" style="margin:12px 0 0 8px" href="admin.html#chat">Чат админов</a>' : ''}`;
   await provReady;
+  $('#hide-social').checked = !!(me.privacy && me.privacy.hideSocial);
   $('#links').innerHTML = Object.entries(P).filter(([k]) => PROV[k] || me.links.some((y) => y.provider === k)).map(([k, [name, color]]) => {
     const x = me.links.find((y) => y.provider === k);
     return `<div class="link-row">${x && x.avatar ? `<img src="${FC.esc(x.avatar)}" alt="">` : `<div class="ic" style="background:${color}">${name[0]}</div>`}<div style="flex:1"><b>${name}</b><div class="muted small">${x ? FC.esc(x.name) : 'не привязан'}</div></div>
@@ -196,4 +197,11 @@ if (h.get('code')) { $('#code-form').closest('details').open = true; $('#code').
 else if (FC.token) loadMe(); else showLogin();
 
 try { if (window.FarmApp && FarmApp.setNotify) { const c = document.getElementById('app-notify-on'); document.getElementById('app-notify').classList.remove('hidden'); c.checked = FarmApp.notifyOn(); c.onchange = () => { FarmApp.setNotify(c.checked); FC.toast(c.checked ? 'Уведомления включены' : 'Уведомления выключены'); }; } } catch {}
+
+$('#hide-social').onchange = async function() {
+  const wanted=this.checked; this.disabled=true; $('#privacy-status').textContent='Сохраняем…';
+  try { const p=await FC.api('PUT','/api/privacy',{body:{hideSocial:wanted}}); this.checked=p.hideSocial; $('#privacy-status').textContent=p.hideSocial?'Соцсети скрыты от других игроков':'Соцсети видны в публичном профиле'; }
+  catch(e) { this.checked=!wanted; $('#privacy-status').textContent=e.message; }
+  finally { this.disabled=false; }
+};
 </script></body></html>
