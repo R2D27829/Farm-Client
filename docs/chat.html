@@ -3,15 +3,15 @@
 <title>Мессенджер — Farm Client</title><link rel="stylesheet" href="fc.css?v=4"><meta name="theme-color" content="#e8b04a">
 <script src="fc.js?v=6"></script>
 <style>
-.chat{display:grid;grid-template-columns:240px 1fr;height:calc(100vh - 170px);min-height:420px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
+.chat{display:grid;grid-template-columns:240px 1fr;height:calc(100dvh - 370px);min-height:420px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
 .side{border-right:1px solid var(--line);display:flex;flex-direction:column}.side form{display:flex;gap:6px;padding:10px}.side input{flex:1}
 .cl{overflow:auto;flex:1}.c{padding:10px 14px;cursor:pointer;border-top:1px solid var(--line)}.c.on{background:var(--panel2)}.c small{display:block;color:var(--muted)}
 .main{display:flex;flex-direction:column;min-width:0}.head{padding:12px 16px;border-bottom:1px solid var(--line);font-weight:700}
 .msgs{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:8px}.msgs.drop{outline:2px dashed var(--gold);outline-offset:-8px}
 .m{max-width:72%;padding:8px 12px;border-radius:12px;background:var(--panel2);align-self:flex-start;white-space:pre-wrap;word-wrap:break-word}.m.me{align-self:flex-end;background:rgba(232,176,74,.2)}
 .m small{display:block;color:var(--muted);font-size:11px}.m a.lnk{color:var(--accent,#e8b04a);word-break:break-all}.m .gifm{cursor:pointer}.m img,.m video{display:block;max-width:min(360px,100%);max-height:320px;border-radius:10px;margin:4px 0}
-.inp{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}.inp input[type=text]{flex:1}
-@media (max-width:700px){.chat{grid-template-columns:1fr}.side{display:none}}
+.inp{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}.inp input[type=text]{flex:1;min-width:0}.inp .btn{min-height:44px}.inp{flex-wrap:wrap}#mic.recording{color:#ff8a80;border-color:#ff8a80}#me-box input{max-width:100%;box-sizing:border-box}
+@media (max-width:700px){.chat{grid-template-columns:1fr;grid-template-rows:auto 1fr;height:700px}.side{border-right:0;border-bottom:1px solid var(--line);max-height:150px}.side input{min-width:0}.cl{display:flex;overflow:auto}.c{min-width:140px}.main{min-height:0}.inp{gap:6px}.inp input[type=text]{min-width:100px}.inp .btn.gold{padding:8px 12px}.m{max-width:90%}}
 </style></head><body>
 <main class="wrap">
   <h1 style="margin-top:24px">Мессенджер</h1>
@@ -20,7 +20,7 @@
   <div class="chat">
     <aside class="side"><form id="add"><input id="add-n" placeholder="@ник друга"><button class="btn sm">＋</button></form><div class="cl" id="list"></div></aside>
     <section class="main"><div class="head" id="head">Выбери чат слева</div><div class="msgs" id="msgs"></div>
-      <form class="inp" id="form"><label class="btn sm" title="Фото, GIF или видео до 15 МБ">📎<input type="file" id="file" accept="image/*,video/*,audio/*" hidden></label><input type="text" id="text" maxlength="1000" placeholder="Сообщение…" autocomplete="off"><button class="btn gold sm">Отправить</button></form></section>
+      <form class="inp" id="form"><label class="btn sm" title="Фото, GIF или видео до 15 МБ">📎<input type="file" id="file" accept="image/*,video/*,audio/*" hidden></label><input type="text" id="text" maxlength="1000" placeholder="Сообщение…" autocomplete="off"><button class="btn sm" type="button" id="mic" aria-label="Записать голосовое" title="Голосовое — до 2 минут">🎤</button><button class="btn gold sm">Отправить</button></form><div id="rec-status" class="muted small" role="status" style="padding:0 12px 8px"></div></section>
   </div>
 </main>
 <script>
@@ -40,7 +40,7 @@ async function decBytes(a, b, iv, ct, tag) { const all = new Uint8Array(ct.lengt
 async function envelope(from, to, text) { const e = await encBytes(from, to, te.encode(text)); return { fc: 1, v: 1, from, to, iv: b64(e.iv), ct: b64(e.ct), tag: b64(e.tag) }; }
 const openText = async (o) => td.decode(await decBytes(o.from, o.to, unb64(o.iv), unb64(o.ct), unb64(o.tag)));
 
-let ME = localStorage.getItem('fc_chat_me') || '', CUR = '', es = null;
+let ME = localStorage.getItem('fc_chat_me') || '', CUR = '', es = null, VERIFIED_NAMES = [];
 const DB = JSON.parse(localStorage.getItem('fc_chat_db') || '{}'); // {ник: [{from, text, ts, me, id}]}; медиа — только в этой вкладке
 const saveDb = () => { const slim = {}; for (const [k, l] of Object.entries(DB)) slim[k] = l.filter((m) => !m.blob).slice(-200); localStorage.setItem('fc_chat_db', JSON.stringify(slim)); };
 const parts = new Map();
@@ -88,11 +88,11 @@ function render() {
   $('#msgs').scrollTop = $('#msgs').scrollHeight;
   gifs($('#msgs'));
 }
-function openChat(k) { CUR = k; DB[k] = DB[k] || []; $('#head').textContent = '@' + k + ' · через интернет'; list(); render(); $('#text').focus(); }
+function openChat(k) { CUR = k; DB[k] = DB[k] || []; $('#head').textContent = '@' + k + ' · через интернет'; list(); render(); $('#text').focus({ preventScroll: true }); }
 
 async function onEvent(e) {
   let o; try { o = JSON.parse(e.message); } catch { return; }
-  if (!o || o.fc !== 1 || nname(o.to) !== nname(ME) || nname(o.from) === nname(ME)) return;
+  if (!o || o.fc !== 1 || ![ME, ...VERIFIED_NAMES].includes(nname(o.to)) || [ME, ...VERIFIED_NAMES].includes(nname(o.from))) return;
   const from = nname(o.from), ts = (e.time || Date.now() / 1000) * 1000;
   try {
     if (o.v === 1) return push(from, { id: e.id, from: o.from, text: (await openText(o)).slice(0, 1000), ts });
@@ -109,10 +109,11 @@ async function onEvent(e) {
   } catch (err) { console.warn('chat', err); }
 }
 async function connect() {
-  ME = nname($('#me').value); if (!ME) return FC.toast('Впиши свой ник', true);
+  ME = VERIFIED_NAMES[0] || nname($('#me').value); if (!ME) return FC.toast('Впиши свой ник', true);
   localStorage.setItem('fc_chat_me', ME); if (es) es.close();
   const since = localStorage.getItem('fc_chat_since_' + ME) || '12h';
-  es = new EventSource(`${NTFY}/${await topic(ME)}/sse?since=${encodeURIComponent(since)}`);
+  const topics = await Promise.all([...new Set([ME, ...VERIFIED_NAMES])].map(topic));
+  es = new EventSource(`${NTFY}/${topics.join(',')}/sse?since=${encodeURIComponent(since)}`);
   es.onopen = () => ($('#st').textContent = '🟢 на связи как @' + ME);
   es.onerror = () => ($('#st').textContent = '🟡 переподключение…');
   es.onmessage = (m) => { let e; try { e = JSON.parse(m.data); } catch { return; } if (e.event !== 'message') return; localStorage.setItem('fc_chat_since_' + ME, e.id); onEvent(e); };
@@ -123,26 +124,26 @@ async function sendText(text) {
   if (!r.ok) throw new Error('ntfy.sh: HTTP ' + r.status);
   push(CUR, { id: 'm' + Date.now(), from: ME, text, ts: Date.now(), me: true });
 }
-async function sendFile(f) {
+async function sendFile(f, to = CUR, caption) {
   if (!/^(image|video|audio)\//.test(f.type)) return FC.toast('Только фото, GIF, видео и аудио', true);
   if (f.size > MAX) return FC.toast('Файл больше 15 МБ', true);
-  const text = $('#text').value.trim(), data = new Uint8Array(await f.arrayBuffer());
-  const e = await encBytes(ME, CUR, data), tag = b64(e.tag), meta = JSON.stringify({ name: f.name, mime: f.type, size: f.size, text });
+  const text = caption === undefined ? $('#text').value.trim() : caption, data = new Uint8Array(await f.arrayBuffer());
+  const e = await encBytes(ME, to, data), tag = b64(e.tag), meta = JSON.stringify({ name: f.name, mime: f.type, size: f.size, text });
   FC.toast('📎 Отправляю…');
   let sent = false;
   if (window.FC_API && FC.token) { // свой сервер: один файл, хранится 2 суток
-    try { const up = await FC.api('POST', '/api/media', { raw: e.ct }); const env = { ...(await envelope(ME, CUR, meta)), v: 3, f: { iv: b64(e.iv), tag, url: up.url } }; sent = (await fetch(`${NTFY}/${await topic(CUR)}`, { method: 'POST', body: JSON.stringify(env) })).ok; } catch {}
+    try { const up = await FC.api('POST', '/api/media', { raw: e.ct }); const env = { ...(await envelope(ME, to, meta)), v: 3, f: { iv: b64(e.iv), tag, url: up.url } }; sent = (await fetch(`${NTFY}/${await topic(to)}`, { method: 'POST', body: JSON.stringify(env) })).ok; } catch {}
   }
   if (!sent) { // иначе частями по 1.9 МБ через вложения ntfy.sh
-    const g = hexs(crypto.getRandomValues(new Uint8Array(9))), n = Math.max(1, Math.ceil(e.ct.length / CHUNK)), t = await topic(CUR);
+    const g = hexs(crypto.getRandomValues(new Uint8Array(9))), n = Math.max(1, Math.ceil(e.ct.length / CHUNK)), t = await topic(to);
     for (let i = 0; i < n; i++) {
-      const env = { ...(await envelope(ME, CUR, meta)), v: 2, f: { iv: b64(e.iv), tag, g, i, n } };
+      const env = { ...(await envelope(ME, to, meta)), v: 2, f: { iv: b64(e.iv), tag, g, i, n } };
       const r = await fetch(`${NTFY}/${t}?message=${encodeURIComponent(JSON.stringify(env))}&filename=fc${i}.bin`, { method: 'PUT', body: e.ct.subarray(i * CHUNK, (i + 1) * CHUNK) });
       if (!r.ok) return FC.toast('ntfy.sh не принял файл (лимит бесплатного тарифа) — войди в кабинет, тогда файлы пойдут через сервер Farm ID', true);
     }
   }
-  $('#text').value = '';
-  push(CUR, { id: 'f' + Date.now(), from: ME, text, ts: Date.now(), me: true, mime: f.type, blob: URL.createObjectURL(f) });
+  if (caption === undefined && to === CUR) $('#text').value = '';
+  push(to, { id: 'f' + Date.now(), from: ME, text, ts: Date.now(), me: true, mime: f.type, blob: URL.createObjectURL(f) });
 }
 $('#me-go').onclick = connect;
 $('#add').onsubmit = (e) => { e.preventDefault(); const n = nname($('#add-n').value); if (n) { $('#add-n').value = ''; openChat(n); } };
@@ -152,10 +153,42 @@ const box = $('#msgs');
 box.ondragover = (e) => { e.preventDefault(); box.classList.add('drop'); }; box.ondragleave = () => box.classList.remove('drop');
 box.ondrop = (e) => { e.preventDefault(); box.classList.remove('drop'); const f = e.dataTransfer.files[0]; if (f && CUR && ME) sendFile(f); };
 $('#text').onpaste = (e) => { const it = [...e.clipboardData.items].find((x) => x.kind === 'file'); if (it && CUR && ME) { e.preventDefault(); sendFile(it.getAsFile()); } };
-// ник: сохранённый или из кабинета (Discord / ник Minecraft)
+// Вход в Farm ID связывает ники Minecraft и Discord с одним профилем.
 (async () => {
-  if (!ME && FC.token && window.FC_API) { try { const me = await FC.api('GET', '/api/me'); const d = me.links.find((l) => l.provider === 'discord'); ME = nname(d ? (d.name.match(/@([\w.]+)/) || [])[1] : me.name); } catch {} }
+  if (FC.token && window.FC_API) { try { const me = await FC.api('GET', '/api/me'); VERIFIED_NAMES = (me.chat && me.chat.names) || []; if (VERIFIED_NAMES.length) { ME = VERIFIED_NAMES[0]; $('#me').disabled = true; $('#me-go').textContent = 'Переподключить'; } } catch {} }
   $('#me').value = ME; list(); if (ME) connect();
   const to = new URLSearchParams(location.search).get('to'); if (to && nname(to)) openChat(nname(to));
 })();
+let recorder = null, recordingStream = null, voiceTimer = null, voiceStarted = 0;
+const mic = $('#mic');
+mic.onclick = async () => {
+  if (recorder) { if (recorder.state === 'recording') recorder.stop(); return; }
+  if (!CUR || !ME) return FC.toast('Выбери чат и подключись под своим ником', true);
+  if (!navigator.mediaDevices || !window.MediaRecorder) return FC.toast('Запись не поддерживается. Прикрепи аудиофайл через 📎', true);
+  const to = CUR, chunks = []; mic.disabled = true;
+  try {
+    recordingStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'].find((m) => MediaRecorder.isTypeSupported(m));
+    if (!mime) throw new Error('Браузер не поддерживает запись аудио');
+    recorder = new MediaRecorder(recordingStream, { mimeType: mime });
+    const active = recorder;
+    active.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+    active.onstop = async () => {
+      clearTimeout(voiceTimer); recordingStream.getTracks().forEach((t) => t.stop()); recordingStream = null; recorder = null;
+      mic.classList.remove('recording'); mic.textContent = '🎤'; mic.setAttribute('aria-label', 'Записать голосовое'); $('#rec-status').textContent = '';
+      if (Date.now() - voiceStarted < 800 || !chunks.length) return FC.toast('Запись слишком короткая', true);
+      mic.disabled = true;
+      try { const ext = mime.includes('mp4') ? 'm4a' : 'webm'; await sendFile(new File(chunks, 'voice.' + ext, { type: mime }), to, ''); }
+      catch (e) { FC.toast(e.message || 'Не удалось отправить голосовое', true); }
+      finally { mic.disabled = false; }
+    };
+    voiceStarted = Date.now(); active.start(); mic.textContent = '⏹'; mic.classList.add('recording'); mic.setAttribute('aria-label', 'Остановить запись и отправить');
+    $('#rec-status').textContent = '🎤 Запись для @' + to + '. Нажми ⏹, чтобы отправить; максимум 2 минуты.';
+    voiceTimer = setTimeout(() => { if (active.state === 'recording') active.stop(); }, 120000);
+  } catch (e) {
+    if (recordingStream) recordingStream.getTracks().forEach((t) => t.stop()); recordingStream = null; recorder = null;
+    FC.toast(e.name === 'NotAllowedError' ? 'Разреши доступ к микрофону' : e.message || 'Нет доступа к микрофону', true);
+  } finally { mic.disabled = false; }
+};
+window.addEventListener('pagehide', () => { clearTimeout(voiceTimer); if (recordingStream) recordingStream.getTracks().forEach((t) => t.stop()); if (es) es.close(); });
 </script></body></html>
