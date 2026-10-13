@@ -26,7 +26,12 @@
 ### О проекте
 Farm Client — лаунчер Minecraft и клиентский Fabric-мод, которые работают в связке. Лаунчер ставит Minecraft, загрузчик, Java и моды; мод получает от лаунчера аккаунт, Discord, друзей и настройки и отдаёт обратно события из игры.
 
-Текущие версии: **лаунчер 1.23.1**, **мод 1.35.0** · идёт **альфа-тест**.
+Текущие версии: **лаунчер 1.24.0**, **мод 1.36.0** · идёт **альфа-тест**.
+
+### Обновление 1.24.0
+- Лаунчер и внутриигровой GUI используют стиль сайта: Inter, тёмные карточки, тонкие золотые линии, градиентные кнопки и более свободная компоновка.
+- Auto Obsidian (1.21.11) и Obsidian Miner (по бинду) получили режим «Обычная кирка»: алмазная/незеритовая кирка, добыча по одному блоку с обычной скоростью. Камень в левой руке и эффект 3×3 не нужны. Старые серверные режимы сохранены отдельно.
+- Добыча учитывает видимость и досягаемость блоков, запас прочности и свободное место, не ломает опору под игроком. Автоматически при загрузке профиля не запускается.
 
 ### Обновление 1.23.0
 - Общий стиль Farm Gold для сайта, лаунчера, мода и Android-приложения 1.5.
@@ -114,7 +119,7 @@ Farm Client — лаунчер Minecraft и клиентский Fabric-мод, 
 ### About
 Farm Client is a Minecraft launcher and a client-side Fabric mod that work as a pair. The launcher installs Minecraft, the mod loader, Java and mods; the mod receives the account, Discord, friends and settings from the launcher and reports in-game events back.
 
-Current versions: **launcher 1.23.1**, **mod 1.35.0** · **alpha test** in progress.
+Current versions: **launcher 1.24.0**, **mod 1.36.0** · **alpha test** in progress.
 
 ### Features
 
