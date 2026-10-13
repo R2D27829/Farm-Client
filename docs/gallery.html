@@ -3,7 +3,7 @@
 <title>Галерея — темы, конфиги и сборки Farm Client</title><link rel="stylesheet" href="fc.css?v=4"><meta name="theme-color" content="#e8b04a">
 <script src="fc.js?v=6"></script>
 <style>.tabs{display:flex;gap:6px;margin:18px 0}.tabs button{background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:8px 16px;border-radius:999px;cursor:pointer;font:inherit}.tabs button.on{color:#1a1407;background:var(--gold);border-color:var(--gold);font-weight:700}
-.item h3{font-size:16px;margin:6px 0 4px}.item p{color:var(--muted);font-size:13.5px;min-height:20px;white-space:pre-wrap}.item .row{margin-top:12px}.lk{background:none;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:4px 10px;cursor:pointer;font:inherit;font-size:13px}.lk.on{border-color:#e0556b;color:#ff7b8f}.cms{margin-top:10px;border-top:1px solid var(--line);padding-top:8px;display:grid;gap:6px}.cms .c{font-size:13px}.cms .c b{color:var(--gold)}.cms .c button{background:none;border:0;color:var(--muted);cursor:pointer}.vbadge{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:var(--gold);color:#1a1407;font-size:10px;font-weight:900;vertical-align:middle}</style></head><body>
+.item h3{font-size:16px;margin:6px 0 4px}.item p{color:var(--muted);font-size:13.5px;min-height:20px;white-space:pre-wrap}.item .row{margin-top:12px}.lk{background:none;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:4px 10px;cursor:pointer;font:inherit;font-size:13px}.lk.on{border-color:#e0556b;color:#ff7b8f}.cms{margin-top:10px;border-top:1px solid var(--line);padding-top:8px;display:grid;gap:6px}.cms .c{font-size:13px}.cms .c b{color:var(--gold)}.cms .c button{background:none;border:0;color:var(--muted);cursor:pointer}.vbadge{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:var(--gold);color:#1a1407;font-size:10px;font-weight:900;vertical-align:middle}.author-tag{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid rgba(242,181,68,.3);background:rgba(242,181,68,.1);color:var(--gold);font-size:11px;font-weight:700}.author-tag.personal{border-color:var(--line);background:none;color:var(--muted)}[hidden]{display:none!important}</style></head><body>
 <main class="wrap">
   <h1>Галерея</h1><p class="muted">Темы лаунчера, конфиги мода и сборки от игроков. «Открыть в лаунчере» сразу ставит выбранное.</p>
   <div class="row" style="margin-top:14px"><div class="tabs" id="tabs"><button data-k="theme" class="on">🎨 Темы</button><button data-k="config">⚙️ Конфиги</button><button data-k="pack">📦 Сборки</button></div>
@@ -15,6 +15,7 @@
     <div id="up-need" class="muted small">Чтобы публиковать, <a href="account.html" style="text-decoration:underline">войди в кабинет</a> кодом из лаунчера.</div>
     <form id="up-form" class="hidden" style="display:grid;gap:10px;max-width:560px">
       <select id="up-kind"><option value="theme">Тема лаунчера (.css или экспорт оформления .json)</option><option value="config">Конфиг мода (.json, .zip, бинды .txt)</option><option value="pack">Сборка (.farmpack, .mrpack, .zip)</option></select>
+      <label id="up-publisher-row" class="hidden" style="display:grid;gap:6px"><span class="muted small">Тег автора</span><select id="up-publisher"><option value="personal">Личный аккаунт</option><option value="official">Официальный Farm Client</option></select></label>
       <input id="up-title" placeholder="Название" maxlength="80" required>
       <textarea id="up-desc" placeholder="Описание (необязательно)" maxlength="500" rows="3"></textarea>
       <input id="up-file" type="file" required>
@@ -32,7 +33,7 @@ async function load(append) {
   let l = [];
   try { const so = $('#sort').value; l = await FC.api('GET', `/api/uploads?kind=${kind}&sort=${so === 'verified' ? 'top' : so}${so === 'verified' ? '&verified=1' : ''}&q=${encodeURIComponent($('#q').value.trim())}&offset=${off}`, { auth: false }); }
   catch (e) { $('#list').innerHTML = `<p class="muted">${FC.esc(e.message)}</p>`; return; }
-  const html = l.map((x) => `<div class="card item" style="margin:0"><span class="tag">${KN[x.kind]}</span> <span class="muted small"><a href="u.html?id=${encodeURIComponent(x.uid || x.author || '')}" style="text-decoration:underline">${FC.esc(x.author || '')}</a>${x.verified ? ' <span class="vbadge" title="Проверенный автор">✓</span>' : ''} · ${FC.date(x.created)}</span>
+  const html = l.map((x) => `<div class="card item" style="margin:0"><span class="tag">${KN[x.kind]}</span> <span class="author-tag${x.official ? '' : ' personal'}">${x.official ? 'Официальный Farm Client' : 'Личный'}</span> <span class="muted small"><a href="u.html?id=${encodeURIComponent(x.uid || x.author || '')}" style="text-decoration:underline">${FC.esc(x.author || '')}</a>${x.verified ? ' <span class="vbadge" title="Проверенный автор">✓</span>' : ''} · ${FC.date(x.created)}</span>
     <h3>${FC.esc(x.title)}</h3><p>${FC.esc(x.descr || '')}</p>
     <div class="row"><a class="btn gold sm" href="farmclient://import?id=${encodeURIComponent(x.id)}">Открыть в лаунчере</a><a class="btn sm" href="${window.FC_API}/api/uploads/${encodeURIComponent(x.id)}/file">⬇ ${FC.size(x.size)}</a><span class="muted small">⬇ ${x.downloads}</span><button class="lk" data-like="${FC.esc(x.id)}">❤ <span>${x.likes || 0}</span></button><button class="lk" data-cm="${FC.esc(x.id)}">💬 ${x.comments || 0}</button></div><div class="cms hidden" id="cm-${FC.esc(x.id)}"></div></div>`).join('');
   $('#list').innerHTML = append ? $('#list').innerHTML + html : html || '<p class="muted">Пока пусто — опубликуй первым!</p>';
@@ -41,13 +42,13 @@ async function load(append) {
 document.querySelectorAll('#tabs button').forEach((b) => (b.onclick = () => { document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x === b)); kind = b.dataset.k; load(); }));
 let qt; $('#q').oninput = () => { clearTimeout(qt); qt = setTimeout(() => load(), 300); };
 $('#sort').onchange = () => load(); $('#more').onclick = () => load(true);
-if (FC.token) { $('#up-need').classList.add('hidden'); $('#up-form').classList.remove('hidden'); }
+if (FC.token) { $('#up-need').classList.add('hidden'); $('#up-form').classList.remove('hidden'); FC.api('GET','/api/me').then(me=>{if(me.canPublishOfficial||me.role==='admin'){$('#up-publisher-row').classList.remove('hidden');$('#up-publisher option[value=personal]').textContent='Личный — '+(me.name||me.id)}}).catch(()=>{}); }
 $('#up-form').onsubmit = async (e) => {
   e.preventDefault(); const f = $('#up-file').files[0]; if (!f) return;
   if (f.size > 10 * 1024 * 1024) return FC.toast('Файл больше 10 МБ', true);
   $('#up-go').disabled = true;
   try {
-    const q = new URLSearchParams({ kind: $('#up-kind').value, title: $('#up-title').value, desc: $('#up-desc').value, filename: f.name });
+    const q = new URLSearchParams({ kind: $('#up-kind').value, title: $('#up-title').value, desc: $('#up-desc').value, filename: f.name, official: $('#up-publisher').value === 'official' ? '1' : '0' });
     await FC.api('POST', '/api/uploads?' + q, { raw: f });
     FC.toast('Опубликовано!'); $('#up-form').reset(); kind = $('#up-kind').value;
     document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x.dataset.k === kind)); load();
