@@ -5,7 +5,7 @@
 <link rel="icon" href="img/logo.png"><link rel="alternate" hreflang="ru" href="https://r2d27829.github.io/Farm-Client/"><link rel="alternate" hreflang="en" href="https://r2d27829.github.io/Farm-Client/en.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="img/gold.webp">
-<style>:root{--bg:#08080a;--bg2:#0d0d11;--card:#111115;--card2:#17171d;--line:rgba(255,255,255,.07);--line2:rgba(255,255,255,.13);--text:#f3f2ee;--muted:#8f8e98;--dim:#5f5e69;--gold:#f2b544;--gold2:#ffd98a;--amber:#ff9a3c;--green:#5fd47a;--red:#ff6b6b;--r:24px;--ease:cubic-bezier(.2,.7,.2,1)}
+<style>:root{--bg:#08080a;--bg2:#0d0d11;--card:#111115;--card2:#17171d;--line:rgba(242,181,68,.25);--line2:rgba(242,181,68,.36);--text:#f3f2ee;--muted:#8f8e98;--dim:#5f5e69;--gold:#f2b544;--gold2:#ffd98a;--amber:#ff9a3c;--green:#5fd47a;--red:#ff6b6b;--r:24px;--ease:cubic-bezier(.2,.7,.2,1)}
 *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--text);font:16px/1.6 Inter,"Segoe UI",system-ui,-apple-system,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}img{max-width:100%;display:block}button{font:inherit;color:inherit}
@@ -23,7 +23,7 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}button{fon
 @keyframes drift{to{transform:translate(80px,-60px)}}
 /* навигация */
 .nav{position:fixed;top:14px;left:0;right:0;z-index:50;padding:0 16px}
-.nav .in{max-width:1180px;margin:0 auto;height:62px;display:flex;align-items:center;gap:18px;padding:0 10px 0 18px;border-radius:20px;border:1px solid transparent;transition:.35s var(--ease)}
+.nav .in{max-width:1180px;margin:0 auto;height:62px;display:flex;align-items:center;gap:18px;padding:0 10px 0 18px;border-radius:20px;border:1px solid var(--line);transition:.35s var(--ease)}
 .nav.sc .in{background:rgba(14,14,18,.72);border-color:var(--line);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);box-shadow:0 20px 60px -30px rgba(0,0,0,.9)}
 .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px;font-size:16px;white-space:nowrap}.logo img{width:30px;height:30px}.logo b{color:var(--gold);font-weight:800}
 .nav .links{display:flex;gap:4px;margin:0 auto;font-size:14.5px;color:var(--muted)}
@@ -194,6 +194,8 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
 @media (max-width:640px){.hero{padding-top:130px}.bento{grid-template-columns:1fr}.more{grid-template-columns:1fr 1fr;gap:10px}.sm-card{padding:16px}.sm-card .ic{width:36px;height:36px;font-size:16px;margin-bottom:10px}.sm-card h4{font-size:14px}.sm-card p{font-size:12.5px}h1{font-size:40px}.s4,.wide-m{grid-column:span 1}.v-android{grid-template-columns:1fr}.phone{margin-bottom:-40px}.btn{height:50px;padding:0 22px}.cta .btn{width:100%}.seg button{padding:8px 13px;font-size:13px}section{padding-top:96px}.hero{padding-top:130px}.final{padding:60px 22px;margin-top:96px}.v-launch{min-height:200px}.card{padding:24px}.v-launch{margin-right:-24px;margin-bottom:-24px}}
 
 .news-author{font-size:12px;color:var(--muted);margin:8px 0}.news-author.official{color:var(--gold);font-weight:700}
+
+.bento .card,.feature-card,.price,.news-card{border-color:var(--line)}
 </style></head>
 <body>
 <div class="bg"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="dots"></div></div>
@@ -241,9 +243,9 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
       <div class="mod"><span class="ic">🟢</span><div>Sodium<small>Modrinth</small></div><span class="tg"></span></div>
       <div class="mod"><span class="ic">✨</span><div>Iris Shaders<small>Modrinth</small></div><span class="tg"></span></div>
       <div class="mod"><span class="ic">🗺️</span><div>Xaero's Minimap<small>CurseForge</small></div><span class="tg off"></span></div></div></div></div>
-    <div class="card s3 rv wide-m purchase-terms"><h3>Условия покупки</h3><p>Лаунчер бесплатный — покупаешь лицензию на мод Farm Client.</p><ul class="terms-list"><li>Цена и срок доступа — по выбранному тарифу в магазине.</li><li>Привязка к ПК зависит от выбранного тарифа.</li><li>Срок считается с момента активации: Настройки → Лицензия.</li><li>При смене ПК обратись к администратору.</li></ul><div class="terms-actions"><a class="btn" href="buy.html">Перейти к покупке <span aria-hidden="true">→</span></a></div></div>
-    <div class="card s3 rv wide-m"><span class="tagl">Android 1.3</span><h3>Farm Client в телефоне</h3><p>Друзья, кланы и мессенджер всегда с тобой.</p><div class="v-android"><ul><li>Уведомления: новости, чат клана</li><li>Запуск игры на ПК с телефона</li><li>Галерея, кабинет и покупка ключа</li></ul>
-      <div class="phone"><div class="tm">14:32</div><div class="nt"><span class="ai"></span><div><b>Farm Client 1.21.2</b><small>Кланы, профили и быстрый старт</small></div></div><div class="nt"><span class="ai"></span><div><b>🛡️ Farm Legends</b><small>3 новых сообщения в чате клана</small></div></div><div class="pc">▶ Запустить на ПК</div></div></div></div>
+    <div class="card s3 rv wide-m purchase-terms"><h3>Условия покупки</h3><p>Лаунчер бесплатный — покупаешь лицензию на мод Farm Client.</p><ul class="terms-list"><li>Цена и срок доступа — по выбранному тарифу в магазине.</li><li>Привязка к ПК зависит от выбранного тарифа.</li><li>Срок считается с момента активации: Настройки → Лицензия.</li><li>Для запуска нужен интернет и действующая лицензия.</li></ul><div class="terms-actions"><a class="btn" href="buy.html">Перейти к покупке <span aria-hidden="true">→</span></a></div></div>
+    <div class="card s3 rv wide-m"><span class="tagl">Android 1.4</span><h3>Farm Client в телефоне</h3><p>Друзья, кланы и мессенджер всегда с тобой.</p><div class="v-android"><ul><li>Уведомления: новости, чат клана</li><li>Запуск игры на ПК с телефона</li><li>Галерея, кабинет и покупка ключа</li></ul>
+      <div class="phone"><div class="tm">14:32</div><div class="nt"><span class="ai"></span><div><b>Farm Client 1.22.0</b><small>Кланы, профили и быстрый старт</small></div></div><div class="nt"><span class="ai"></span><div><b>🛡️ Farm Legends</b><small>3 новых сообщения в чате клана</small></div></div><div class="pc">▶ Запустить на ПК</div></div></div></div>
   </div>
   <div class="more"><div class="sm-card rv"><div class="ic">🤝</div><h4>Сборки для друзей</h4><p>Код или файл .farmpack — у друга такая же сборка.</p></div><div class="sm-card rv"><div class="ic">🌐</div><h4>Игра по сети</h4><p>Radmin VPN, ZeroTier, Hamachi: видно миры друзей.</p></div><div class="sm-card rv"><div class="ic">💬</div><h4>Discord</h4><p>Статус, «Присоединиться» и скрин в канал.</p></div><div class="sm-card rv"><div class="ic">☁️</div><h4>Облачные конфиги</h4><p>Сменил ПК — все настройки на месте.</p></div><div class="sm-card rv"><div class="ic">📸</div><h4>Скриншоты</h4><p>Все версии в одном окне, отправка другу из игры.</p></div><div class="sm-card rv"><div class="ic">👤</div><h4>Профиль игрока</h4><p>Часы, клан, статус «в игре на сервере…».</p></div><div class="sm-card rv"><div class="ic">🎨</div><h4>Галерея</h4><p>Темы, конфиги и сборки от игроков.</p></div><div class="sm-card rv"><div class="ic">⌨️</div><h4>Горячие клавиши</h4><p>Ctrl+Enter — играть, F1 — все сочетания.</p></div></div>
 </section>
@@ -251,7 +253,7 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
 <section id="themes" class="wrap themes">
   <div class="head rv"><span class="eyebrow">Стили</span><h2>Играй <span class="gt">по-своему</span></h2><p>Классика, минимализм и свои темы из галереи. Выбирай настроение — лаунчер подстроится.</p></div>
   <div class="seg rv" id="seg"><span class="ind" id="ind"></span><button data-i="0" class=on>Классика</button><button data-i="1">Минимализм</button><button data-i="2">Сеть</button><button data-i="3">Версии</button></div>
-  <div class="tframe rv"><img id="timg" src="img/gold.webp" alt="" loading="lazy" width="1100" height="653"></div>
+  <div class="tframe rv"><img id="timg" src="img/gold.webp" alt="Стиль лаунчера Farm Client" loading="eager" width="1100" height="653"></div>
   <p class="tcap" id="tcap"></p><div class="prog" id="prog"></div>
 </section>
 
@@ -356,7 +358,7 @@ Promise.all([fetch('news.json?t='+Date.now()).then(r=>r.json()).catch(()=>[]),fe
 // стили интерфейса
 const TH=L.themes;let ti=0,tt;const timg=$('#timg'),seg=$('#seg'),ind=$('#ind'),prog=$('#prog');prog.innerHTML=TH.map(()=>'<i></i>').join('');
 const tset=i=>{ti=i;const b=seg.querySelectorAll('button');b.forEach((x,k)=>x.classList.toggle('on',k===i));const o=b[i];ind.style.left=o.offsetLeft+'px';ind.style.width=o.offsetWidth+'px';ind.style.top=o.offsetTop+'px';ind.style.height=o.offsetHeight+'px';
- timg.classList.add('fade');setTimeout(()=>{timg.src='img/'+TH[i][0]+'.webp';timg.onload=()=>timg.classList.remove('fade')},220);$('#tcap').textContent=TH[i][2];
+ timg.classList.add('fade');setTimeout(()=>{timg.onload=()=>timg.classList.remove('fade');timg.onerror=()=>timg.classList.remove('fade');timg.src='img/'+TH[i][0]+'.webp';if(timg.complete&&timg.naturalWidth)timg.classList.remove('fade')},220);$('#tcap').textContent=TH[i][2];
  prog.querySelectorAll('i').forEach((x,k)=>{x.classList.remove('on');if(k===i){void x.offsetWidth;x.classList.add('on')}})};
 seg.onclick=e=>{const b=e.target.closest('button');if(!b)return;clearInterval(tt);tt=null;tset(+b.dataset.i);prog.querySelectorAll('i').forEach(x=>x.classList.remove('on'))};
 new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!tt&&tt!==null){tt=setInterval(()=>tset((ti+1)%TH.length),5000)}}),{threshold:.3}).observe($('#themes'));
