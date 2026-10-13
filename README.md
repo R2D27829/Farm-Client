@@ -26,9 +26,19 @@
 ### О проекте
 Farm Client — лаунчер Minecraft и клиентский Fabric-мод, которые работают в связке. Лаунчер ставит Minecraft, загрузчик, Java и моды; мод получает от лаунчера аккаунт, Discord, друзей и настройки и отдаёт обратно события из игры.
 
-Текущие версии: **лаунчер 1.20.6**, **мод 1.32.0** · идёт **альфа-тест**.
+Текущие версии: **лаунчер 1.21.0**, **мод 1.33.0** · идёт **альфа-тест**.
 
 ### Возможности
+
+**Новое в 1.21.0**
+- **Кланы** — роли, трофеи, чат клана, вход на сервер клана; в лаунчере и на сайте.
+- **Профили игроков и статусы** — публичная страница игрока, «не беспокоить / отошёл / невидимка».
+- **Быстрый старт** — «Продолжить» последний сервер/мир, мастер первого запуска, профили «Слабый / Средний / Мощный ПК», проверка конфликтов модов, горячие клавиши.
+- **Скриншоты** из всех версий в одном окне + отправка другу прямо из игры.
+- **Мессенджер** — голосовые сообщения и приглашения в мир.
+- **Косметика** — китайскую шляпу видят другие игроки Farm Client.
+- **Лицензия** — пробный период, рефералы, промокоды; мод работает только через лаунчер Farm Client.
+- **Android 1.3** — уведомления, кланы, запуск игры на ПК с телефона.
 
 **Новое в 1.20.0**
 - **Лицензии** — ключ или код активации `FARM-XXXX-XXXX-XXXX`, привязка к ПК, срок с момента активации. Без ключа мод отключает модули, меню и HUD.
@@ -58,8 +68,8 @@ Farm Client — лаунчер Minecraft и клиентский Fabric-мод, 
 
 ### Быстрый старт
 1. Скачай из [Releases](https://github.com/R2D27829/Farm-Client/releases/latest):
-   - **Windows** — `FarmClient-Setup-1.20.6.exe`
-   - **Linux** — `FarmClient-1.20.6-x86_64.AppImage` (`chmod +x FarmClient-*.AppImage` и запусти)
+   - **Windows** — `FarmClient-Setup-1.21.0.exe`
+   - **Linux** — `FarmClient-1.21.0-x86_64.AppImage` (`chmod +x FarmClient-*.AppImage` и запусти)
 2. Войди (Microsoft / Ely.by / офлайн).
 3. Активируй ключ: **Настройки → Лицензия** (или окно при нажатии «Играть»). Ключ можно [купить на сайте](https://r2d27829.github.io/Farm-Client/buy.html) — на время альфа-теста 30 дней — 150 ₽, навсегда — 400 ₽.
 4. Выбери версию → **Играть**. Всё остальное скачается само.
@@ -78,9 +88,19 @@ Farm Client — лаунчер Minecraft и клиентский Fabric-мод, 
 ### About
 Farm Client is a Minecraft launcher and a client-side Fabric mod that work as a pair. The launcher installs Minecraft, the mod loader, Java and mods; the mod receives the account, Discord, friends and settings from the launcher and reports in-game events back.
 
-Current versions: **launcher 1.20.6**, **mod 1.32.0** · **alpha test** in progress.
+Current versions: **launcher 1.21.0**, **mod 1.33.0** · **alpha test** in progress.
 
 ### Features
+
+**New in 1.21.0**
+- **Clans** — roles, trophies, clan chat, join the clan server; in the launcher and on the site.
+- **Player profiles & statuses** — public player page, "do not disturb / away / invisible".
+- **Quick start** — "Continue" last server/world, first-run wizard, Low/Mid/High PC profiles, mod conflict check, hotkeys.
+- **Screenshots** from all versions in one window + send to a friend straight from the game.
+- **Messenger** — voice messages and world invites.
+- **Cosmetics** — other Farm Client players see your China hat.
+- **License** — free trial, referrals, promo codes; the mod works only through the Farm Client launcher.
+- **Android 1.3** — notifications, clans, launch the game on your PC from your phone.
 
 **New in 1.20.0**
 - **Licenses** — a key or an activation code `FARM-XXXX-XXXX-XXXX`, bound to your PC, term counted from activation. Without a key the mod disables its modules, menus and HUD.
@@ -110,8 +130,8 @@ Current versions: **launcher 1.20.6**, **mod 1.32.0** · **alpha test** in progr
 
 ### Quick start
 1. Download from [Releases](https://github.com/R2D27829/Farm-Client/releases/latest):
-   - **Windows** — `FarmClient-Setup-1.20.6.exe`
-   - **Linux** — `FarmClient-1.20.6-x86_64.AppImage` (`chmod +x FarmClient-*.AppImage`, then run it)
+   - **Windows** — `FarmClient-Setup-1.21.0.exe`
+   - **Linux** — `FarmClient-1.21.0-x86_64.AppImage` (`chmod +x FarmClient-*.AppImage`, then run it)
 2. Sign in (Microsoft / Ely.by / offline).
 3. Activate a key: **Settings → License** (or the prompt shown when you press Play). Keys are available on the [Buy page](https://r2d27829.github.io/Farm-Client/buy.html).
 4. Pick a version → **Play**. Everything else is downloaded automatically.
