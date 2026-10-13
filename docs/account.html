@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><link rel="icon" href="img/logo.png"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Кабинет — Farm Client</title><link rel="stylesheet" href="fc.css?v=4"><meta name="theme-color" content="#e8b04a">
-<script src="fc.js?v=6"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<title>Кабинет — Farm Client</title><link rel="stylesheet" href="fc.css?v=5"><meta name="theme-color" content="#e8b04a">
+<script src="fc.js?v=7"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <style>#chat-identity .btn,#links .btn{min-height:44px;box-sizing:border-box}.vbadge{display:inline-flex;align-items:center;justify-content:center;width:1.15em;height:1.15em;border-radius:50%;background:#e8b04a;color:#1a1407;font-size:.7em;font-weight:900;vertical-align:middle}</style></head><body>
 <main class="wrap" style="max-width:820px">
   <h1>Кабинет</h1>
@@ -18,7 +18,7 @@
   <section id="me" class="hidden">
     <div class="card"><div class="row" style="justify-content:space-between"><div><h2 id="me-name" style="margin:0"></h2><div class="muted small" id="me-id"></div></div><button class="btn sm" id="logout">Выйти</button></div>
       <div id="me-lic" class="small" style="margin-top:10px"></div></div>
-    <div class="card" id="app-card"><h2>📱 Войти в приложении</h2><p class="muted small" style="margin-bottom:10px">Android-приложение Farm Client: отсканируй QR камерой телефона или введи код в приложении (Кабинет). Код действует 5 минут.</p>
+    <div class="card" id="app-card"><h2>📱 Приложение Farm Client</h2><div id="apk-update" class="small" style="margin-bottom:14px"></div><h3>Войти в приложении</h3><p class="muted small" style="margin-bottom:10px">Android-приложение Farm Client: отсканируй QR камерой телефона или введи код в приложении (Кабинет). Код действует 5 минут.</p>
       <button class="btn gold sm" id="app-code">Получить код</button><div id="app-box" class="hidden" style="margin-top:12px;display:flex;gap:18px;align-items:center;flex-wrap:wrap"><div id="app-qr" style="background:#fff;padding:10px;border-radius:12px;line-height:0"></div><div><div class="muted small">Код</div><div id="app-c" style="font-size:30px;font-weight:800;letter-spacing:3px;user-select:all"></div><div class="muted small" id="app-t"></div></div></div></div>
     <div class="card hidden" id="app-notify"><h2>🔔 Уведомления</h2><p class="muted small" style="margin-bottom:10px">Приложение проверяет раз в ~15 минут: новости, сообщения в чате клана, решение по галочке.</p>
       <label class="row" style="gap:8px;cursor:pointer"><input type="checkbox" id="app-notify-on" style="width:auto"> Присылать уведомления на телефон</label></div>
@@ -29,7 +29,7 @@
     <div class="card hidden" id="adm-ver"><div class="row" style="justify-content:space-between;margin-bottom:12px"><h2 style="margin:0">🛡️ Заявки на галочку</h2><a class="btn gold sm" href="admin.html">Админ-панель: ключи, коды, тарифы, игроки</a></div><div id="adm-ver-list"></div>
       <form class="row" id="adm-ver-form" style="margin-top:12px"><input id="adm-ver-id" placeholder="Farm ID (u_…)" style="flex:1;min-width:160px"><button class="btn sm gold">Выдать ✔</button><button class="btn sm red" type="button" id="adm-ver-rm">Снять</button></form></div>
     <div class="card"><h2>Discord + Farm ID</h2><p class="muted small" style="margin-bottom:12px">Один Farm-профиль с привязанным Discord: вход, ник и голосовые в мессенджере. Farm ID, лицензия и публикации остаются здесь. Привязка не переносит сообщения из самого Discord.</p><div id="chat-identity" style="margin-bottom:16px"></div><div id="links"></div><div id="tg-link-box" style="margin-top:8px"></div></div>
-    <div class="card"><h2>Облачные конфиги</h2><p class="muted small" style="margin-bottom:6px">Сохраняются из лаунчера (Настройки → Облачные конфиги). Отсюда можно скачать архив.</p><div id="cloud"></div></div>
+    <div class="card"><h2>Устройства и помощь</h2><div class="row"><a class="btn gold" href="devices.html">Мои устройства и входы</a><a class="btn" href="support.html">Поддержка</a><a class="btn" href="community.html">Опросы</a></div></div><div class="card"><h2>Облачные конфиги</h2><p class="muted small" style="margin-bottom:6px">Сохраняются из лаунчера (Настройки → Облачные конфиги). Отсюда можно скачать архив.</p><div id="cloud"></div></div>
     <div class="card"><h2>Мои публикации</h2><div id="mine"></div><a class="btn sm" href="gallery.html#upload" style="margin-top:10px">Опубликовать тему / конфиг / сборку</a></div>
   </section>
 </main>
@@ -59,11 +59,11 @@ async function loadMe() {
   let me; try { me = await FC.api('GET', '/api/me'); } catch (e) { FC.token = ''; return showLogin(e.message); }
   $('#login').classList.add('hidden'); $('#me').classList.remove('hidden');
   $('#me-name').innerHTML = FC.esc(me.name || 'Игрок') + (me.verified ? ' <span class="vbadge" title="Проверенный аккаунт">✓</span>' : '');
-  renderVerify(me); $('#me-id').innerHTML = `Farm ID <code>${FC.esc(me.id)}</code>${me.role === 'admin' ? ' · 🛡️ админ' : ''} · с ${FC.date(me.created)} · <a href="u.html?id=${encodeURIComponent(me.id)}" style="text-decoration:underline">мой профиль</a> · <a href="clans.html" style="text-decoration:underline">клан</a>`;
+  renderVerify(me); $('#me-id').innerHTML = `Farm ID <code>${FC.esc(me.id)}</code>${['admin','developer'].includes(me.role) ? (me.role === 'developer' ? ' · 🛠️ Разработчик' : ' · 🛡️ админ') : ''} · с ${FC.date(me.created)} · <a href="u.html?id=${encodeURIComponent(me.id)}" style="text-decoration:underline">мой профиль</a> · <a href="clans.html" style="text-decoration:underline">клан</a>`;
   renderRef(me);
   const l = me.license; $('#me-lic').innerHTML = l ? `Лицензия <code>${FC.esc(l.id)}</code> · ${{ hwid: 'по HWID', free: 'без HWID', admin: 'админская' }[l.type] || l.type} · ${l.exp ? 'до ' + FC.date(l.exp) : 'бессрочно'} ${l.revoked ? '<span class="err">· отозвана</span>' : '<span class="ok">· активна</span>'}` : '<span class="muted">Лицензия не активирована</span>';
   const names = (me.chat && me.chat.names) || [];
-  $('#chat-identity').innerHTML = `<div class="small">${me.chat && me.chat.discord ? 'Discord связан с этим Farm-аккаунтом ✅' : 'Привяжи Discord кнопкой ниже; голосовые доступны и по нику Minecraft.'}</div><div class="muted small" style="overflow-wrap:anywhere;margin-top:6px">Тебе можно написать: ${names.map((n) => '@' + FC.esc(n)).join(' · ') || 'укажи ник в лаунчере'}</div><a class="btn gold sm" style="margin-top:12px" href="chat.html">Открыть мессенджер · 🎤 голосовые</a>${me.role === 'admin' ? '<a class="btn sm" style="margin:12px 0 0 8px" href="admin.html#chat">Чат админов</a>' : ''}`;
+  $('#chat-identity').innerHTML = `<div class="small">${me.chat && me.chat.discord ? 'Discord связан с этим Farm-аккаунтом ✅' : 'Привяжи Discord кнопкой ниже; голосовые доступны и по нику Minecraft.'}</div><div class="muted small" style="overflow-wrap:anywhere;margin-top:6px">Тебе можно написать: ${names.map((n) => '@' + FC.esc(n)).join(' · ') || 'укажи ник в лаунчере'}</div><a class="btn gold sm" style="margin-top:12px" href="chat.html">Открыть мессенджер · 🎤 голосовые</a>${['admin','developer'].includes(me.role) ? '<a class="btn sm" style="margin:12px 0 0 8px" href="admin.html#chat">Чат админов</a>' : ''}`;
   await provReady;
   $('#links').innerHTML = Object.entries(P).filter(([k]) => PROV[k] || me.links.some((y) => y.provider === k)).map(([k, [name, color]]) => {
     const x = me.links.find((y) => y.provider === k);
@@ -93,7 +93,7 @@ function renderVerify(me) {
       '<form id="ver-form" style="display:grid;gap:8px"><textarea id="ver-text" rows="3" maxlength="600" placeholder="Кто ты, чем известен, ссылки на YouTube / TikTok / Twitch / сервер…"></textarea><div><button class="btn gold sm">Подать заявку</button></div></form>';
     $('#ver-form').onsubmit = async (e) => { e.preventDefault(); try { await FC.api('POST', '/api/verify/request', { body: { text: $('#ver-text').value } }); FC.toast('Заявка отправлена'); loadMe(); } catch (err) { FC.toast(err.message, true); } };
   }
-  if (me.role === 'admin') { $('#adm-ver').classList.remove('hidden'); loadAdmVerify(); }
+  if (['admin','developer'].includes(me.role)) { $('#adm-ver').classList.remove('hidden'); loadAdmVerify(); }
 }
 async function loadAdmVerify() {
   let d; try { d = await FC.api('GET', '/api/admin/verify'); } catch (e) { $('#adm-ver-list').textContent = e.message; return; }
@@ -152,6 +152,7 @@ const h = new URLSearchParams(location.hash.slice(1)); history.replaceState(null
 if (h.get('error')) FC.toast(h.get('error'), true);
 if (h.get('linked')) FC.toast((P[h.get('linked')] || [h.get('linked')])[0] + ' привязан');
 if (h.get('token')) FC.token = h.get('token');
+(async()=>{try{const r=await (await fetch('android-release.json?check='+Date.now())).json();const current=window.FarmApp&&FarmApp.version?FarmApp.version():'';const newer=!current||r.version.split('.').reduce((a,x)=>a*1000+(+x||0),0)>current.split('.').reduce((a,x)=>a*1000+(+x||0),0);if(!/^https:\/\/github\.com\/R2D27829\/Farm-Client\/releases\/download\//.test(r.url))return;document.getElementById('apk-update').innerHTML=`${current?'Установлена '+FC.esc(current)+'. ':''}${newer?'Доступна':'Актуальная'} Android ${FC.esc(r.version)} <a class="btn sm gold" href="${FC.esc(r.url)}">${newer?'Скачать обновление':'Скачать APK'}</a><p class="muted small">Установка вручную; аккаунт и настройки сохраняются при обновлении поверх старой версии.</p>`;}catch{}})();
 if (h.get('code')) { $('#code').value = h.get('code'); loginCode(h.get('code')); }
 else if (FC.token) loadMe(); else showLogin();
 
