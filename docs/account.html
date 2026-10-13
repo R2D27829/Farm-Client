@@ -2,7 +2,7 @@
 <html lang="ru"><head><meta charset="utf-8"><link rel="icon" href="img/logo.png"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Кабинет — Farm Client</title><link rel="stylesheet" href="fc.css?v=4"><meta name="theme-color" content="#e8b04a">
 <script src="fc.js?v=6"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-<style>.vbadge{display:inline-flex;align-items:center;justify-content:center;width:1.15em;height:1.15em;border-radius:50%;background:#e8b04a;color:#1a1407;font-size:.7em;font-weight:900;vertical-align:middle}</style></head><body>
+<style>#chat-identity .btn,#links .btn{min-height:44px;box-sizing:border-box}.vbadge{display:inline-flex;align-items:center;justify-content:center;width:1.15em;height:1.15em;border-radius:50%;background:#e8b04a;color:#1a1407;font-size:.7em;font-weight:900;vertical-align:middle}</style></head><body>
 <main class="wrap" style="max-width:820px">
   <h1>Кабинет</h1>
   <!-- вход -->
@@ -28,7 +28,7 @@
     <div class="card" id="ver-card"><h2>Галочка <span class="vbadge">✓</span></h2><div id="ver"></div></div>
     <div class="card hidden" id="adm-ver"><div class="row" style="justify-content:space-between;margin-bottom:12px"><h2 style="margin:0">🛡️ Заявки на галочку</h2><a class="btn gold sm" href="admin.html">Админ-панель: ключи, коды, тарифы, игроки</a></div><div id="adm-ver-list"></div>
       <form class="row" id="adm-ver-form" style="margin-top:12px"><input id="adm-ver-id" placeholder="Farm ID (u_…)" style="flex:1;min-width:160px"><button class="btn sm gold">Выдать ✔</button><button class="btn sm red" type="button" id="adm-ver-rm">Снять</button></form></div>
-    <div class="card"><h2>Привязки</h2><p class="muted small" style="margin-bottom:6px">Привяжи аккаунты — сможешь входить на сайт через них, а друзья увидят тебя в мессенджере.</p><div id="links"></div><div id="tg-link-box" style="margin-top:8px"></div></div>
+    <div class="card"><h2>Discord + Farm ID</h2><p class="muted small" style="margin-bottom:12px">Один Farm-профиль с привязанным Discord: вход, ник и голосовые в мессенджере. Farm ID, лицензия и публикации остаются здесь. Привязка не переносит сообщения из самого Discord.</p><div id="chat-identity" style="margin-bottom:16px"></div><div id="links"></div><div id="tg-link-box" style="margin-top:8px"></div></div>
     <div class="card"><h2>Облачные конфиги</h2><p class="muted small" style="margin-bottom:6px">Сохраняются из лаунчера (Настройки → Облачные конфиги). Отсюда можно скачать архив.</p><div id="cloud"></div></div>
     <div class="card"><h2>Мои публикации</h2><div id="mine"></div><a class="btn sm" href="gallery.html#upload" style="margin-top:10px">Опубликовать тему / конфиг / сборку</a></div>
   </section>
@@ -62,6 +62,8 @@ async function loadMe() {
   renderVerify(me); $('#me-id').innerHTML = `Farm ID <code>${FC.esc(me.id)}</code>${me.role === 'admin' ? ' · 🛡️ админ' : ''} · с ${FC.date(me.created)} · <a href="u.html?id=${encodeURIComponent(me.id)}" style="text-decoration:underline">мой профиль</a> · <a href="clans.html" style="text-decoration:underline">клан</a>`;
   renderRef(me);
   const l = me.license; $('#me-lic').innerHTML = l ? `Лицензия <code>${FC.esc(l.id)}</code> · ${{ hwid: 'по HWID', free: 'без HWID', admin: 'админская' }[l.type] || l.type} · ${l.exp ? 'до ' + FC.date(l.exp) : 'бессрочно'} ${l.revoked ? '<span class="err">· отозвана</span>' : '<span class="ok">· активна</span>'}` : '<span class="muted">Лицензия не активирована</span>';
+  const names = (me.chat && me.chat.names) || [];
+  $('#chat-identity').innerHTML = `<div class="small">${me.chat && me.chat.discord ? 'Discord связан с этим Farm-аккаунтом ✅' : 'Привяжи Discord кнопкой ниже; голосовые доступны и по нику Minecraft.'}</div><div class="muted small" style="overflow-wrap:anywhere;margin-top:6px">Тебе можно написать: ${names.map((n) => '@' + FC.esc(n)).join(' · ') || 'укажи ник в лаунчере'}</div><a class="btn gold sm" style="margin-top:12px" href="chat.html">Открыть мессенджер · 🎤 голосовые</a>${me.role === 'admin' ? '<a class="btn sm" style="margin:12px 0 0 8px" href="admin.html#chat">Чат админов</a>' : ''}`;
   await provReady;
   $('#links').innerHTML = Object.entries(P).filter(([k]) => PROV[k] || me.links.some((y) => y.provider === k)).map(([k, [name, color]]) => {
     const x = me.links.find((y) => y.provider === k);
