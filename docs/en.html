@@ -196,6 +196,25 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
 .news-author{font-size:12px;color:var(--muted);margin:8px 0}.news-author.official{color:var(--gold);font-weight:700}
 
 .bento .card,.feature-card,.price,.news-card{border-color:var(--line)}
+/* Themes show actual UI states, not unrelated app sections. */
+.style-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;text-align:left;margin:0 0 24px}
+.style-picker button{display:flex;align-items:center;gap:14px;padding:18px;border:1px solid #303039;border-radius:16px;background:#111115;cursor:pointer;min-height:84px;text-align:left;transition:border-color .18s,background .18s}
+.style-picker button.on{border-color:var(--gold);background:#211b11}
+.style-picker button:focus-visible{outline:3px solid #ffd98a;outline-offset:4px}
+.style-picker button>span:last-child{min-width:0;font-weight:700;font-size:16px;line-height:1.3}
+.style-picker small{display:block;margin-top:6px;color:#b3b1bb;font-size:13px;font-weight:400}
+.style-colors{width:44px;height:44px;flex:none;border-radius:12px;background:linear-gradient(135deg,var(--s1),var(--s2) 52%,var(--s3));border:1px solid #ffffff24}
+.style-preview{border:1px solid #34313a;border-radius:22px;overflow:hidden;background:#111115;box-shadow:0 24px 80px #0005;text-align:left}
+.style-preview-bar{display:flex;align-items:center;gap:16px;padding:17px 22px;background:#17171c;border-bottom:1px solid #2b2b33}
+.style-preview-bar>b{font-size:14px}.style-preview-bar>span:last-child{margin-left:auto;color:#b7b4bf;font-size:13px}
+.style-window-dots{display:flex;gap:5px}.style-window-dots i{width:7px;height:7px;background:#62616c;border-radius:50%}
+.style-preview .tframe{border:0;border-radius:0;box-shadow:none;background:#08080a;aspect-ratio:8/5}
+.style-preview .tframe img{width:100%;height:100%;object-fit:contain;transition:opacity .24s}.style-preview .tframe img.fade{opacity:.45}
+.style-preview-footer{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:22px 24px;border-top:1px solid #292932}
+.style-preview-footer .tcap{margin:0;font-size:15px;color:#c4c0cb;min-height:0}.style-gallery{font-size:14px;color:var(--gold2);white-space:nowrap;min-height:44px;display:flex;align-items:center;gap:10px}
+.style-preview-note{font-size:12px;color:#aaa6b3;margin:14px 0 0}
+@media(max-width:760px){.style-picker{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.style-picker button{padding:14px 12px;gap:10px}.style-colors{width:34px;height:40px;border-radius:9px}.style-picker small{font-size:12px}.style-picker button>span:last-child{font-size:14px}.style-preview{border-radius:14px}.style-preview-bar{padding:12px;gap:10px}.style-preview-bar>span:last-child{font-size:11px}.style-preview-footer{display:block;padding:16px}.style-gallery{margin-top:8px}.style-preview-footer .tcap{font-size:14px}.style-preview-note{line-height:1.5}}
+@media(prefers-reduced-motion:reduce){.style-picker button,.style-preview .tframe img{transition:none}}
 </style></head>
 <body>
 <div class="bg"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="dots"></div></div>
@@ -251,10 +270,17 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
 </section>
 
 <section id="themes" class="wrap themes">
-  <div class="head rv"><span class="eyebrow">Styles</span><h2>Play <span class="gt">your way</span></h2><p>Classic, minimal and custom themes from the gallery. Pick a mood — the launcher adapts.</p></div>
-  <div class="seg rv" id="seg"><span class="ind" id="ind"></span><button data-i="0" class=on>Classic</button><button data-i="1">Minimal</button><button data-i="2">LAN</button><button data-i="3">Versions</button></div>
-  <div class="tframe rv"><img id="timg" src="img/gold.webp" alt="Стиль лаунчера Farm Client" loading="eager" width="1100" height="653"></div>
-  <p class="tcap" id="tcap"></p><div class="prog" id="prog"></div>
+  <div class="head rv"><span class="eyebrow">Styles</span><h2>Play <span class="gt">your way</span></h2><p>Four moods. One Farm Client.<br>Switch themes and see the entire interface change.</p></div>
+  <div class="style-picker rv" id="seg" role="tablist" aria-label="Launcher themes"><span id="ind" hidden></span>
+    <button data-i="0" class="on" role="tab" aria-selected="true"><span class="style-colors" style="--s1:#0c0c0e;--s2:#302718;--s3:#f2b544"></span><span>Classic<small>Signature gold</small></span></button>
+    <button data-i="1" role="tab" aria-selected="false"><span class="style-colors" style="--s1:#101113;--s2:#343539;--s3:#e6e6e6"></span><span>Minimal<small>Quiet monochrome</small></span></button>
+    <button data-i="2" role="tab" aria-selected="false"><span class="style-colors" style="--s1:#0b1d35;--s2:#215f98;--s3:#62a9d5"></span><span>Apple-inspired<small>Cool iOS glass</small></span></button>
+    <button data-i="3" role="tab" aria-selected="false"><span class="style-colors" style="--s1:#101419;--s2:#233a50;--s3:#69aafa"></span><span>Ocean<small>Deep blue</small></span></button>
+  </div>
+  <div class="style-preview rv"><div class="style-preview-bar"><span class="style-window-dots" aria-hidden="true"><i></i><i></i><i></i></span><b id="theme-preview-name">Classic</b><span>Theme preview</span></div>
+    <div class="tframe"><img id="timg" src="img/style-gold.webp" alt="Farm Client classic theme preview" loading="eager" width="1280" height="800"></div>
+    <div class="style-preview-footer"><p class="tcap" id="tcap">Farm Client gold, dark panels and soft light.</p><a href="gallery.html" class="style-gallery">More themes in the gallery <span aria-hidden="true">↗</span></a></div>
+  </div><p class="style-preview-note">Launcher interface. Preview data is illustrative.</p><div class="prog" id="prog" hidden></div>
 </section>
 
 <section class="wrap" style="padding-top:110px"><div class="stats">
@@ -298,7 +324,7 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
   <div><h5>Help</h5><a href="faq.html">Knowledge base</a><a href="account.html">Account</a><a href="https://github.com/R2D27829/Farm-Client">GitHub</a><a href="index.html">Русский</a></div>
 </div><div class="fbot"><span>© 2026 Farm Client</span><span>Not affiliated with Mojang or Microsoft</span></div></div></footer>
 
-<script>const L={loc:"en",ver:v=>"Version {v} — clans, profiles and quick start".replace('{v}',v),dl:o=>"Download for {o}".replace('{o}',o),info:(k,s,d)=>"Free · {k} · {s} MB · {d}".replace('{k}',k).replace('{s}',s).replace('{d}',d),other:"Other systems:",news:"News",more:"Read more",os:{"win": "Windows", "linux": "Linux", "android": "Android"},kind:{"win": "portable .exe", "linux": ".AppImage", "android": ".apk for phones"},themes:[["gold", "Classic", "Classic — Farm Client gold on a dark background."], ["minimal", "Minimal", "Minimal — nothing extra, maximum content."], ["gold_lan", "LAN", "LAN — friends over Radmin/ZeroTier and their worlds."], ["mid_ver", "Versions", "Versions — all builds and loaders in one list."]]};
+<script>const L={loc:"en",ver:v=>"Version {v} — clans, profiles and quick start".replace('{v}',v),dl:o=>"Download for {o}".replace('{o}',o),info:(k,s,d)=>"Free · {k} · {s} MB · {d}".replace('{k}',k).replace('{s}',s).replace('{d}',d),other:"Other systems:",news:"News",more:"Read more",os:{"win": "Windows", "linux": "Linux", "android": "Android"},kind:{"win": "portable .exe", "linux": ".AppImage", "android": ".apk for phones"},themes:[["style-gold", "Classic", "Farm Client gold, dark panels and soft light."], ["style-minimal", "Minimal", "Quiet monochrome, clean lines and nothing extra."], ["style-apple", "Apple-inspired", "Early-iOS blues, cool glass and subtle highlights."], ["style-ocean", "Ocean", "Deep blue backgrounds and gentle sky-blue accents."]]}
 const R='R2D27829/Farm-Client',API='https://farmclient-api.farmclient.workers.dev',$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 try{const rf=new URLSearchParams(location.search).get('ref');if(rf)localStorage.setItem('fc_ref',rf)}catch(e){}
@@ -355,13 +381,17 @@ loadPricing();setInterval(()=>{if(!document.hidden)loadPricing()},30000);documen
 const fresh=l=>{const now=Date.now();let upd=false;return l.filter(x=>{if(x.hide||(x.until&&Date.parse(x.until)<now))return false;if(x.pinned)return true;const t=Date.parse(x.date||'')||0;if(t&&now-t>60*864e5)return false;if(/обновлен|update/i.test(x.tag||'')){if(upd)return false;upd=true}return true}).slice(0,3)};
 Promise.all([fetch('news.json?t='+Date.now()).then(r=>r.json()).catch(()=>[]),fetch(API+'/api/news').then(r=>r.json()).catch(()=>[])]).then(([a,b])=>{const seen=new Set(),l=[...(Array.isArray(b)?b:[]),...(Array.isArray(a)?a:[])].filter(x=>{const k=(x.title||'').toLowerCase();if(seen.has(k))return false;seen.add(k);return true}).sort((x,y)=>(!!y.pinned-!!x.pinned)||String(y.date||'').localeCompare(String(x.date||'')));
  const f=fresh(l);$('#news-list').innerHTML=f.length?f.map(n=>`<article class="nw"><div class="m"><em>${esc(n.tag||L.news)}</em>${esc(n.date)}</div>${n.author || n.official ? `<div class="news-author${n.official ? ' official' : ''}">${n.official ? (L.loc==='ru'?'Официальный Farm Client':'Official Farm Client') : esc(n.author)}</div>` : ''}<h3>${esc(n.title)}</h3><p>${esc(n.text)}</p>${n.url?`<a class="more-l" href="${esc(n.url)}">${L.more} →</a>`:''}</article>`).join(''):'<p style="color:var(--muted);text-align:center;grid-column:1/-1">—</p>'});
-// стили интерфейса
-const TH=L.themes;let ti=0,tt;const timg=$('#timg'),seg=$('#seg'),ind=$('#ind'),prog=$('#prog');prog.innerHTML=TH.map(()=>'<i></i>').join('');
-const tset=i=>{ti=i;const b=seg.querySelectorAll('button');b.forEach((x,k)=>x.classList.toggle('on',k===i));const o=b[i];ind.style.left=o.offsetLeft+'px';ind.style.width=o.offsetWidth+'px';ind.style.top=o.offsetTop+'px';ind.style.height=o.offsetHeight+'px';
- timg.classList.add('fade');setTimeout(()=>{timg.onload=()=>timg.classList.remove('fade');timg.onerror=()=>timg.classList.remove('fade');timg.src='img/'+TH[i][0]+'.webp';if(timg.complete&&timg.naturalWidth)timg.classList.remove('fade')},220);$('#tcap').textContent=TH[i][2];
- prog.querySelectorAll('i').forEach((x,k)=>{x.classList.remove('on');if(k===i){void x.offsetWidth;x.classList.add('on')}})};
-seg.onclick=e=>{const b=e.target.closest('button');if(!b)return;clearInterval(tt);tt=null;tset(+b.dataset.i);prog.querySelectorAll('i').forEach(x=>x.classList.remove('on'))};
-new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!tt&&tt!==null){tt=setInterval(()=>tset((ti+1)%TH.length),5000)}}),{threshold:.3}).observe($('#themes'));
-addEventListener('resize',()=>tset(ti));setTimeout(()=>tset(0),50);TH.forEach(t=>{new Image().src='img/'+t[0]+'.webp'});
+// Theme preview: user-controlled, keyboard accessible, no automatic carousel.
+const TH=L.themes;let ti=0,themeGeneration=0;const timg=$('#timg'),seg=$('#seg');
+function tset(i){
+ i=(i+TH.length)%TH.length;ti=i;const g=++themeGeneration;
+ seg.querySelectorAll('button').forEach((x,k)=>{x.classList.toggle('on',k===i);x.setAttribute('aria-selected',String(k===i));x.tabIndex=k===i?0:-1});
+ $('#theme-preview-name').textContent=TH[i][1];$('#tcap').textContent=TH[i][2];
+ const image=new Image();image.onload=()=>{if(g!==themeGeneration)return;timg.src=image.src;timg.alt='Farm Client '+TH[i][1]+' theme preview';timg.classList.remove('fade')};image.onerror=()=>{if(g===themeGeneration)timg.classList.remove('fade')};
+ if(!RM)timg.classList.add('fade');image.src='img/'+TH[i][0]+'.webp';
+}
+seg.onclick=e=>{const b=e.target.closest('button[data-i]');if(b)tset(+b.dataset.i)};
+seg.onkeydown=e=>{let i=ti;if(e.key==='ArrowRight')i++;else if(e.key==='ArrowLeft')i--;else if(e.key==='Home')i=0;else if(e.key==='End')i=TH.length-1;else return;e.preventDefault();tset(i);seg.querySelectorAll('button')[ti].focus()};
+tset(0);TH.forEach(t=>{new Image().src='img/'+t[0]+'.webp'});
 </script>
 </body></html>

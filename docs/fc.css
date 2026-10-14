@@ -38,3 +38,5 @@ code{background:var(--panel2);padding:2px 6px;border-radius:6px;font-size:13px}
 
 :root{color-scheme:dark}.nb{width:44px;height:44px}.link-row .ic{flex:0 0 32px}.ph h1{flex-wrap:wrap}.ph h1 .tag{font-size:14px;letter-spacing:normal;font-weight:600;white-space:nowrap}.fa-tabs button,.fcl-tabs button{min-height:44px!important}.feature-intro{margin-bottom:16px}input[type=file]::file-selector-button{font:inherit;background:rgba(242,181,68,.12);color:var(--gold2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin-right:12px;cursor:pointer}
 @media(max-width:600px){#links .link-row{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:12px}#links .link-row>.btn{margin-left:0}#links .link-row>.ic{width:32px;height:32px}}
+
+.app-auth-card{border-color:rgba(242,181,68,.45);margin-bottom:24px}.app-auth-card p{margin:12px 0 20px;max-width:60ch}.app-auth-card .btn{min-height:44px}.app-auth-card button:disabled{opacity:.55;cursor:wait}

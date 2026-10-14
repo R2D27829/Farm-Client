@@ -3,7 +3,7 @@
 window.FC_API = window.FC_API || 'https://farmclient-api.farmclient.workers.dev';   // например 'https://farmclient-api.<ник>.workers.dev'
 const FC = {
   get token() { return localStorage.getItem('fc_token') || ''; },
-  set token(v) { v ? localStorage.setItem('fc_token', v) : localStorage.removeItem('fc_token'); FC.appSync(); },
+  set token(v) { v ? localStorage.setItem('fc_token', v) : localStorage.removeItem('fc_token'); FC.appSync(); window.dispatchEvent(new Event('fc:session')); },
   // Android-приложение 1.3+: передаём токен для фоновых уведомлений
   appSync() { try { if (window.FarmApp && FarmApp.setToken) FarmApp.setToken(localStorage.getItem('fc_token') || ''); } catch {} },
   async api(method, path, { body, raw, auth = true } = {}) {
