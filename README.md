@@ -26,7 +26,15 @@
 ### О проекте
 Farm Client — лаунчер Minecraft и клиентский Fabric-мод, которые работают в связке. Лаунчер ставит Minecraft, загрузчик, Java и моды; мод получает от лаунчера аккаунт, Discord, друзей и настройки и отдаёт обратно события из игры.
 
-Текущие версии: **лаунчер 1.24.5**, **мод 1.36.2** · идёт **альфа-тест**.
+Текущие версии: **лаунчер 1.25.5**, **мод 1.36.5** · идёт **альфа-тест**. Android — прежний публичный 1.5.
+
+### Обновление 1.25.5 — музыкальный экран
+- Большая обложка и текст с автопрокруткой; TTML подсвечивает слова только при наличии готовых таймкодов.
+- Клик по строке/слову переносит к соответствующему времени, если плеер поддерживает перемотку.
+- Кнопки случайного порядка и повтора одного трека/плейлиста; неподдерживаемые команды отключены.
+- Более плавные прокрутка и прогресс, меньше тяжёлых фоновых эффектов; мини-плеер больше не пересоздаёт одинаковые элементы при опросе.
+- F11 для всего лаунчера, сохранены оконные кнопки и импорт TTML/LRC/TXT.
+- Windows и Linux — 1.25.5. Android остаётся 1.5; приватные исходники и отдельные JAR не публикуются.
 
 ### Обновление 1.24.5 / мод 1.36.2
 - Убраны белые точки фона и белые уголки полос прокрутки; подсветка рамок за курсором сохранена.
@@ -132,7 +140,15 @@ Farm Client — лаунчер Minecraft и клиентский Fabric-мод, 
 ### About
 Farm Client is a Minecraft launcher and a client-side Fabric mod that work as a pair. The launcher installs Minecraft, the mod loader, Java and mods; the mod receives the account, Discord, friends and settings from the launcher and reports in-game events back.
 
-Current versions: **launcher 1.24.2**, **mod 1.36.0** · **alpha test** in progress.
+Current versions: **launcher 1.25.5**, **mod 1.36.5** · **alpha test** in progress. Android remains the public 1.5.
+
+### Update 1.25.5 — music view
+- Large cover art, timestamped auto-following lyrics, TTML word highlighting and exact line/word seeking when supported.
+- Visible shuffle and repeat controls with honest capability state; repeat off, playlist and one track modes.
+- Smoother lyrics/timeline, lighter background effects and stable mini-player updates.
+- Launcher-wide F11, native window buttons and TTML/LRC/TXT import retained.
+- Windows and Linux 1.25.5; Android stays 1.5. Sources and separate private mod JARs are not published.
+
 
 ### Features
 
