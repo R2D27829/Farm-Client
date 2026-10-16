@@ -23,16 +23,16 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}button{fon
 @keyframes drift{to{transform:translate(80px,-60px)}}
 /* навигация */
 .nav{position:fixed;top:14px;left:0;right:0;z-index:50;padding:0 16px}
-.nav .in{max-width:1180px;margin:0 auto;height:62px;display:flex;align-items:center;gap:18px;padding:0 10px 0 18px;border-radius:20px;border:1px solid var(--line);transition:.35s var(--ease)}
+.nav .in{max-width:1180px;margin:0 auto;height:62px;display:flex;align-items:center;gap:12px;padding:0 10px 0 18px;border-radius:20px;border:1px solid var(--line);transition:.35s var(--ease)}
 .nav.sc .in{background:rgba(14,14,18,.72);border-color:var(--line);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);box-shadow:0 20px 60px -30px rgba(0,0,0,.9)}
 .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px;font-size:16px;white-space:nowrap}.logo img{width:30px;height:30px}.logo b{color:var(--gold);font-weight:800}
 .nav .links{display:flex;gap:4px;margin:0 auto;font-size:14.5px;color:var(--muted)}
-.nav .links a{padding:8px 13px;border-radius:12px;transition:.2s}.nav .links a:hover{color:var(--text);background:rgba(255,255,255,.04)}.nav .links a.on{color:var(--text);background:rgba(255,255,255,.06)}
+.nav .links a{padding:8px 9px;border-radius:12px;transition:.2s}.nav .links a:hover{color:var(--text);background:rgba(255,255,255,.04)}.nav .links a.on{color:var(--text);background:rgba(255,255,255,.06)}
 .nav .right{display:flex;align-items:center;gap:8px}
 .ib{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--muted);font-size:13px;font-weight:700;border:1px solid var(--line);background:rgba(255,255,255,.02);cursor:pointer;transition:.2s}.ib:hover{color:var(--text);border-color:var(--line2)}
 .burger{display:none}
 .mnav{position:fixed;inset:86px 16px auto;z-index:49;background:rgba(17,17,21,.97);border:1px solid var(--line);border-radius:20px;padding:10px;display:grid;gap:2px;transform:translateY(-10px) scale(.98);opacity:0;pointer-events:none;transition:.25s var(--ease);backdrop-filter:blur(18px)}
-.mnav.open{opacity:1;transform:none;pointer-events:auto}.mnav a{padding:13px 16px;border-radius:12px;color:var(--muted);font-weight:600}.mnav a:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.mnav{max-height:calc(100dvh - 102px);overflow-y:auto}.mnav.open{opacity:1;transform:none;pointer-events:auto}.mnav a{padding:13px 16px;border-radius:12px;color:var(--muted);font-weight:600}.mnav a:hover{background:rgba(255,255,255,.05);color:var(--text)}
 /* кнопки */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:52px;padding:0 26px;border-radius:999px;font-weight:700;font-size:15.5px;border:1px solid var(--line2);background:rgba(255,255,255,.03);cursor:pointer;transition:.25s var(--ease);white-space:nowrap}
 .btn:hover{background:rgba(255,255,255,.07);transform:translateY(-1px)}
@@ -190,6 +190,7 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}.screen{transform:none}}
 /* адаптив */
 @media (max-width:1100px){.chip.c1{left:-10px}.chip.c2{right:-10px}}
+@media (max-width:1180px){.nav .links,.nav .right .hide-m{display:none}.burger{display:grid}}
 @media (max-width:980px){.nav .links,.nav .right .hide-m{display:none}.burger{display:grid}.bento{grid-template-columns:1fr 1fr}.s2,.s3,.s4{grid-column:span 1}.s4,.wide-m{grid-column:span 2}.more{grid-template-columns:1fr 1fr}.plans,.news,.steps{grid-template-columns:1fr}.step:not(:last-child)::after{display:none}.stats{grid-template-columns:1fr 1fr}.fgrid{grid-template-columns:1fr 1fr}.chip{display:none}.plans{max-width:480px;margin:0 auto}}
 @media (max-width:640px){.hero{padding-top:130px}.bento{grid-template-columns:1fr}.more{grid-template-columns:1fr 1fr;gap:10px}.sm-card{padding:16px}.sm-card .ic{width:36px;height:36px;font-size:16px;margin-bottom:10px}.sm-card h4{font-size:14px}.sm-card p{font-size:12.5px}h1{font-size:40px}.s4,.wide-m{grid-column:span 1}.v-android{grid-template-columns:1fr}.phone{margin-bottom:-40px}.btn{height:50px;padding:0 22px}.cta .btn{width:100%}.seg button{padding:8px 13px;font-size:13px}section{padding-top:96px}.hero{padding-top:130px}.final{padding:60px 22px;margin-top:96px}.v-launch{min-height:0}.card{padding:24px}.v-launch{margin:24px 0 0}}
 
@@ -222,10 +223,10 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
 <div class="bg"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="dots"></div></div>
 <header class="nav" id="nav"><div class="in">
   <a class="logo" href="#top"><img src="img/logo.png" alt="" width="30" height="30">FARM <b>CLIENT</b></a>
-  <nav class="links" id="links"><a href="#features">Возможности</a><a href="#themes">Стили</a><a href="#pricing">Тарифы</a><a href="#news">Новости</a><a href="#faq">FAQ</a><a href="clans.html">Кланы</a><a href="gallery.html">Галерея</a></nav>
+  <nav class="links" id="links"><a href="#features">Возможности</a><a href="#themes">Стили</a><a href="#pricing">Тарифы</a><a href="#news">Новости</a><a href="#faq">FAQ</a><a href="u.html">Игроки</a><a href="clans.html">Кланы</a><a href="gallery.html">Галерея</a></nav>
   <div class="right"><a class="ib hide-m" href="en.html" title="English">EN</a><a class="btn sm hide-m" href="account.html">Кабинет</a><a class="btn sm g" href="#download">Скачать</a><button class="ib burger" id="burger" aria-label="Menu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div>
 </div></header>
-<div class="mnav" id="mnav"><a href="#features">Возможности</a><a href="#themes">Стили</a><a href="#pricing">Тарифы</a><a href="#news">Новости</a><a href="#faq">FAQ</a><a href="clans.html">Кланы</a><a href="gallery.html">Галерея</a><a href="chat.html">Мессенджер</a><a href="account.html">Кабинет</a><a href="en.html">English</a></div>
+<div class="mnav" id="mnav"><a href="#features">Возможности</a><a href="#themes">Стили</a><a href="#pricing">Тарифы</a><a href="#news">Новости</a><a href="#faq">FAQ</a><a href="u.html">Игроки</a><a href="clans.html">Кланы</a><a href="gallery.html">Галерея</a><a href="chat.html">Мессенджер</a><a href="account.html">Кабинет</a><a href="en.html">English</a></div>
 
 <main id="top">
 <section class="hero wrap">
@@ -322,7 +323,7 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
 <footer><div class="wrap"><div class="fgrid">
   <div class="about"><a class="logo" href="#top"><img src="img/logo.png" alt="" width="30" height="30">FARM <b>CLIENT</b></a><p>Лаунчер Minecraft и Fabric-мод: моды, сборки, кланы, мессенджер и Android-приложение.</p></div>
   <div><h5>Продукт</h5><a href="#features">Возможности</a><a href="#pricing">Тарифы</a><a href="https://github.com/R2D27829/Farm-Client/releases">Все версии</a><a href="buy.html">Купить ключ</a></div>
-  <div><h5>Сообщество</h5><a href="clans.html">Кланы</a><a href="gallery.html">Галерея</a><a href="chat.html">Мессенджер</a><a href="join.html">Приглашение в игру</a></div>
+  <div><h5>Сообщество</h5><a href="u.html">Игроки</a><a href="clans.html">Кланы</a><a href="gallery.html">Галерея</a><a href="chat.html">Мессенджер</a><a href="join.html">Приглашение в игру</a></div>
   <div><h5>Помощь</h5><a href="faq.html">База знаний</a><a href="account.html">Кабинет</a><a href="https://github.com/R2D27829/Farm-Client">GitHub</a><a href="en.html">English</a></div>
 </div><div class="fbot"><span>© 2026 Farm Client</span><span>Не связан с Mojang и Microsoft</span></div></div></footer>
 
