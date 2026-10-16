@@ -26,7 +26,15 @@
 ### О проекте
 Farm Client — лаунчер Minecraft и клиентский Fabric-мод, которые работают в связке. Лаунчер ставит Minecraft, загрузчик, Java и моды; мод получает от лаунчера аккаунт, Discord, друзей и настройки и отдаёт обратно события из игры.
 
-Текущие версии: **лаунчер 1.25.5**, **мод 1.36.5** · идёт **альфа-тест**. Android — прежний публичный 1.5.
+Текущие версии: **лаунчер 1.25.6**, **мод 1.36.6** · идёт **альфа-тест**. Android — прежний публичный 1.5.
+
+### Обновление 1.25.6 / мод 1.36.6
+- Четыре варианта меню, включая «Табличный»; общий спокойный стиль, редактирование UI через F8 и отдельное размытие для каждого варианта.
+- Наборы игровых настроек с применением кнопкой/биндом; настройки UI, пати и меток не перезаписываются набором.
+- Плавные открытия, закрытия, hover и включение модулей с учётом отключения анимаций; табличная компоновка без прокрутки основных модулей.
+- Обновлённое оформление лаунчера Windows/Linux; мод 1.36.6 включён в комплект. Android остаётся 1.5.
+- [Конфиденциальность](https://r2d27829.github.io/Farm-Client/privacy.html) и [условия использования](https://r2d27829.github.io/Farm-Client/terms.html), также на английском. Проверяйте правила каждого сервера: функции могут быть запрещены, гарантии отсутствия банов нет.
+- Альфа-тест. Сборки и офлайн-тесты выполнены; реальный игровой прогон, шейдеры и совместимость с другими GUI-модами ещё требуют проверки.
 
 ### Обновление 1.25.5 — музыкальный экран
 - Большая обложка и текст с автопрокруткой; TTML подсвечивает слова только при наличии готовых таймкодов.
@@ -140,7 +148,15 @@ Farm Client — лаунчер Minecraft и клиентский Fabric-мод, 
 ### About
 Farm Client is a Minecraft launcher and a client-side Fabric mod that work as a pair. The launcher installs Minecraft, the mod loader, Java and mods; the mod receives the account, Discord, friends and settings from the launcher and reports in-game events back.
 
-Current versions: **launcher 1.25.5**, **mod 1.36.5** · **alpha test** in progress. Android remains the public 1.5.
+Current versions: **launcher 1.25.6**, **mod 1.36.6** · **alpha test** in progress. Android remains the public 1.5.
+
+### Update 1.25.6 / mod 1.36.6
+- Four menu variants including Table, a consistent restrained style, F8 UI editor and separate blur preferences.
+- Gameplay presets with button/key application, without replacing UI, party or waypoint settings.
+- Smooth opening/closing, hover and toggle transitions; animation-off setting respected. Table layout fits primary modules without scrolling.
+- Updated Windows/Linux launcher, bundled mod 1.36.6. Android remains 1.5.
+- [Privacy policy](https://r2d27829.github.io/Farm-Client/privacy-en.html) and [terms](https://r2d27829.github.io/Farm-Client/terms-en.html). Check each server’s rules; features may be prohibited and there is no guarantee against bans.
+- Alpha testing: builds and offline checks completed, not a real Minecraft gameplay or shader/GUI-mod compatibility test.
 
 ### Update 1.25.5 — music view
 - Large cover art, timestamped auto-following lyrics, TTML word highlighting and exact line/word seeking when supported.
