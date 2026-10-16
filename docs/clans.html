@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><link rel="icon" href="img/logo.png"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Кланы — Farm Client</title><link rel="stylesheet" href="fc.css?v=5"><meta name="theme-color" content="#e8b04a">
-<script src="fc.js?v=7"></script><script src="clans.js?v=3"></script></head><body>
+<script src="fc.js?v=7"></script><script src="clans.js?v=3"></script><link rel="stylesheet" href="cookie-notice.css?v=1">
+</head><body>
 <main class="wrap" style="max-width:900px">
   <h1>🛡️ Кланы</h1>
   <p class="muted small">Как в Clash Royale: лидер, соруководители, старейшины, общий чат, приглашения в мир и 🏆 трофеи за часы в игре. То же самое — в лаунчере: Друзья → Клан.</p>
@@ -16,4 +17,5 @@ else FarmClans.mount(document.getElementById('root'), (m, p, body) => FC.api(m, 
   upload: async (f) => { if (f.size > 15 * 1048576) throw new Error('Файл больше 15 МБ'); return FC.api('POST', '/api/media', { raw: f }); },
 });
 </script>
+<script src="cookie-notice.js?v=1" defer></script>
 </body></html>

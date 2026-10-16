@@ -2,7 +2,8 @@
 <html lang="ru"><head><meta charset="utf-8"><link rel="icon" href="img/logo.png"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Кабинет — Farm Client</title><link rel="stylesheet" href="fc.css?v=5"><meta name="theme-color" content="#e8b04a">
 <script src="fc.js?v=8"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-<style>#chat-identity .btn,#links .btn{min-height:44px;box-sizing:border-box}.vbadge{display:inline-flex;align-items:center;justify-content:center;width:1.15em;height:1.15em;border-radius:50%;background:#e8b04a;color:#1a1407;font-size:.7em;font-weight:900;vertical-align:middle}.email-form{display:grid;gap:8px;max-width:440px}.email-form input{width:100%;min-width:0;box-sizing:border-box}.email-form label:not(:first-child){margin-top:4px}.email-form button{min-height:44px}.email-entry{margin-top:24px}.email-form p{margin:0 0 4px}@media(max-width:500px){#email-login-tab,#email-register-tab{flex:1}}.social-visibility{display:flex;align-items:center;gap:8px;min-height:44px;font-size:14px;cursor:pointer}.social-visibility input{width:18px;height:18px;accent-color:var(--gold);flex:none}.link-row>div{min-width:0}.link-row .small{overflow-wrap:anywhere}</style></head><body>
+<style>#chat-identity .btn,#links .btn{min-height:44px;box-sizing:border-box}.vbadge{display:inline-flex;align-items:center;justify-content:center;width:1.15em;height:1.15em;border-radius:50%;background:#e8b04a;color:#1a1407;font-size:.7em;font-weight:900;vertical-align:middle}.email-form{display:grid;gap:8px;max-width:440px}.email-form input{width:100%;min-width:0;box-sizing:border-box}.email-form label:not(:first-child){margin-top:4px}.email-form button{min-height:44px}.email-entry{margin-top:24px}.email-form p{margin:0 0 4px}@media(max-width:500px){#email-login-tab,#email-register-tab{flex:1}}.social-visibility{display:flex;align-items:center;gap:8px;min-height:44px;font-size:14px;cursor:pointer}.social-visibility input{width:18px;height:18px;accent-color:var(--gold);flex:none}.link-row>div{min-width:0}.link-row .small{overflow-wrap:anywhere}</style><link rel="stylesheet" href="cookie-notice.css?v=1">
+</head><body>
 <main class="wrap" style="max-width:820px">
   <h1>Кабинет</h1>
   <!-- вход -->
@@ -210,4 +211,5 @@ else if (FC.token) loadMe(); else showLogin();
 
 try { if (window.FarmApp && FarmApp.setNotify) { const c = document.getElementById('app-notify-on'); document.getElementById('app-notify').classList.remove('hidden'); c.checked = FarmApp.notifyOn(); c.onchange = () => { FarmApp.setNotify(c.checked); FC.toast(c.checked ? 'Уведомления включены' : 'Уведомления выключены'); }; } } catch {}
 
-</script></body></html>
+</script><script src="cookie-notice.js?v=1" defer></script>
+</body></html>

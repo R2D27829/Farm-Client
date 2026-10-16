@@ -215,7 +215,8 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
 .style-preview-note{font-size:12px;color:#aaa6b3;margin:14px 0 0}
 @media(max-width:760px){.style-picker{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.style-picker button{padding:14px 12px;gap:10px}.style-colors{width:34px;height:40px;border-radius:9px}.style-picker small{font-size:12px}.style-picker button>span:last-child{font-size:14px}.style-preview{border-radius:14px}.style-preview-bar{padding:12px;gap:10px}.style-preview-bar>span:last-child{font-size:11px}.style-preview-footer{display:block;padding:16px}.style-gallery{margin-top:8px}.style-preview-footer .tcap{font-size:14px}.style-preview-note{line-height:1.5}}
 @media(prefers-reduced-motion:reduce){.style-picker button,.style-preview .tframe img{transition:none}}
-</style></head>
+</style><link rel="stylesheet" href="cookie-notice.css?v=1">
+</head>
 <body>
 <div class="bg"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="dots"></div></div>
 <header class="nav" id="nav"><div class="in">
@@ -394,4 +395,5 @@ seg.onclick=e=>{const b=e.target.closest('button[data-i]');if(b)tset(+b.dataset.
 seg.onkeydown=e=>{let i=ti;if(e.key==='ArrowRight')i++;else if(e.key==='ArrowLeft')i--;else if(e.key==='Home')i=0;else if(e.key==='End')i=TH.length-1;else return;e.preventDefault();tset(i);seg.querySelectorAll('button')[ti].focus()};
 tset(0);TH.forEach(t=>{new Image().src='img/'+t[0]+'.webp'});
 </script>
+<script src="cookie-notice.js?v=1" defer></script>
 </body></html>
