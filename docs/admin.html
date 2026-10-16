@@ -2,7 +2,7 @@
 <html lang="ru"><head><meta charset="utf-8"><link rel="icon" href="img/logo.png"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Админ-панель — Farm Client</title><link rel="stylesheet" href="fc.css?v=6"><meta name="theme-color" content="#e8b04a"><meta name="robots" content="noindex">
 <script src="fc.js?v=9"></script><script src="admin.js?v=5"></script><link rel="stylesheet" href="cookie-notice.css?v=1">
-</head><body>
+<link rel="stylesheet" href="legal-links.css?v=1"></head><body>
 <main class="wrap" style="max-width:1000px">
   <h1>🛡️ Админ-панель</h1>
   <p class="muted small" id="adm-who">Проверка доступа…</p>
@@ -20,5 +20,5 @@ FC.nav('account');
   FarmAdmin.mount(root, (m, p, body) => FC.api(m, p, body === undefined ? {} : { body }), { toast: FC.toast, tab: (location.hash.slice(1) || 'keys') });
 })();
 </script>
-<script src="cookie-notice.js?v=1" defer></script>
-</body></html>
+<script src="cookie-notice.js?v=2" defer></script>
+<script src="legal-links.js?v=1" defer></script></body></html>

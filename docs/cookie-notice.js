@@ -32,7 +32,7 @@
       try { sessionStorage.setItem(laterKey, 'later'); } catch {}
       box.remove();
     });
-    actions.append(accept, later); box.append(title, text, status, actions); document.body.append(box);
+    const policy = document.createElement('a'); policy.href = en ? 'privacy-en.html' : 'privacy.html'; policy.textContent = en ? 'Privacy policy' : 'Политика конфиденциальности'; policy.style.cssText = 'display:inline-flex;align-items:center;min-height:44px;color:#ffd98a;text-decoration:underline;font-size:14px;margin-top:8px'; actions.append(accept, later); box.append(title, text, status, actions, policy); document.body.append(box);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show, {once: true}); else show();
 })();

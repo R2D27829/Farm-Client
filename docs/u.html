@@ -7,7 +7,7 @@
 .kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:18px 0}.kp div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}.kp b{display:block;font-size:24px;color:var(--gold)}.kp span{color:var(--muted);font-size:13px}
 .vbadge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--gold);color:#1a1407;font-size:12px;font-weight:900}
 .ups{display:grid;gap:8px}.ups a{display:flex;justify-content:space-between;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}.ups a:hover{border-color:var(--gold)}</style><link rel="stylesheet" href="cookie-notice.css?v=1">
-</head><body>
+<link rel="stylesheet" href="legal-links.css?v=1"></head><body>
 <main class="wrap">
   <form class="row" id="find" style="margin:18px 0"><input id="q" placeholder="Ник или ID игрока" style="flex:1"><button class="btn">Найти</button></form>
   <div id="out"><p class="muted">Введи ник, чтобы открыть профиль.</p></div>
@@ -38,5 +38,5 @@ async function show(id) {
 $('#find').onsubmit = (e) => { e.preventDefault(); show($('#q').value.trim()); };
 const qid = new URLSearchParams(location.search).get('id');
 if (qid) show(qid); else if (FC.token) FC.api('GET', '/api/me').then((m) => show(m.id || (m.user && m.user.id))).catch(() => {});
-</script><script src="cookie-notice.js?v=1" defer></script>
-</body></html>
+</script><script src="cookie-notice.js?v=2" defer></script>
+<script src="legal-links.js?v=1" defer></script></body></html>
