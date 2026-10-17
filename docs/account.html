@@ -2,7 +2,7 @@
 <html lang="ru"><head><meta charset="utf-8"><link rel="icon" href="img/logo.png"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Кабинет — Farm Client</title><link rel="stylesheet" href="fc.css?v=6"><meta name="theme-color" content="#e8b04a">
 <script src="fc.js?v=9"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-<style>#chat-identity .btn,#links .btn{min-height:44px;box-sizing:border-box}.vbadge{display:inline-flex;align-items:center;justify-content:center;width:1.15em;height:1.15em;border-radius:50%;background:#e8b04a;color:#1a1407;font-size:.7em;font-weight:900;vertical-align:middle}.email-form{display:grid;gap:8px;max-width:440px}.email-form input{width:100%;min-width:0;box-sizing:border-box}.email-form label:not(:first-child){margin-top:4px}.email-form button{min-height:44px}.email-entry{margin-top:24px}.email-form p{margin:0 0 4px}@media(max-width:500px){#email-login-tab,#email-register-tab{flex:1}}.social-visibility{display:flex;align-items:center;gap:8px;min-height:44px;font-size:14px;cursor:pointer}.social-visibility input{width:18px;height:18px;accent-color:var(--gold);flex:none}.link-row>div{min-width:0}.link-row .small{overflow-wrap:anywhere}</style><link rel="stylesheet" href="cookie-notice.css?v=1">
+<style>#email-account-status,#email-verify-note{overflow-wrap:anywhere}#chat-identity .btn,#links .btn{min-height:44px;box-sizing:border-box}.vbadge{display:inline-flex;align-items:center;justify-content:center;width:1.15em;height:1.15em;border-radius:50%;background:#e8b04a;color:#1a1407;font-size:.7em;font-weight:900;vertical-align:middle}.email-form{display:grid;gap:8px;max-width:440px}.email-form input{width:100%;min-width:0;box-sizing:border-box}.email-form label:not(:first-child){margin-top:4px}.email-form button{min-height:44px}.email-entry{margin-top:24px}.email-form p{margin:0 0 4px}@media(max-width:500px){#email-login-tab,#email-register-tab{flex:1}}.social-visibility{display:flex;align-items:center;gap:8px;min-height:44px;font-size:14px;cursor:pointer}.social-visibility input{width:18px;height:18px;accent-color:var(--gold);flex:none}.link-row>div{min-width:0}.link-row .small{overflow-wrap:anywhere}</style><link rel="stylesheet" href="cookie-notice.css?v=1">
 <link rel="stylesheet" href="legal-links.css?v=1"></head><body>
 <main class="wrap" style="max-width:820px">
   <h1>Кабинет</h1>
@@ -25,7 +25,7 @@
         <label for="email-register-confirm">Повтори пароль</label><input id="email-register-confirm" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
         <div><button class="btn gold" type="submit">Создать Farm ID</button></div>
       </form>
-      <p id="email-auth-note" class="muted small" role="status" style="margin-top:12px">Почта — логин. Подтверждение адреса и автоматический сброс пароля пока не подключены. Сохрани пароль или привяжи соцсеть после входа.</p>
+      <p id="email-auth-note" class="muted small" role="status" style="margin-top:12px">После входа почту можно подтвердить кодом из письма в кабинете. Автоматический сброс пароля пока не подключён: сохрани пароль или привяжи соцсеть.</p>
       <p id="email-auth-error" class="err small hidden" role="alert" style="margin-top:12px"></p>
     </div>
     <div class="muted small" style="margin:24px 0 12px;border-top:1px solid var(--line);padding-top:20px">Или продолжить через соцсеть</div>
@@ -42,6 +42,18 @@
   <!-- профиль -->
   <section id="me" class="hidden">
     <div class="card" id="email-account-card"><h2>Почта и пароль</h2><p class="muted small" id="email-account-status">Загрузка…</p>
+      <div id="email-verify-panel" class="hidden" style="margin-top:16px;padding:16px;border:1px solid var(--line);border-radius:12px;max-width:480px;box-sizing:border-box">
+        <h3 style="margin:0 0 8px;font-size:18px">Подтвердить почту</h3>
+        <p class="muted small" id="email-verify-note" style="margin:0 0 12px">Отправим на указанную почту одноразовый код. Он действует 10 минут.</p>
+        <button class="btn" id="email-verify-send" type="button" style="min-height:44px;max-width:100%;white-space:normal">Отправить код</button>
+        <form id="email-verify-form" class="email-form hidden" style="margin-top:16px">
+          <label for="email-verify-code">Код из письма — 8 цифр</label>
+          <input id="email-verify-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{8}" minlength="8" maxlength="8" placeholder="00000000" required aria-describedby="email-verify-note">
+          <div><button class="btn gold" type="submit">Подтвердить почту</button></div>
+        </form>
+        <p id="email-verify-message" class="small hidden" role="status" style="margin:12px 0 0;overflow-wrap:anywhere"></p>
+        <p id="email-verify-error" class="err small hidden" role="alert" style="margin:12px 0 0;overflow-wrap:anywhere"></p>
+      </div>
       <details style="margin-top:12px"><summary style="min-height:44px;cursor:pointer;font-weight:700">Добавить почту или изменить пароль</summary>
         <form id="email-account-form" class="email-form" style="margin-top:12px">
           <label for="email-account-address">Почта для входа</label><input id="email-account-address" type="email" autocomplete="username" maxlength="254" required>
@@ -69,7 +81,7 @@
     <div class="card"><h2>Мои публикации</h2><div id="mine"></div><a class="btn sm" href="gallery.html#upload" style="margin-top:10px">Опубликовать тему / конфиг / сборку</a></div>
   </section>
 </main>
-<script src="email.js?v=1"></script>
+<script src="email.js?v=2"></script>
 <script src="app-auth.js?v=1"></script>
 <script>
 FC.nav('account');
