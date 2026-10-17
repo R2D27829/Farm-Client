@@ -1,119 +1,16 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><link rel="icon" href="img/logo.png"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Купить лицензию — Farm Client</title><link rel="stylesheet" href="fc.css?v=6"><meta name="theme-color" content="#e8b04a">
-<script src="fc.js?v=9"></script>
-<style>.plan{display:flex;flex-direction:column;gap:8px}.plan .price{font-size:30px;font-weight:800;color:var(--gold)}.plan .btn{margin-top:auto}
-.key{font-family:ui-monospace,monospace;font-size:12px;word-break:break-all;background:#0c0d10;border:1px solid var(--line);border-radius:10px;padding:10px;user-select:all}</style>
-<link rel="stylesheet" href="cookie-notice.css?v=1">
-<link rel="stylesheet" href="legal-links.css?v=1"></head><body>
-<main class="wrap" style="max-width:900px">
-  <h1>Лицензия Farm Client</h1>
-  <p class="muted">Без лицензии мод Farm Client не запускается. Ключ работает навсегда (или выбранный срок) — условия привязки к ПК указаны в выбранном тарифе.</p>
-
-  <section id="paid" class="card hidden"><h2 id="paid-h">Проверяем оплату…</h2><div id="paid-body" class="muted small">Обычно это занимает до минуты. Страницу можно не закрывать.</div></section>
-
-  <section id="login" class="card hidden">
-    <h2>Сначала войди</h2>
-    <p class="muted small" style="margin-bottom:12px">Покупка привязывается к твоему Farm ID, чтобы ключ сам появился в лаунчере. В лаунчере: <b>Настройки → Лицензия → «Купить ключ»</b> — эта страница откроется уже с кодом входа. Или введи код из «Войти на сайт»:</p>
-    <form class="row" id="code-form"><input id="code" placeholder="XXXX-XXXX" maxlength="9" style="width:180px;text-transform:uppercase;letter-spacing:2px;font-weight:700"><button class="btn gold">Войти</button></form>
-  </section>
-
-  <section id="off" class="card hidden"><h2>Как купить</h2><p class="muted small" style="margin-bottom:12px">Для запуска нужен интернет. Мод перепроверяет лицензию каждые 5 минут; если подтверждение не обновляется, игра закрывается по истечении текущего подтверждения (до 10 минут).</p>
-    <ol class="muted small" style="padding-left:18px;line-height:1.9">
-      <li>Нажми «Купить» у нужного тарифа — откроется чат с администратором. Напиши, какой тариф хочешь.</li>
-      <li>Оплати так, как скажет администратор, и получи код вида <b>FARM-XXXX-XXXX-XXXX</b>.</li>
-      <li>В лаунчере: <b>Настройки → Лицензия</b> → вставь код → «Активировать». Привязка к ПК зависит от тарифа, срок считается с момента активации.</li>
-    </ol><p class="muted small" id="off-text"></p></section>
-
-  <div class="grid" id="plans" style="margin-top:16px"></div>
-  <div class="row small muted" id="method-row" style="margin-top:12px"><span>Оплата:</span>
-    <label><input type="radio" name="m" value="AC" checked> банковская карта</label>
-    <label><input type="radio" name="m" value="PC"> кошелёк ЮMoney</label></div>
-  <form class="row small" id="promo-row" style="margin-top:10px"><input id="promo" placeholder="Промокод" maxlength="24" style="max-width:200px;text-transform:uppercase"><button class="btn sm">Применить</button><span class="muted" id="promo-st"></span></form>
-
-  <section id="orders-s" class="card hidden"><h2>Мои покупки</h2><div id="orders"></div></section>
-</main>
-<script>
-FC.nav('buy');
-const $ = (s) => document.querySelector(s), E = FC.esc;
-const ST = { new: 'ожидает оплаты', paid: '✅ оплачен', underpaid: '⚠️ недоплата — напиши администратору' };
-const term = (d) => (d ? d + ' дн.' : 'навсегда');
-let shop = { enabled: false, plans: [] }, PROMO = null;
-const promoOk = (p) => PROMO && (!PROMO.plans || PROMO.plans.split(',').map((x) => x.trim()).includes(p.id));
-const promoPrice = (p) => Math.max(1, Math.round(p.price * (100 - PROMO.pct)) / 100);
-
-function keyBox(k) { return `<div class="key">${E(k)}</div><div class="row" style="margin-top:8px"><button class="btn sm gold" data-copy="${E(k)}">Скопировать ключ</button><span class="muted small">В лаунчере ключ появится сам (или нажми «Я купил — проверить»).</span></div>`; }
-function bindCopy() { document.querySelectorAll('[data-copy]').forEach((b) => (b.onclick = async () => { await navigator.clipboard.writeText(b.dataset.copy); FC.toast('Ключ скопирован'); })); }
-
-async function loadOrders() {
-  if (!FC.token) return [];
-  let l = []; try { l = await FC.api('GET', '/api/shop/orders'); } catch { return []; }
-  $('#orders-s').classList.toggle('hidden', !l.length);
-  $('#orders').innerHTML = l.map((o) => `<div class="card" style="margin:10px 0;padding:14px 16px"><div class="row"><b>${E(o.title || o.plan)}</b><span class="muted small">${o.price} ₽ · ${term(o.days)} · ${FC.date(o.created)} · ${ST[o.status] || E(o.status)}</span></div>${o.license_key ? '<div style="margin-top:10px">' + keyBox(o.license_key) + '</div>' : ''}</div>`).join('');
-  bindCopy(); return l;
-}
-
-function renderPlans() {
-  $('#off').classList.toggle('hidden', shop.enabled);
-  const ds = /^discord:/i.test(shop.contact) ? shop.contact.slice(8).trim() : '';
-  const cHref = ds ? 'https://discord.com/channels/@me' : shop.contact;
-  if (!shop.enabled) $('#off-text').innerHTML = !shop.contact ? 'Контакт администратора скоро появится здесь.' : ds
-    ? `Пиши админу в Discord: <b class="ds-nick" style="cursor:pointer" title="Скопировать">@${E(ds)}</b> — он выдаст код активации.`
-    : `Связь с администратором: <a href="${E(cHref)}" target="_blank" rel="noopener">${E(shop.contact)}</a>`;
-  $('#method-row').classList.toggle('hidden', !shop.enabled || !shop.plans.length);
-  $('#promo-row').classList.toggle('hidden', !shop.enabled || !shop.plans.length);
-  $('#plans').innerHTML = shop.plans.map((p) => `<div class="card plan" style="margin:0"><h2 style="margin:0">${E(p.title)}</h2><div class="price">${promoOk(p) ? `<s style="opacity:.45;font-size:20px">${p.price}</s> ${promoPrice(p)}` : p.price} ₽</div>
-    <div class="muted small">${p.desc ? E(p.desc) : 'Срок: ' + term(p.days) + (p.hwid ? ' · привязка к ПК' : ' · без привязки к ПК')}</div>
-    ${shop.enabled ? `<button class="btn gold" data-buy="${E(p.id)}">Купить</button>` : shop.contact ? `<a class="btn gold buy-admin" href="${E(cHref)}" target="_blank" rel="noopener">Купить у админа</a>` : '<button class="btn gold" disabled>Скоро</button>'}</div>`).join('');
-  document.querySelectorAll('[data-buy]').forEach((b) => (b.onclick = () => buy(b.dataset.buy, b)));
-  if (ds) { const cp = () => { try { navigator.clipboard.writeText(ds); } catch {} FC.toast('Ник @' + ds + ' скопирован — найди его в Discord и напиши, какой тариф нужен'); };
-    document.querySelectorAll('.buy-admin,.ds-nick').forEach((b) => b.addEventListener('click', cp)); }
-}
-
-async function buy(plan, btn) {
-  if (!FC.token) { $('#login').classList.remove('hidden'); $('#login').scrollIntoView({ behavior: 'smooth' }); return FC.toast('Сначала войди через лаунчер', true); }
-  btn.disabled = true;
-  try {
-    const r = await FC.api('POST', '/api/shop/order', { body: { plan, method: (document.querySelector('[name=m]:checked') || {}).value, promo: PROMO ? PROMO.code : undefined } });
-    const f = document.createElement('form'); f.method = 'POST'; f.action = r.action;
-    for (const [k, v] of Object.entries(r.form)) { const i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = v; f.append(i); }
-    document.body.append(f); f.submit();
-  } catch (e) { FC.toast(e.message, true); btn.disabled = false; }
-}
-
-async function waitPaid(id) {
-  $('#paid').classList.remove('hidden');
-  for (let i = 0; i < 60; i++) {
-    const l = await loadOrders(); const o = l.find((x) => x.id === id);
-    if (o && o.status === 'paid' && o.license_key) { $('#paid-h').textContent = '✅ Оплата получена — вот твой ключ'; $('#paid-body').innerHTML = keyBox(o.license_key); bindCopy(); return; }
-    if (o && o.status === 'underpaid') { $('#paid-h').textContent = '⚠️ Сумма оплаты меньше цены'; $('#paid-body').textContent = 'Напиши администратору, указав номер заказа ' + id; return; }
-    await new Promise((r) => setTimeout(r, 5000));
-  }
-  $('#paid-h').textContent = 'Оплата ещё не пришла'; $('#paid-body').textContent = 'Если деньги списались — обнови страницу через пару минут. Ключ появится в «Мои покупки» и в лаунчере.';
-}
-
-async function init() {
-  const hash = new URLSearchParams(location.hash.slice(1));
-  const code = hash.get('code');
-  if (code) { history.replaceState(null, '', location.pathname); try { const r = await FC.api('POST', '/api/site/login', { body: { code }, auth: false }); FC.token = r.token; FC.toast('Ты вошёл'); } catch (e) { FC.toast(e.message, true); } }
-  try { shop = await FC.api('GET', '/api/shop', { auth: false }); } catch (e) { FC.toast(e.message, true); }
-  renderPlans();
-  if (FC.token) { try { await FC.api('GET', '/api/me'); } catch { FC.token = ''; } }
-  $('#login').classList.toggle('hidden', !!FC.token || !shop.enabled);
-  if (hash.get('paid') && FC.token) waitPaid(hash.get('paid')); else loadOrders();
-}
-$('#code-form').onsubmit = async (e) => {
-  e.preventDefault(); const code = $('#code').value.trim().toUpperCase(); if (!code) return;
-  try { const r = await FC.api('POST', '/api/site/login', { body: { code }, auth: false }); FC.token = r.token; FC.toast('Ты вошёл'); $('#login').classList.add('hidden'); loadOrders(); } catch (er) { FC.toast(er.message, true); }
-};
-$('#promo-row').onsubmit = async (e) => {
-  e.preventDefault(); const c = $('#promo').value.trim().toUpperCase();
-  if (!c) { PROMO = null; $('#promo-st').textContent = ''; return renderPlans(); }
-  try { const r = await FC.api('GET', '/api/shop/promo?code=' + encodeURIComponent(c), { auth: false }); if (!r) throw new Error('Нет такого промокода'); PROMO = r; $('#promo-st').textContent = '✓ скидка ' + r.pct + '%' + (r.plans ? ' на ' + r.plans : ''); renderPlans(); }
-  catch (er) { PROMO = null; $('#promo-st').textContent = ''; renderPlans(); FC.toast(er.message, true); }
-};
-{ const pc = new URLSearchParams(location.search).get('promo'); if (pc) { $('#promo').value = pc; setTimeout(() => $('#promo-row').requestSubmit(), 600); } }
-init();
-</script>
-<script src="cookie-notice.js?v=2" defer></script>
-<script src="legal-links.js?v=1" defer></script></body></html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Купить на FunPay — Farm Client</title>
+<link rel="icon" href="img/logo.png"><link rel="stylesheet" href="fc.css?v=6">
+<meta name="theme-color" content="#e8b04a">
+<meta http-equiv="refresh" content="0;url=https://funpay.com/users/21841334/">
+<script>location.replace('https://funpay.com/users/21841334/');</script>
+</head><body><main class="wrap" style="max-width:760px;padding-top:48px">
+<section class="card"><h1>Покупка на FunPay / Buy on FunPay</h1>
+<p>Открываем профиль продавца Farm Client. Выбери нужный тариф; код получишь в заказе FunPay.</p>
+<p class="muted">Opening the Farm Client seller profile. Choose your plan and receive the code in your FunPay order.</p>
+<a class="btn gold" href="https://funpay.com/users/21841334/" referrerpolicy="no-referrer">Перейти на FunPay / Open FunPay</a>
+<p class="muted small" style="margin-top:16px">Код активируется в лаунчере: Настройки → Лицензия. / Activate the code in the launcher: Settings → License.</p>
+<a href="index.html">На главную / Home</a></section></main></body></html>
