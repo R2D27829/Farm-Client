@@ -9,6 +9,17 @@
     "pinned": true
   },
   {
+    "id": "launcher-1.28.5-preview",
+    "date": "2026-10-27",
+    "tag": "Предварительный выпуск",
+    "title": "Farm Client 1.28.5 — Windows, Linux и macOS Preview",
+    "text": "Библиотека, Центр управления, категории настроек с настраиваемыми плитками, история безопасных параметров и центр загрузок. Подготовлены Windows x64, Linux x64/ARM64 и macOS Intel/Apple Silicon. Linux x64 прошёл проверку запуска в тестовой среде; остальным системам нужен нативный тест. macOS не подписана. Нового APK и готовой Legacy пока нет. Исходники не публикуются. Это предварительный выпуск, не замена стабильной версии.",
+    "url": "https://github.com/R2D27829/Farm-Client/releases/tag/v1.28.5",
+    "pinned": false,
+    "official": true,
+    "author": "Farm Client"
+  },
+  {
     "id": "1.25.6",
     "date": "2026-10-16",
     "tag": "Обновление",
