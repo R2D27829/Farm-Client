@@ -218,7 +218,7 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
 @media(max-width:760px){.style-picker{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.style-picker button{padding:14px 12px;gap:10px}.style-colors{width:34px;height:40px;border-radius:9px}.style-picker small{font-size:12px}.style-picker button>span:last-child{font-size:14px}.style-preview{border-radius:14px}.style-preview-bar{padding:12px;gap:10px}.style-preview-bar>span:last-child{font-size:11px}.style-preview-footer{display:block;padding:16px}.style-gallery{margin-top:8px}.style-preview-footer .tcap{font-size:14px}.style-preview-note{line-height:1.5}}
 @media(prefers-reduced-motion:reduce){.style-picker button,.style-preview .tframe img{transition:none}}
 </style><link rel="stylesheet" href="cookie-notice.css?v=1">
-<link rel="stylesheet" href="legal-links.css?v=1"></head>
+<link rel="stylesheet" href="legal-links.css?v=1"><link rel="stylesheet" href="downloads.css?v=1"></head>
 <body>
 <div class="bg"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="dots"></div></div>
 <header class="nav" id="nav"><div class="in">
@@ -233,8 +233,9 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
   <a class="badge rv" href="#news"><i>Новое</i><span id="ver">1.25.6 — новый UI мода и плавные переходы</span><span class="ar">→</span></a>
   <h1 class="rv">Minecraft, каким он<br><span class="gt">должен быть</span></h1>
   <p class="lead rv">Лаунчер и мод в одном: моды и сборки в один клик, кланы и друзья, мессенджер, высокий FPS даже на слабом ПК — и всё это красиво.</p>
-  <div class="cta rv" id="download"><a class="btn g" id="dl" href="https://github.com/R2D27829/Farm-Client/releases/download/v1.25.6/FarmClient-Setup-1.25.6.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg><span id="dl-t">Скачать для Windows</span></a><a class="btn" href="#features">Смотреть возможности</a></div>
+  <div class="cta rv" id="download"><a class="btn g" id="dl" href="https://github.com/R2D27829/Farm-Client/releases/download/v1.26.1/FarmClient-Setup-1.26.1.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg><span id="dl-t">Скачать для Windows</span></a><a class="btn" href="#features">Смотреть возможности</a></div>
   <div class="dlinfo rv"><span id="dl-info">Бесплатно · Windows · Linux · Android</span> <span id="dl-other"></span></div>
+  <a class="farm-other-systems" href="#downloads">Другие системы и версии <span aria-hidden="true">↓</span></a>
   <div class="stage rv" id="stage">
     <div class="chip c1"><span class="e">🛡️</span><div>Farm Legends<small>Клан · 12 в сети</small></div></div>
     <div class="chip c2"><span class="e">⚡</span><div>240 FPS<small>Профиль «Средний ПК»</small></div></div>
@@ -317,6 +318,15 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
   <div class="faqmore rv"><a class="btn sm" href="faq.html">Вся база знаний →</a></div>
 </section>
 
+<section class="farm-downloads wrap" id="downloads" aria-labelledby="downloads-title">
+  <div class="head"><span class="eyebrow">ТВОЯ СИСТЕМА. ТВОЙ FARM.</span><h2 id="downloads-title">Скачать <span class="gt">Farm Client</span></h2><p>Выбери свою систему. Для каждой показана именно её последняя опубликованная сборка.</p></div>
+  <div class="farm-dl-grid" id="farm-platform-downloads" aria-live="polite"></div>
+  <p class="farm-dl-note" id="farm-download-note"></p>
+  <h3 class="farm-version-title">Другие версии</h3><p class="farm-version-subtitle">Предыдущие релизы по системам. Старая версия лаунчера сама по себе не означает поддержку старой Windows.</p>
+  <div class="farm-archive" id="farm-version-archive"></div>
+  <a class="farm-release-link" href="https://github.com/R2D27829/Farm-Client/releases">Все релизы на GitHub ↗</a>
+</section>
+
 <div class="wrap"><div class="final rv"><img src="img/logo.png" alt="" width="64" height="64"><h2>Готов к <span class="gt">игре?</span></h2><p>Скачай Farm Client — первые 3 дня все функции бесплатно.</p><div class="cta"><a class="btn g" href="#download">Скачать</a><a class="btn" href="account.html">Открыть кабинет</a></div></div></div>
 </main>
 
@@ -348,16 +358,7 @@ $$('.card').forEach(c=>c.addEventListener('pointermove',e=>{const r=c.getBoundin
 const count=el=>{const n=+el.dataset.n,s=el.dataset.s||'';if(!n||RM){return}let t0;const f=t=>{t0=t0||t;const k=Math.min(1,(t-t0)/1200),v=Math.round(n*(1-Math.pow(1-k,3)));el.textContent=v+s;if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)};
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');e.target.querySelectorAll('[data-n]').forEach(count);io.unobserve(e.target)}}),{threshold:.12});
 $$('.rv').forEach((e,i)=>{e.style.transitionDelay=(i%3)*70+'ms';io.observe(e)});
-// релизы: кнопка под систему пользователя
-fetch('https://api.github.com/repos/'+R+'/releases?per_page=30').then(r=>r.json()).then(l=>{if(!Array.isArray(l)||!l.length)return;const t=l.find(x=>!x.draft&&!x.prerelease)||l[0];
- $('#ver').textContent=L.ver(t.tag_name.replace(/^v/,''));
- const as=t.assets||[],ua=navigator.userAgent,andr=/Android/i.test(ua),lin=!andr&&/Linux/i.test(navigator.platform||ua);
- const pk={win:as.find(x=>/\.exe$/i.test(x.name)),app:as.find(x=>/x86_64\.AppImage$|x64\.AppImage$/i.test(x.name)),deb:as.find(x=>/amd64\.deb$|x64\.deb$/i.test(x.name)),apk:as.find(x=>/\.apk$/i.test(x.name))};
- const os=andr?'android':lin?'linux':'win',a=os==='android'?pk.apk:os==='linux'?(pk.app||pk.deb):pk.win;
- if(a){$('#dl').href=a.browser_download_url;$('#dl-t').textContent=L.dl(L.os[os]);$('#dl-info').textContent=L.info(L.kind[os],(a.size/1048576).toFixed(0),new Date(t.published_at).toLocaleDateString(L.loc))}
- const oth=[['Windows',pk.win],['Linux',pk.app],['Linux .deb',pk.deb],['Android',pk.apk]].filter(x=>x[1]&&x[1]!==a);
- $('#dl-other').innerHTML=oth.length?'· '+L.other+' '+oth.map(x=>'<a href="'+x[1].browser_download_url+'">'+x[0]+'</a>').join(' · '):'';
- const n=l.reduce((s,r)=>s+(r.assets||[]).filter(x=>/\.(exe|dmg|AppImage|deb|apk)$/i.test(x.name)).reduce((q,x)=>q+x.download_count,0),0);const d=$('#dls');if(d)d.textContent=n>999?(n/1000).toFixed(1)+'k':n}).catch(()=>{});
+// Platform downloads and previous releases are rendered by downloads.js.
 // Тарифы — только настройки администратора, без цен и сроков в HTML.
 const pricingGrid=$('#pricing-plans'),pricingState=$('#pricing-state'),paidTemplate=$('#paid-plan-template');
 const pricingRu=document.documentElement.lang==='ru',dayForms=['день','дня','дней'];
@@ -398,4 +399,4 @@ seg.onkeydown=e=>{let i=ti;if(e.key==='ArrowRight')i++;else if(e.key==='ArrowLef
 tset(0);TH.forEach(t=>{new Image().src='img/'+t[0]+'.webp'});
 </script>
 <script src="cookie-notice.js?v=2" defer></script>
-<script src="legal-links.js?v=1" defer></script></body></html>
+<script src="legal-links.js?v=1" defer></script><script src="downloads.js?v=1" defer></script></body></html>
