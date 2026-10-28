@@ -26,6 +26,16 @@
         "browser_download_url": "https://github.com/R2D27829/Farm-Client/releases/download/v1.28.5/FarmClient-1.28.5-macOS-x64.zip"
       },
       {
+        "name": "FarmClient-Android-0.3.2-beta.apk",
+        "size": 132009950,
+        "browser_download_url": "https://github.com/R2D27829/Farm-Client/releases/download/v1.28.5/FarmClient-Android-0.3.2-beta.apk"
+      },
+      {
+        "name": "FarmClient-Legacy-Setup-1.28.5-x64-test.exe",
+        "size": 238617355,
+        "browser_download_url": "https://github.com/R2D27829/Farm-Client/releases/download/v1.28.5/FarmClient-Legacy-Setup-1.28.5-x64-test.exe"
+      },
+      {
         "name": "FarmClient-Setup-1.28.5.exe",
         "size": 102631820,
         "browser_download_url": "https://github.com/R2D27829/Farm-Client/releases/download/v1.28.5/FarmClient-Setup-1.28.5.exe"
