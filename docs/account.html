@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><link rel="icon" href="img/logo.png"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Кабинет — Farm Client</title><link rel="stylesheet" href="fc.css?v=6"><meta name="theme-color" content="#e8b04a">
-<script src="fc.js?v=9"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="fc.js?v=10"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <style>#email-account-status,#email-verify-note{overflow-wrap:anywhere}#chat-identity .btn,#links .btn{min-height:44px;box-sizing:border-box}.vbadge{display:inline-flex;align-items:center;justify-content:center;width:1.15em;height:1.15em;border-radius:50%;background:#e8b04a;color:#1a1407;font-size:.7em;font-weight:900;vertical-align:middle}.email-form{display:grid;gap:8px;max-width:440px}.email-form input{width:100%;min-width:0;box-sizing:border-box}.email-form label:not(:first-child){margin-top:4px}.email-form button{min-height:44px}.email-entry{margin-top:24px}.email-form p{margin:0 0 4px}@media(max-width:500px){#email-login-tab,#email-register-tab{flex:1}}.social-visibility{display:flex;align-items:center;gap:8px;min-height:44px;font-size:14px;cursor:pointer}.social-visibility input{width:18px;height:18px;accent-color:var(--gold);flex:none}.link-row>div{min-width:0}.link-row .small{overflow-wrap:anywhere}</style><link rel="stylesheet" href="cookie-notice.css?v=1">
 <link rel="stylesheet" href="legal-links.css?v=1"></head><body>
 <main class="wrap" style="max-width:820px">
@@ -29,8 +29,9 @@
       <p id="email-auth-error" class="err small hidden" role="alert" style="margin-top:12px"></p>
     </div>
     <div class="muted small" style="margin:24px 0 12px;border-top:1px solid var(--line);padding-top:20px">Или продолжить через соцсеть</div>
-    <div class="row" id="social-login" style="gap:12px"><button class="btn gold hidden" data-login="google">Google</button><button class="btn gold hidden" data-login="discord">Discord</button><button class="btn hidden" data-login="telegram">Telegram</button><button class="btn hidden" data-login="vk">VK</button></div>
+    <div class="row" id="social-login" style="gap:12px;flex-wrap:wrap" aria-label="Войти через соцсеть"><button class="btn gold" data-login="google">Google</button><button class="btn gold" data-login="discord">Discord</button><button class="btn" data-login="telegram">Telegram</button><button class="btn" data-login="vk">VK</button></div>
     <p class="muted small" id="providers-note" role="status" style="margin-top:12px">Проверяем доступные способы входа…</p>
+    <button class="btn sm" type="button" id="providers-retry" style="margin-top:12px">Проверить способы входа ещё раз</button>
     <div id="tg-login-box" style="margin-top:12px"></div>
     <p class="muted small" style="margin-top:20px">Уже есть Farm ID в лаунчере? Сначала войди по коду ниже и привяжи соцсеть в кабинете — так сохранятся твоя лицензия и публикации.</p>
     <details style="margin-top:24px;border-top:1px solid var(--line);padding-top:16px"><summary style="cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700">Войти по коду из лаунчера или приложения</summary>
@@ -81,147 +82,399 @@
     <div class="card"><h2>Мои публикации</h2><div id="mine"></div><a class="btn sm" href="gallery.html#upload" style="margin-top:10px">Опубликовать тему / конфиг / сборку</a></div>
   </section>
 </main>
-<script src="email.js?v=2"></script>
-<script src="app-auth.js?v=1"></script>
-<script>
-FC.nav('account');
+<script src="email.js?v=3"></script>
+<script src="app-auth.js?v=2"></script>
+<script>FC.nav('account');
 const $ = (s) => document.querySelector(s);
 const P = { google: ['Google', '#4285F4'], discord: ['Discord', '#5865F2'], telegram: ['Telegram', '#229ED9'], vk: ['VK', '#0077FF'] };
 // виджет Telegram (Login Widget) — бот должен знать домен сайта (/setdomain у @BotFather)
 function tgWidget(box, r) {
-  box.innerHTML = '';
-  const s = document.createElement('script'); s.async = true; s.src = 'https://telegram.org/js/telegram-widget.js?22';
-  s.setAttribute('data-telegram-login', r.bot); s.setAttribute('data-size', 'large'); s.setAttribute('data-auth-url', r.authUrl); s.setAttribute('data-request-access', 'write');
-  box.append(s);
+    box.innerHTML = '';
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://telegram.org/js/telegram-widget.js?22';
+    s.setAttribute('data-telegram-login', r.bot);
+    s.setAttribute('data-size', 'large');
+    s.setAttribute('data-auth-url', r.authUrl);
+    s.setAttribute('data-request-access', 'write');
+    box.append(s);
 }
 async function start(provider, mode, box) {
-  try {
-    const app = !!window.FarmApp && /FarmClientApp/.test(navigator.userAgent);
-    const r = await FC.api('POST', `/api/link/${provider}/start`, { body: { mode, app }, auth: mode === 'link' });
-    if (r.url && app && FarmApp.openExternal) { FarmApp.openExternal(r.url); FC.toast('Подтверди вход — потом вернёшься в приложение'); }
-    else if (r.url) location.href = r.url; else if (r.bot) { tgWidget(box, r); FC.toast('Нажми кнопку Telegram ниже'); }
-  } catch (e) { FC.toast(e.message, true); }
+    try {
+        const app = !!window.FarmApp && /FarmClientApp/.test(navigator.userAgent);
+        if (app && mode === 'login') {
+            if (!window.FarmAppAuth || typeof window.FarmAppAuth.start !== 'function')
+                throw new Error('Обнови страницу кабинета или приложение: для соцсетей нужен безопасный вход через браузер.');
+            await window.FarmAppAuth.start(provider);
+            return;
+        }
+        const r = await authTimeout(FC.api('POST', `/api/link/${provider}/start`, { body: { mode, app }, auth: mode === 'link' }));
+        if (r.url && app && FarmApp.openExternal) {
+            FarmApp.openExternal(r.url);
+            FC.toast('Подтверди вход — потом вернёшься в приложение');
+        }
+        else if (r.url)
+            location.href = r.url;
+        else if (r.bot) {
+            tgWidget(box, r);
+            FC.toast('Нажми кнопку Telegram ниже');
+        }
+    }
+    catch (e) {
+        FC.toast(e.message, true);
+    }
 }
-// какие соцсети настроены на сервере — остальные кнопки прячем
+// Buttons stay visible even if the provider probe times out; server start endpoints remain authoritative.
 let PROV = { google: false, discord: false, telegram: false, vk: false };
-const provReady = FC.api('GET', '/api/link/providers', { auth: false }).then((r) => {
-  PROV = r; document.querySelectorAll('[data-login]').forEach((b) => b.classList.toggle('hidden', !PROV[b.dataset.login]));
-  $('#providers-note').textContent = Object.keys(P).some(k => PROV[k]) ? 'Пароль Farm Client не нужен — вход подтверждает выбранная соцсеть.' : 'Социальный вход пока не настроен. Можно войти по коду ниже.';
-}).catch(() => { $('#providers-note').textContent = 'Не удалось загрузить способы входа. Обнови страницу или войди по коду.'; });
+function authTimeout(promise) {
+    let timer;
+    const timeout = new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('Сервис входа не ответил. Проверь интернет и повтори попытку.')), 12000); });
+    return Promise.race([promise, timeout]).then(r => { clearTimeout(timer); return r; }, e => { clearTimeout(timer); throw e; });
+}
+function providerButtons(r) {
+    document.querySelectorAll('[data-login]').forEach(b => {
+        b.classList.remove('hidden');
+        b.disabled = !!r && r[b.dataset.login] !== true;
+        b.title = b.disabled ? 'Этот способ пока не настроен на сервере' : '';
+        b.setAttribute('aria-disabled', b.disabled ? 'true' : 'false');
+    });
+}
+async function loadProviders() {
+    const retry = $('#providers-retry');
+    retry.disabled = true;
+    $('#providers-note').textContent = 'Проверяем доступные способы входа…';
+    try {
+        const r = await authTimeout(FC.api('GET', '/api/link/providers', { auth: false }));
+        if (!r || typeof r !== 'object' || !Object.keys(P).some(k => typeof r[k] === 'boolean'))
+            throw new Error('Сервер вернул непонятный список способов входа.');
+        PROV = r;
+        providerButtons(r);
+        $('#providers-note').textContent = Object.keys(P).some(k => r[k]) ? 'Выбери соцсеть. Google открывается в обычном браузере; пароль Farm не нужен.' : 'Соцсети пока не настроены. Можно войти по почте или коду.';
+        window.dispatchEvent(new CustomEvent('fc:providers-ready', { detail: r }));
+        return r;
+    }
+    catch (e) {
+        providerButtons(null);
+        $('#providers-note').textContent = 'Не удалось проверить способы входа. Кнопки не скрыты: попробуй нужную соцсеть или повтори проверку. ' + e.message;
+        return null;
+    }
+    finally {
+        retry.disabled = false;
+    }
+}
+$('#providers-retry').onclick = loadProviders;
+const provReady = loadProviders();
 let hiddenProviders = new Set();
 async function setSocialVisibility(el) {
-  const key=el.dataset.hideProvider,wanted=el.checked;
-  const next=new Set(hiddenProviders);wanted ? next.add(key) : next.delete(key);
-  const controls=[...document.querySelectorAll('[data-hide-provider]')];controls.forEach(e=>e.disabled=true);
-  $('#privacy-status').textContent='Сохраняем…';
-  try {const p=await FC.api('PUT','/api/privacy',{body:{hiddenProviders:[...next]}});hiddenProviders=new Set(p.hiddenProviders);controls.forEach(e=>e.checked=hiddenProviders.has(e.dataset.hideProvider));$('#privacy-status').textContent=(P[key]||[key])[0]+(wanted?' скрыт в публичном профиле':' виден в публичном профиле');}
-  catch(e){el.checked=!wanted;$('#privacy-status').textContent=e.message;}
-  finally{controls.forEach(e=>e.disabled=false);}
+    const key = el.dataset.hideProvider, wanted = el.checked;
+    const next = new Set(hiddenProviders);
+    wanted ? next.add(key) : next.delete(key);
+    const controls = [...document.querySelectorAll('[data-hide-provider]')];
+    controls.forEach(e => e.disabled = true);
+    $('#privacy-status').textContent = 'Сохраняем…';
+    try {
+        const p = await FC.api('PUT', '/api/privacy', { body: { hiddenProviders: [...next] } });
+        hiddenProviders = new Set(p.hiddenProviders);
+        controls.forEach(e => e.checked = hiddenProviders.has(e.dataset.hideProvider));
+        $('#privacy-status').textContent = (P[key] || [key])[0] + (wanted ? ' скрыт в публичном профиле' : ' виден в публичном профиле');
+    }
+    catch (e) {
+        el.checked = !wanted;
+        $('#privacy-status').textContent = e.message;
+    }
+    finally {
+        controls.forEach(e => e.disabled = false);
+    }
 }
 async function loadMe() {
-  let me; try { me = await FC.api('GET', '/api/me'); } catch (e) { FC.token = ''; return showLogin(e.message); }
-  $('#login').classList.add('hidden'); $('#me').classList.remove('hidden'); FCE.load();
-  $('#me-name').innerHTML = FC.esc(me.name || 'Игрок') + (me.verified ? ' <span class="vbadge" title="Проверенный аккаунт">✓</span>' : '');
-  renderVerify(me); $('#me-id').innerHTML = `Farm ID <code>${FC.esc(me.id)}</code>${['admin','developer'].includes(me.role) ? (me.role === 'developer' ? ' · 🛠️ Разработчик' : ' · 🛡️ админ') : ''} · с ${FC.date(me.created)} · <a href="u.html?id=${encodeURIComponent(me.id)}" style="text-decoration:underline">мой профиль</a> · <a href="clans.html" style="text-decoration:underline">клан</a>`;
-  renderRef(me);
-  const l = me.license; $('#me-lic').innerHTML = l ? `Лицензия <code>${FC.esc(l.id)}</code> · ${{ hwid: 'по HWID', free: 'без HWID', admin: 'админская' }[l.type] || l.type} · ${l.exp ? 'до ' + FC.date(l.exp) : 'бессрочно'} ${l.revoked ? '<span class="err">· отозвана</span>' : '<span class="ok">· активна</span>'}` : '<span class="muted">Лицензия не активирована</span>';
-  const names = (me.chat && me.chat.names) || [];
-  $('#chat-identity').innerHTML = `<div class="small">${me.chat && me.chat.discord ? 'Discord связан с этим Farm-аккаунтом ✅' : 'Привяжи Discord кнопкой ниже; голосовые доступны и по нику Minecraft.'}</div><div class="muted small" style="overflow-wrap:anywhere;margin-top:6px">Тебе можно написать: ${names.map((n) => '@' + FC.esc(n)).join(' · ') || 'укажи ник в лаунчере'}</div><a class="btn gold sm" style="margin-top:12px" href="chat.html">Открыть мессенджер · 🎤 голосовые</a>${['admin','developer'].includes(me.role) ? '<a class="btn sm" style="margin:12px 0 0 8px" href="admin.html#chat">Чат админов</a>' : ''}`;
-  await provReady;
-  hiddenProviders = new Set(me.privacy && me.privacy.hiddenProviders || []);
-  $('#links').innerHTML = Object.entries(P).filter(([k]) => PROV[k] || me.links.some((y) => y.provider === k)).map(([k, [name, color]]) => {
-    const x = me.links.find((y) => y.provider === k);
-    return `<div class="link-row">${x && x.avatar ? `<img src="${FC.esc(x.avatar)}" alt="">` : `<div class="ic" style="background:${color}">${name[0]}</div>`}<div style="flex:1"><b>${name}</b><div class="muted small">${x ? FC.esc(x.name) : 'не привязан'}</div>${x ? `<label class="social-visibility"><input type="checkbox" data-hide-provider="${k}" ${hiddenProviders.has(k) ? 'checked' : ''}><span>Скрыть в профиле</span></label>` : ''}</div>
+    let me;
+    try {
+        me = await FC.api('GET', '/api/me');
+    }
+    catch (e) {
+        FC.token = '';
+        return showLogin(e.message);
+    }
+    $('#login').classList.add('hidden');
+    $('#me').classList.remove('hidden');
+    FCE.load();
+    $('#me-name').innerHTML = FC.esc(me.name || 'Игрок') + (me.verified ? ' <span class="vbadge" title="Проверенный аккаунт">✓</span>' : '');
+    renderVerify(me);
+    $('#me-id').innerHTML = `Farm ID <code>${FC.esc(me.id)}</code>${['admin', 'developer'].includes(me.role) ? (me.role === 'developer' ? ' · 🛠️ Разработчик' : ' · 🛡️ админ') : ''} · с ${FC.date(me.created)} · <a href="u.html?id=${encodeURIComponent(me.id)}" style="text-decoration:underline">мой профиль</a> · <a href="clans.html" style="text-decoration:underline">клан</a>`;
+    renderRef(me);
+    const l = me.license;
+    $('#me-lic').innerHTML = l ? `Лицензия <code>${FC.esc(l.id)}</code> · ${{ hwid: 'по HWID', free: 'без HWID', admin: 'админская' }[l.type] || l.type} · ${l.exp ? 'до ' + FC.date(l.exp) : 'бессрочно'} ${l.revoked ? '<span class="err">· отозвана</span>' : '<span class="ok">· активна</span>'}` : '<span class="muted">Лицензия не активирована</span>';
+    const names = (me.chat && me.chat.names) || [];
+    $('#chat-identity').innerHTML = `<div class="small">${me.chat && me.chat.discord ? 'Discord связан с этим Farm-аккаунтом ✅' : 'Привяжи Discord кнопкой ниже; голосовые доступны и по нику Minecraft.'}</div><div class="muted small" style="overflow-wrap:anywhere;margin-top:6px">Тебе можно написать: ${names.map((n) => '@' + FC.esc(n)).join(' · ') || 'укажи ник в лаунчере'}</div><a class="btn gold sm" style="margin-top:12px" href="chat.html">Открыть мессенджер · 🎤 голосовые</a>${['admin', 'developer'].includes(me.role) ? '<a class="btn sm" style="margin:12px 0 0 8px" href="admin.html#chat">Чат админов</a>' : ''}`;
+    await provReady;
+    hiddenProviders = new Set(me.privacy && me.privacy.hiddenProviders || []);
+    $('#links').innerHTML = Object.entries(P).filter(([k]) => PROV[k] || me.links.some((y) => y.provider === k)).map(([k, [name, color]]) => {
+        const x = me.links.find((y) => y.provider === k);
+        return `<div class="link-row">${x && x.avatar ? `<img src="${FC.esc(x.avatar)}" alt="">` : `<div class="ic" style="background:${color}">${name[0]}</div>`}<div style="flex:1"><b>${name}</b><div class="muted small">${x ? FC.esc(x.name) : 'не привязан'}</div>${x ? `<label class="social-visibility"><input type="checkbox" data-hide-provider="${k}" ${hiddenProviders.has(k) ? 'checked' : ''}><span>Скрыть в профиле</span></label>` : ''}</div>
       ${x ? `<button class="btn sm red" data-unlink="${k}">Отвязать</button>` : `<button class="btn sm gold" data-link="${k}">Привязать</button>`}</div>`;
-  }).join('');
-  document.querySelectorAll('[data-hide-provider]').forEach(el => el.onchange = () => setSocialVisibility(el));
-  document.querySelectorAll('[data-link]').forEach((b) => (b.onclick = () => start(b.dataset.link, 'link', $('#tg-link-box'))));
-  document.querySelectorAll('[data-unlink]').forEach((b) => (b.onclick = async () => { if (!confirm('Отвязать?')) return; try { await FC.api('DELETE', '/api/link/' + b.dataset.unlink); loadMe(); } catch (e) { FC.toast(e.message, true); } }));
-  try {
-    const c = await FC.api('GET', '/api/cloud/configs');
-    $('#cloud').innerHTML = c.length ? c.map((x) => `<div class="link-row"><div style="flex:1"><b>${FC.esc(x.name.split('__').slice(1).join('__') || x.name)}</b> <span class="tag">${FC.esc(x.name.split('__')[0])}</span><div class="muted small">${FC.size(x.size)} · ${new Date(x.updated * 1000).toLocaleString('ru')}</div></div><button class="btn sm" data-dl="${FC.esc(x.name)}">Скачать</button></div>`).join('') : '<p class="muted small">Пусто.</p>';
-    document.querySelectorAll('[data-dl]').forEach((b) => (b.onclick = async () => { const blob = await FC.api('GET', '/api/cloud/configs/' + encodeURIComponent(b.dataset.dl)); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = b.dataset.dl + '.zip'; a.click(); }));
-  } catch (e) { $('#cloud').textContent = e.message; }
-  try {
-    const m = await FC.api('GET', '/api/uploads?mine=1');
-    $('#mine').innerHTML = m.length ? m.map((x) => `<div class="link-row"><div style="flex:1"><b>${FC.esc(x.title)}</b> <span class="tag">${{ theme: 'тема', config: 'конфиг', pack: 'сборка' }[x.kind]}</span><div class="muted small">⬇ ${x.downloads} · ${FC.date(x.created)}</div></div><button class="btn sm red" data-del="${x.id}">Удалить</button></div>`).join('') : '<p class="muted small">Пока ничего.</p>';
-    document.querySelectorAll('[data-del]').forEach((b) => (b.onclick = async () => { if (confirm('Удалить публикацию?')) { await FC.api('DELETE', '/api/uploads/' + b.dataset.del); loadMe(); } }));
-  } catch {}
+    }).join('');
+    document.querySelectorAll('[data-hide-provider]').forEach(el => el.onchange = () => setSocialVisibility(el));
+    document.querySelectorAll('[data-link]').forEach((b) => (b.onclick = () => start(b.dataset.link, 'link', $('#tg-link-box'))));
+    document.querySelectorAll('[data-unlink]').forEach((b) => (b.onclick = async () => {
+        if (!confirm('Отвязать?'))
+            return;
+        try {
+            await FC.api('DELETE', '/api/link/' + b.dataset.unlink);
+            loadMe();
+        }
+        catch (e) {
+            FC.toast(e.message, true);
+        }
+    }));
+    try {
+        const c = await FC.api('GET', '/api/cloud/configs');
+        $('#cloud').innerHTML = c.length ? c.map((x) => `<div class="link-row"><div style="flex:1"><b>${FC.esc(x.name.split('__').slice(1).join('__') || x.name)}</b> <span class="tag">${FC.esc(x.name.split('__')[0])}</span><div class="muted small">${FC.size(x.size)} · ${new Date(x.updated * 1000).toLocaleString('ru')}</div></div><button class="btn sm" data-dl="${FC.esc(x.name)}">Скачать</button></div>`).join('') : '<p class="muted small">Пусто.</p>';
+        document.querySelectorAll('[data-dl]').forEach((b) => (b.onclick = async () => { const blob = await FC.api('GET', '/api/cloud/configs/' + encodeURIComponent(b.dataset.dl)); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = b.dataset.dl + '.zip'; a.click(); }));
+    }
+    catch (e) {
+        $('#cloud').textContent = e.message;
+    }
+    try {
+        const m = await FC.api('GET', '/api/uploads?mine=1');
+        $('#mine').innerHTML = m.length ? m.map((x) => `<div class="link-row"><div style="flex:1"><b>${FC.esc(x.title)}</b> <span class="tag">${{ theme: 'тема', config: 'конфиг', pack: 'сборка' }[x.kind]}</span><div class="muted small">⬇ ${x.downloads} · ${FC.date(x.created)}</div></div><button class="btn sm red" data-del="${x.id}">Удалить</button></div>`).join('') : '<p class="muted small">Пока ничего.</p>';
+        document.querySelectorAll('[data-del]').forEach((b) => (b.onclick = async () => {
+            if (confirm('Удалить публикацию?')) {
+                await FC.api('DELETE', '/api/uploads/' + b.dataset.del);
+                loadMe();
+            }
+        }));
+    }
+    catch (_a) { }
 }
 function renderVerify(me) {
-  const v = $('#ver'), r = me.verifyRequest;
-  if (me.verified) v.innerHTML = '<p class="ok small">У тебя есть галочка ✔ — она видна рядом с ником в галерее, кабинете и приложении.</p>';
-  else if (r && r.status === 'pending') v.innerHTML = '<p class="small">⏳ Заявка отправлена ' + FC.date(r.created) + ' — ждём решения админа.</p>';
-  else {
-    v.innerHTML = (r && r.status === 'rejected' ? '<p class="err small">Заявку отклонили' + (r.note ? ': ' + FC.esc(r.note) : '') + '. Можно подать снова.</p>' : '') +
-      '<p class="muted small" style="margin-bottom:8px">Галочка — для известных игроков, ютуберов, стримеров, авторов сборок и тем. Нужна привязанная соцсеть (Discord). Напиши, кто ты, и дай ссылки.</p>' +
-      '<form id="ver-form" style="display:grid;gap:8px"><textarea id="ver-text" rows="3" maxlength="600" placeholder="Кто ты, чем известен, ссылки на YouTube / TikTok / Twitch / сервер…"></textarea><div><button class="btn gold sm">Подать заявку</button></div></form>';
-    $('#ver-form').onsubmit = async (e) => { e.preventDefault(); try { await FC.api('POST', '/api/verify/request', { body: { text: $('#ver-text').value } }); FC.toast('Заявка отправлена'); loadMe(); } catch (err) { FC.toast(err.message, true); } };
-  }
-  if (['admin','developer'].includes(me.role)) { $('#adm-ver').classList.remove('hidden'); loadAdmVerify(); }
+    const v = $('#ver'), r = me.verifyRequest;
+    if (me.verified)
+        v.innerHTML = '<p class="ok small">У тебя есть галочка ✔ — она видна рядом с ником в галерее, кабинете и приложении.</p>';
+    else if (r && r.status === 'pending')
+        v.innerHTML = '<p class="small">⏳ Заявка отправлена ' + FC.date(r.created) + ' — ждём решения админа.</p>';
+    else {
+        v.innerHTML = (r && r.status === 'rejected' ? '<p class="err small">Заявку отклонили' + (r.note ? ': ' + FC.esc(r.note) : '') + '. Можно подать снова.</p>' : '') +
+            '<p class="muted small" style="margin-bottom:8px">Галочка — для известных игроков, ютуберов, стримеров, авторов сборок и тем. Нужна привязанная соцсеть (Discord). Напиши, кто ты, и дай ссылки.</p>' +
+            '<form id="ver-form" style="display:grid;gap:8px"><textarea id="ver-text" rows="3" maxlength="600" placeholder="Кто ты, чем известен, ссылки на YouTube / TikTok / Twitch / сервер…"></textarea><div><button class="btn gold sm">Подать заявку</button></div></form>';
+        $('#ver-form').onsubmit = async (e) => {
+            e.preventDefault();
+            try {
+                await FC.api('POST', '/api/verify/request', { body: { text: $('#ver-text').value } });
+                FC.toast('Заявка отправлена');
+                loadMe();
+            }
+            catch (err) {
+                FC.toast(err.message, true);
+            }
+        };
+    }
+    if (['admin', 'developer'].includes(me.role)) {
+        $('#adm-ver').classList.remove('hidden');
+        loadAdmVerify();
+    }
 }
 async function loadAdmVerify() {
-  let d; try { d = await FC.api('GET', '/api/admin/verify'); } catch (e) { $('#adm-ver-list').textContent = e.message; return; }
-  const row = (x, btns) => `<div class="link-row"><div style="flex:1"><b>${FC.esc(x.name || 'Игрок')}</b> <code class="small">${FC.esc(x.user_id || x.id)}</code><div class="muted small">${FC.esc(x.links || 'без привязок')}</div>${x.text ? `<div class="small" style="white-space:pre-wrap;margin-top:4px">${FC.esc(x.text)}</div>` : ''}</div>${btns}</div>`;
-  $('#adm-ver-list').innerHTML = (d.pending.length ? d.pending.map((x) => row(x, `<button class="btn sm gold" data-vok="${FC.esc(x.user_id)}">✔ Выдать</button><button class="btn sm red" data-vno="${FC.esc(x.user_id)}">Отклонить</button>`)).join('') : '<p class="muted small">Новых заявок нет.</p>') +
-    `<div class="muted small" style="margin-top:12px">С галочкой (${d.verified.length}):</div>` + d.verified.map((x) => row(x, `<button class="btn sm" data-vrm="${FC.esc(x.id)}">Снять</button>`)).join('');
-  const act = async (id, approve, note) => { try { await FC.api('POST', '/api/admin/verify', { body: { userId: id, approve, note } }); FC.toast(approve ? 'Галочка выдана' : 'Готово'); loadMe(); } catch (e) { FC.toast(e.message, true); } };
-  document.querySelectorAll('[data-vok]').forEach((b) => (b.onclick = () => act(b.dataset.vok, true)));
-  document.querySelectorAll('[data-vno]').forEach((b) => (b.onclick = () => { const n = prompt('Причина отказа (необязательно)', ''); if (n !== null) act(b.dataset.vno, false, n); }));
-  document.querySelectorAll('[data-vrm]').forEach((b) => (b.onclick = () => confirm('Снять галочку?') && act(b.dataset.vrm, false, 'галочка снята')));
+    let d;
+    try {
+        d = await FC.api('GET', '/api/admin/verify');
+    }
+    catch (e) {
+        $('#adm-ver-list').textContent = e.message;
+        return;
+    }
+    const row = (x, btns) => `<div class="link-row"><div style="flex:1"><b>${FC.esc(x.name || 'Игрок')}</b> <code class="small">${FC.esc(x.user_id || x.id)}</code><div class="muted small">${FC.esc(x.links || 'без привязок')}</div>${x.text ? `<div class="small" style="white-space:pre-wrap;margin-top:4px">${FC.esc(x.text)}</div>` : ''}</div>${btns}</div>`;
+    $('#adm-ver-list').innerHTML = (d.pending.length ? d.pending.map((x) => row(x, `<button class="btn sm gold" data-vok="${FC.esc(x.user_id)}">✔ Выдать</button><button class="btn sm red" data-vno="${FC.esc(x.user_id)}">Отклонить</button>`)).join('') : '<p class="muted small">Новых заявок нет.</p>') +
+        `<div class="muted small" style="margin-top:12px">С галочкой (${d.verified.length}):</div>` + d.verified.map((x) => row(x, `<button class="btn sm" data-vrm="${FC.esc(x.id)}">Снять</button>`)).join('');
+    const act = async (id, approve, note) => {
+        try {
+            await FC.api('POST', '/api/admin/verify', { body: { userId: id, approve, note } });
+            FC.toast(approve ? 'Галочка выдана' : 'Готово');
+            loadMe();
+        }
+        catch (e) {
+            FC.toast(e.message, true);
+        }
+    };
+    document.querySelectorAll('[data-vok]').forEach((b) => (b.onclick = () => act(b.dataset.vok, true)));
+    document.querySelectorAll('[data-vno]').forEach((b) => (b.onclick = () => {
+        const n = prompt('Причина отказа (необязательно)', '');
+        if (n !== null)
+            act(b.dataset.vno, false, n);
+    }));
+    document.querySelectorAll('[data-vrm]').forEach((b) => (b.onclick = () => confirm('Снять галочку?') && act(b.dataset.vrm, false, 'галочка снята')));
 }
-$('#adm-ver-form').onsubmit = (e) => { e.preventDefault(); const id = $('#adm-ver-id').value.trim(); if (id) FC.api('POST', '/api/admin/verify', { body: { userId: id, approve: true } }).then(() => { FC.toast('Галочка выдана'); loadMe(); }, (er) => FC.toast(er.message, true)); };
-$('#adm-ver-rm').onclick = () => { const id = $('#adm-ver-id').value.trim(); if (id) FC.api('POST', '/api/admin/verify', { body: { userId: id, approve: false, note: 'галочка снята' } }).then(() => { FC.toast('Снято'); loadMe(); }, (er) => FC.toast(er.message, true)); };
+$('#adm-ver-form').onsubmit = (e) => {
+    e.preventDefault();
+    const id = $('#adm-ver-id').value.trim();
+    if (id)
+        FC.api('POST', '/api/admin/verify', { body: { userId: id, approve: true } }).then(() => { FC.toast('Галочка выдана'); loadMe(); }, (er) => FC.toast(er.message, true));
+};
+$('#adm-ver-rm').onclick = () => {
+    const id = $('#adm-ver-id').value.trim();
+    if (id)
+        FC.api('POST', '/api/admin/verify', { body: { userId: id, approve: false, note: 'галочка снята' } }).then(() => { FC.toast('Снято'); loadMe(); }, (er) => FC.toast(er.message, true));
+};
 // вход в Android-приложение: код + QR (ссылка открывает приложение)
 const inApp = /FarmClientApp/.test(navigator.userAgent);
-if (inApp) $('#app-card').classList.add('hidden');
+if (inApp)
+    $('#app-card').classList.add('hidden');
 let appTimer;
 $('#app-code').onclick = async () => {
-  try {
-    const r = await FC.api('POST', '/api/site/code', { body: { page: 'app' } });
-    $('#app-box').classList.remove('hidden'); $('#app-c').textContent = r.code;
-    const link = window.FC_API + '/app/login?code=' + encodeURIComponent(r.code);
-    try { const q = qrcode(0, 'M'); q.addData(link); q.make(); $('#app-qr').innerHTML = q.createSvgTag({ cellSize: 5, margin: 0 }); } catch { $('#app-qr').classList.add('hidden'); }
-    let left = 300; clearInterval(appTimer);
-    const tick = () => { $('#app-t').textContent = left > 0 ? `осталось ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}` : 'код устарел — получи новый'; if (left-- <= 0) clearInterval(appTimer); };
-    tick(); appTimer = setInterval(tick, 1000);
-  } catch (e) { FC.toast(e.message, true); }
+    try {
+        const r = await FC.api('POST', '/api/site/code', { body: { page: 'app' } });
+        $('#app-box').classList.remove('hidden');
+        $('#app-c').textContent = r.code;
+        const link = window.FC_API + '/app/login?code=' + encodeURIComponent(r.code);
+        try {
+            const q = qrcode(0, 'M');
+            q.addData(link);
+            q.make();
+            $('#app-qr').innerHTML = q.createSvgTag({ cellSize: 5, margin: 0 });
+        }
+        catch (_a) {
+            $('#app-qr').classList.add('hidden');
+        }
+        let left = 300;
+        clearInterval(appTimer);
+        const tick = () => {
+            $('#app-t').textContent = left > 0 ? `осталось ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}` : 'код устарел — получи новый';
+            if (left-- <= 0)
+                clearInterval(appTimer);
+        };
+        tick();
+        appTimer = setInterval(tick, 1000);
+    }
+    catch (e) {
+        FC.toast(e.message, true);
+    }
 };
 async function renderRef(me) {
-  let r, t = {}; try { [r, t] = await Promise.all([FC.api('GET', '/api/ref/me'), FC.api('GET', '/api/trial/info', { auth: false }).catch(() => ({}))]); } catch (e) { $('#ref').innerHTML = `<span class="muted small">${FC.esc(e.message)}</span>`; return; }
-  const link = location.origin + location.pathname.replace(/account\.html$/, '') + 'index.html?ref=' + encodeURIComponent(r.code);
-  const canSet = !r.refBy && Date.now() / 1000 - me.created < 14 * 86400;
-  $('#ref').innerHTML = `<p class="muted small">Друг указывает твой код у себя в кабинете (в первые 14 дней) — когда он купит лицензию, тебе +${r.days} дня. ${t.off ? '' : `Новичкам — пробные ${t.days || 3} дня бесплатно (кнопка в лаунчере).`}</p>
+    let r, t = {};
+    try {
+        [r, t] = await Promise.all([FC.api('GET', '/api/ref/me'), FC.api('GET', '/api/trial/info', { auth: false }).catch(() => ({}))]);
+    }
+    catch (e) {
+        $('#ref').innerHTML = `<span class="muted small">${FC.esc(e.message)}</span>`;
+        return;
+    }
+    const link = location.origin + location.pathname.replace(/account\.html$/, '') + 'index.html?ref=' + encodeURIComponent(r.code);
+    const canSet = !r.refBy && Date.now() / 1000 - me.created < 14 * 86400;
+    $('#ref').innerHTML = `<p class="muted small">Друг указывает твой код у себя в кабинете (в первые 14 дней) — когда он купит лицензию, тебе +${r.days} дня. ${t.off ? '' : `Новичкам — пробные ${t.days || 3} дня бесплатно (кнопка в лаунчере).`}</p>
     <div class="row" style="margin:10px 0"><code style="user-select:all">${FC.esc(r.code)}</code><button class="btn sm" id="ref-cp">Скопировать код</button></div>
     <div class="muted small">Приглашено: <b>${r.invited.length}</b> · купили: <b>${r.invited.filter((x) => x.ref_paid).length}</b> · бонус: <b>+${r.bonus} дн.</b>${r.invited.length ? ' — ' + r.invited.slice(0, 20).map((x) => FC.esc(x.name) + (x.ref_paid ? ' ✓' : '')).join(', ') : ''}</div>
     ${r.refBy ? '<div class="muted small" style="margin-top:8px">Тебя пригласили ✓</div>' : canSet ? `<form class="row" id="ref-set" style="margin-top:10px"><input name="c" placeholder="Код или ник пригласившего" style="max-width:260px"><button class="btn sm">Указать</button></form>` : ''}`;
-  $('#ref-cp').onclick = () => { navigator.clipboard.writeText(r.code).then(() => FC.toast('Код скопирован')); };
-  const f = $('#ref-set'); if (f) f.onsubmit = async (e) => { e.preventDefault(); try { await FC.api('POST', '/api/ref/set', { body: { code: f.c.value.trim() } }); FC.toast('Готово!'); renderRef(me); } catch (er) { FC.toast(er.message, true); } };
-  if (canSet && !r.refBy && localStorage.getItem('fc_ref') && f) f.c.value = localStorage.getItem('fc_ref');
+    $('#ref-cp').onclick = () => { navigator.clipboard.writeText(r.code).then(() => FC.toast('Код скопирован')); };
+    const f = $('#ref-set');
+    if (f)
+        f.onsubmit = async (e) => {
+            e.preventDefault();
+            try {
+                await FC.api('POST', '/api/ref/set', { body: { code: f.c.value.trim() } });
+                FC.toast('Готово!');
+                renderRef(me);
+            }
+            catch (er) {
+                FC.toast(er.message, true);
+            }
+        };
+    if (canSet && !r.refBy && localStorage.getItem('fc_ref') && f)
+        f.c.value = localStorage.getItem('fc_ref');
 }
 document.addEventListener('click', async (e) => {
-  const b = e.target.closest('[data-rc]'); if (!b) return; b.disabled = true;
-  try { const r = await FC.api('POST', '/api/remote', { body: { cmd: b.dataset.rc, version: $('#rc-ver').value.trim(), server: $('#rc-srv').value.trim() } }); FC.toast(r.online ? 'Команда отправлена на ПК' : 'Отправлено. Лаунчер сейчас не в сети — выполнится, когда откроешь его', !r.online); }
-  catch (er) { FC.toast(er.message, true); } b.disabled = false;
+    const b = e.target.closest('[data-rc]');
+    if (!b)
+        return;
+    b.disabled = true;
+    try {
+        const r = await FC.api('POST', '/api/remote', { body: { cmd: b.dataset.rc, version: $('#rc-ver').value.trim(), server: $('#rc-srv').value.trim() } });
+        FC.toast(r.online ? 'Команда отправлена на ПК' : 'Отправлено. Лаунчер сейчас не в сети — выполнится, когда откроешь его', !r.online);
+    }
+    catch (er) {
+        FC.toast(er.message, true);
+    }
+    b.disabled = false;
 });
-function showLogin(err) { $('#me').classList.add('hidden'); $('#login').classList.remove('hidden'); if (err) FC.toast(err, true); }
+function showLogin(err) {
+    $('#me').classList.add('hidden');
+    $('#login').classList.remove('hidden');
+    if (err)
+        FC.toast(err, true);
+}
 async function loginCode(code) {
-  try { const r = await FC.api('POST', '/api/site/login', { body: { code }, auth: false }); FC.token = r.token; FC.toast('Готово, ты вошёл'); loadMe(); }
-  catch (e) { showLogin(e.message); }
+    try {
+        const r = await FC.api('POST', '/api/site/login', { body: { code }, auth: false });
+        FC.token = r.token;
+        FC.toast('Готово, ты вошёл');
+        loadMe();
+    }
+    catch (e) {
+        showLogin(e.message);
+    }
 }
 $('#code-form').onsubmit = (e) => { e.preventDefault(); loginCode($('#code').value.trim()); };
 document.querySelectorAll('[data-login]').forEach((b) => (b.onclick = () => start(b.dataset.login, 'login', $('#tg-login-box'))));
-$('#logout').onclick = async () => { try { await FC.api('POST', '/api/logout'); } catch {} FC.token = ''; showLogin(); };
+$('#logout').onclick = async () => {
+    try {
+        await FC.api('POST', '/api/logout');
+    }
+    catch (_a) { }
+    FC.token = '';
+    showLogin();
+};
 // результат входа/привязки приходит в #hash
-const h = new URLSearchParams(location.hash.slice(1)); history.replaceState(null, '', location.pathname);
-if (h.get('error')) FC.toast(h.get('error'), true);
-if (h.get('linked')) FC.toast((P[h.get('linked')] || [h.get('linked')])[0] + ' привязан');
-if (h.get('token')) { FC.token = h.get('token'); if (h.get('registered') === '1') FC.toast('Farm ID создан — добро пожаловать!'); }
-(async()=>{try{const r=await (await fetch('android-release.json?check='+Date.now())).json();const current=window.FarmApp&&FarmApp.version?FarmApp.version():'';const newer=!current||r.version.split('.').reduce((a,x)=>a*1000+(+x||0),0)>current.split('.').reduce((a,x)=>a*1000+(+x||0),0);if(!/^https:\/\/github\.com\/R2D27829\/Farm-Client\/releases\/download\//.test(r.url))return;document.getElementById('apk-update').innerHTML=`${current?'Установлена '+FC.esc(current)+'. ':''}${newer?'Доступна':'Актуальная'} Android ${FC.esc(r.version)} <a class="btn sm gold" href="${FC.esc(r.url)}">${newer?'Скачать обновление':'Скачать APK'}</a><p class="muted small">Установка вручную; аккаунт и настройки сохраняются при обновлении поверх старой версии.</p>`;}catch{}})();
-if (h.get('code')) { $('#code-form').closest('details').open = true; $('#code').value = h.get('code'); loginCode(h.get('code')); }
-else if (FC.token) loadMe(); else showLogin();
-
-try { if (window.FarmApp && FarmApp.setNotify) { const c = document.getElementById('app-notify-on'); document.getElementById('app-notify').classList.remove('hidden'); c.checked = FarmApp.notifyOn(); c.onchange = () => { FarmApp.setNotify(c.checked); FC.toast(c.checked ? 'Уведомления включены' : 'Уведомления выключены'); }; } } catch {}
-
+const h = new URLSearchParams(location.hash.slice(1));
+history.replaceState(null, '', location.pathname);
+if (h.get('error'))
+    FC.toast(h.get('error'), true);
+if (h.get('linked'))
+    FC.toast((P[h.get('linked')] || [h.get('linked')])[0] + ' привязан');
+if (h.get('token')) {
+    FC.token = h.get('token');
+    if (h.get('registered') === '1')
+        FC.toast('Farm ID создан — добро пожаловать!');
+}
+(async () => {
+    const box = document.getElementById('apk-update');
+    if (!box)
+        return;
+    if (window.FarmApp && /FarmUnified\//.test(navigator.userAgent)) {
+        box.textContent = 'Обновления игрового Android-лаунчера проверяются отдельно от старого приложения-компаньона.';
+        const button = document.createElement('button');
+        button.className = 'btn sm gold';
+        button.textContent = 'Обновления лаунчера';
+        button.onclick = () => { if (FarmApp.openUpdates)
+            FarmApp.openUpdates();
+        else
+            location.href = 'farmclient://updates'; };
+        box.appendChild(document.createElement('br'));
+        box.appendChild(button);
+        return;
+    }
+    box.textContent = 'Актуальные Android-сборки и предыдущие версии — на странице загрузок.';
+    const link = document.createElement('a');
+    link.className = 'btn sm gold';
+    link.href = 'versions.html';
+    link.textContent = 'Все версии Farm Client';
+    box.appendChild(document.createElement('br'));
+    box.appendChild(link);
+})();
+if (h.get('code')) {
+    $('#code-form').closest('details').open = true;
+    $('#code').value = h.get('code');
+    loginCode(h.get('code'));
+}
+else if (FC.token)
+    loadMe();
+else
+    showLogin();
+try {
+    if (window.FarmApp && FarmApp.setNotify) {
+        const c = document.getElementById('app-notify-on');
+        document.getElementById('app-notify').classList.remove('hidden');
+        c.checked = FarmApp.notifyOn();
+        c.onchange = () => { FarmApp.setNotify(c.checked); FC.toast(c.checked ? 'Уведомления включены' : 'Уведомления выключены'); };
+    }
+}
+catch (_a) { }
 </script><script src="cookie-notice.js?v=2" defer></script>
 <script src="legal-links.js?v=1" defer></script></body></html>
