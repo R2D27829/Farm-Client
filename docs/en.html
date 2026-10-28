@@ -366,11 +366,11 @@ let pricingBusy=false;
 async function loadPricing(){
  if(pricingBusy)return;pricingBusy=true;
  try{
-  const r=await fetch(API+'/api/shop',{cache:'no-store'});if(!r.ok)throw new Error('shop');const s=await r.json();if(!Array.isArray(s.plans))throw new Error('plans');
+  const r=await fetch('funpay-prices.json',{cache:'no-store'});if(!r.ok)throw new Error('shop');const s=await r.json();if(!Array.isArray(s.plans))throw new Error('plans');
   const plans=s.plans.filter(p=>p&&typeof p.id==='string'&&Number.isFinite(Number(p.price))&&Number(p.price)>0&&Number.isInteger(Number(p.days))&&Number(p.days)>=0&&!p.off);
   pricingGrid.querySelectorAll('[data-shop-plan]').forEach(el=>el.remove());
   for(const p of plans){const el=paidTemplate.content.firstElementChild.cloneNode(true);el.dataset.shopPlan=p.id;el.id='pl-'+p.id;
-   el.querySelector('[data-t]').textContent=p.title||p.id;el.querySelector('[data-p]').textContent=new Intl.NumberFormat(pricingRu?'ru-RU':'en-US',{maximumFractionDigits:2}).format(Number(p.price));
+   if(/^https:\/\/funpay\.com\/lots\/offer\?id=\d+$/.test(p.url||''))el.querySelector('a.btn').href=p.url;el.querySelector('[data-t]').textContent=p.title||p.id;el.querySelector('[data-p]').textContent=new Intl.NumberFormat(pricingRu?'ru-RU':'en-US',{maximumFractionDigits:2}).format(Number(p.price));
    el.querySelector('[data-term]').textContent=planTerm(Number(p.days));const desc=el.querySelector('[data-d]');desc.textContent=p.desc||'';desc.hidden=!p.desc;
    el.querySelector('[data-bind]').textContent=p.hwid===false?(pricingRu?'Без привязки к ПК':'Not bound to a PC'):(pricingRu?'Привязка к твоему ПК':'Bound to your PC');pricingGrid.append(el);
   }

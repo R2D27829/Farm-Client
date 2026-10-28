@@ -1,0 +1,57 @@
+{
+  "source": "https://funpay.com/users/21841334/",
+  "currency": "RUB",
+  "checkedAt": "2026-10-28T05:43:52.727500+00:00",
+  "plans": [
+    {
+      "id": "month",
+      "title": "30 дней",
+      "days": 30,
+      "hwid": true,
+      "price": 68,
+      "funpayPrice": 68.13,
+      "url": "https://funpay.com/lots/offer?id=79765755",
+      "desc": "Округлено до целого ₽ · точная сумма и комиссии — на FunPay"
+    },
+    {
+      "id": "3month",
+      "title": "90 дней",
+      "days": 90,
+      "hwid": true,
+      "price": 122,
+      "funpayPrice": 122.2,
+      "url": "https://funpay.com/lots/offer?id=79766029",
+      "desc": "Округлено до целого ₽ · точная сумма и комиссии — на FunPay"
+    },
+    {
+      "id": "dat",
+      "title": "180 дней",
+      "days": 180,
+      "hwid": false,
+      "price": 235,
+      "funpayPrice": 234.62,
+      "url": "https://funpay.com/lots/offer?id=79766253",
+      "desc": "Округлено до целого ₽ · точная сумма и комиссии — на FunPay"
+    },
+    {
+      "id": "forever",
+      "title": "Навсегда",
+      "days": 0,
+      "hwid": true,
+      "price": 244,
+      "funpayPrice": 244.4,
+      "url": "https://funpay.com/lots/offer?id=79766386",
+      "desc": "Округлено до целого ₽ · точная сумма и комиссии — на FunPay"
+    },
+    {
+      "id": "foreverNoHWID",
+      "title": "Навсегда без HWID",
+      "days": 0,
+      "hwid": false,
+      "price": 326,
+      "funpayPrice": 326.27,
+      "url": "https://funpay.com/lots/offer?id=79766477",
+      "desc": "Округлено до целого ₽ · точная сумма и комиссии — на FunPay"
+    }
+  ]
+}

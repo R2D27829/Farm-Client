@@ -29,7 +29,7 @@
       <p id="email-auth-error" class="err small hidden" role="alert" style="margin-top:12px"></p>
     </div>
     <div class="muted small" style="margin:24px 0 12px;border-top:1px solid var(--line);padding-top:20px">Или продолжить через соцсеть</div>
-    <div class="row" id="social-login" style="gap:12px"><button class="btn gold hidden" data-login="discord">Discord</button><button class="btn hidden" data-login="telegram">Telegram</button><button class="btn hidden" data-login="vk">VK</button></div>
+    <div class="row" id="social-login" style="gap:12px"><button class="btn gold hidden" data-login="google">Google</button><button class="btn gold hidden" data-login="discord">Discord</button><button class="btn hidden" data-login="telegram">Telegram</button><button class="btn hidden" data-login="vk">VK</button></div>
     <p class="muted small" id="providers-note" role="status" style="margin-top:12px">Проверяем доступные способы входа…</p>
     <div id="tg-login-box" style="margin-top:12px"></div>
     <p class="muted small" style="margin-top:20px">Уже есть Farm ID в лаунчере? Сначала войди по коду ниже и привяжи соцсеть в кабинете — так сохранятся твоя лицензия и публикации.</p>
@@ -86,7 +86,7 @@
 <script>
 FC.nav('account');
 const $ = (s) => document.querySelector(s);
-const P = { discord: ['Discord', '#5865F2'], telegram: ['Telegram', '#229ED9'], vk: ['VK', '#0077FF'] };
+const P = { google: ['Google', '#4285F4'], discord: ['Discord', '#5865F2'], telegram: ['Telegram', '#229ED9'], vk: ['VK', '#0077FF'] };
 // виджет Telegram (Login Widget) — бот должен знать домен сайта (/setdomain у @BotFather)
 function tgWidget(box, r) {
   box.innerHTML = '';
@@ -103,7 +103,7 @@ async function start(provider, mode, box) {
   } catch (e) { FC.toast(e.message, true); }
 }
 // какие соцсети настроены на сервере — остальные кнопки прячем
-let PROV = { discord: false, telegram: false, vk: false };
+let PROV = { google: false, discord: false, telegram: false, vk: false };
 const provReady = FC.api('GET', '/api/link/providers', { auth: false }).then((r) => {
   PROV = r; document.querySelectorAll('[data-login]').forEach((b) => b.classList.toggle('hidden', !PROV[b.dataset.login]));
   $('#providers-note').textContent = Object.keys(P).some(k => PROV[k]) ? 'Пароль Farm Client не нужен — вход подтверждает выбранная соцсеть.' : 'Социальный вход пока не настроен. Можно войти по коду ниже.';
