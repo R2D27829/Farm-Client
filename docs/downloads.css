@@ -10,5 +10,5 @@
 @media(max-width:760px){.farm-dl-grid{grid-template-columns:1fr}.farm-downloads{padding-top:48px;padding-bottom:48px}.farm-os-card{padding:24px}.farm-version-row{align-items:flex-start;gap:12px}.farm-version-row strong{font-size:15px}.farm-version-row a{padding:10px 12px}.farm-version-title{font-size:24px}.farm-downloads .head h2{font-size:34px}.farm-downloads .head p{font-size:16px}.farm-other-systems{font-size:15px}}
 @media(prefers-reduced-motion:reduce){.farm-downloads *{scroll-behavior:auto!important;transition:none!important}}
 
-/* Primary download and release archive stay together in the top hero. */
-#download{align-items:flex-start}.farm-download-stack{display:flex;flex-direction:column;gap:12px}.farm-download-stack .btn{width:100%;min-height:48px}.farm-all-versions{font-weight:650}.farm-all-versions span{margin-left:10px}@media(max-width:600px){.farm-download-stack{width:100%}#download>.btn{width:100%}}
+/* One action row: download, all versions, features. */
+#download{align-items:center;gap:12px}#download>.btn{min-height:50px}.farm-all-versions{font-weight:650}.farm-all-versions span{margin-left:10px}@media(max-width:600px){#download{flex-direction:column}#download>.btn{width:100%}}
