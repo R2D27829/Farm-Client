@@ -43,3 +43,6 @@ code{background:var(--panel2);padding:2px 6px;border-radius:6px;font-size:13px}
 
 /* Keep the expanded player-navigation menu reachable on small screens. */
 @media(max-width:1100px){nav .links{max-height:calc(100dvh - 100px);overflow-y:auto}}
+
+/* Keep the complete navigation inside its header after adding All versions. */
+@media(min-width:1101px){nav .wrap{gap:14px}nav .logo{flex-shrink:0}nav .links{gap:0;font-size:13px}nav .links a{padding:7px 9px;white-space:nowrap}}
