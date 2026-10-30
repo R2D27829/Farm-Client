@@ -1,0 +1,149 @@
+name: Package 1.37.0 Windows installers and macOS disk images
+'on':
+  push:
+    branches:
+    - main
+    paths:
+    - .github/workflows/package-1370-installers.yml
+  workflow_dispatch: null
+permissions:
+  contents: read
+jobs:
+  macos:
+    runs-on: macos-14
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - arch: x64
+          sha256: 5bc376e3cfb00c7f578c764401e86e9b719d701efb0b45e533e30474bfca51cf
+        - arch: arm64
+          sha256: 2f9bcae6e3fe2812e651420451cb5de949fee6203d5b405abce92a16faf6937a
+    steps:
+    - name: Build and verify DMG from published app
+      shell: bash
+      env:
+        ARCH: ${{ matrix.arch }}
+        EXPECTED_SHA256: ${{ matrix.sha256 }}
+      run: |
+        set -euo pipefail
+        ZIP="FarmClient-1.37.0-macOS-${ARCH}.zip"
+        DMG="FarmClient-1.37.0-macOS-${ARCH}.dmg"
+        curl --fail --location --retry 3 -o "$ZIP" "https://github.com/R2D27829/Farm-Client/releases/download/v1.37.0/$ZIP"
+        printf '%s  %s\n' "$EXPECTED_SHA256" "$ZIP" | shasum -a 256 --check
+        mkdir unpacked staging verify
+        ditto -x -k "$ZIP" unpacked
+        test -d unpacked/FarmClient.app
+        test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' unpacked/FarmClient.app/Contents/Info.plist)" = 1.37.0
+        file unpacked/FarmClient.app/Contents/MacOS/*
+        ditto unpacked/FarmClient.app staging/FarmClient.app
+        ln -s /Applications staging/Applications
+        printf '%s\n' 'Farm Client 1.37.0 Preview. Drag FarmClient.app to Applications. Unsigned and not notarized by Apple. Do not disable system-wide security. Online cosmetics remain local in this Preview.' > staging/README.txt
+        hdiutil create -volname 'Farm Client 1.37 Preview' -srcfolder staging -format UDZO -ov "$DMG"
+        hdiutil verify "$DMG"
+        hdiutil attach -readonly -nobrowse -mountpoint "$PWD/verify" "$DMG"
+        test -d verify/FarmClient.app
+        test -L verify/Applications
+        hdiutil detach "$PWD/verify"
+        shasum -a 256 "$DMG" > "${DMG}.sha256"
+    - name: Publish verified DMG only
+      shell: bash
+      env:
+        ARCH: ${{ matrix.arch }}
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+        gh release upload v1.37.0 "FarmClient-1.37.0-macOS-${ARCH}.dmg" "FarmClient-1.37.0-macOS-${ARCH}.dmg.sha256" --repo R2D27829/Farm-Client
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - arch: x64
+          channel: modern
+          archive: FarmClient-1.37.0-Windows-x64.zip
+          installer: FarmClient-Setup-1.37.0-Windows-x64.exe
+          electron: 44.5.1
+          sha256: ea5e4291f758bd74c21f558925bae06994156adf69d2c9bfde73f647f5272345
+        - arch: arm64
+          channel: modern
+          archive: FarmClient-1.37.0-Windows-arm64.zip
+          installer: FarmClient-Setup-1.37.0-Windows-arm64.exe
+          electron: 44.5.1
+          sha256: 0ccd483ef1a929e90856e548de8014169dcd09581d6ca82c493ef922c9651b34
+        - arch: x64
+          channel: legacy
+          archive: FarmClient-1.37.0-Windows-Legacy-x64.zip
+          installer: FarmClient-Setup-1.37.0-Windows-Legacy-x64.exe
+          electron: 22.3.27
+          sha256: 597f35599f7d5b042b2eaa0328ce06fc5eac58b7cb09e7c79e19dfe152bd98f4
+        - arch: ia32
+          channel: legacy
+          archive: FarmClient-1.37.0-Windows-Legacy-x86.zip
+          installer: FarmClient-Setup-1.37.0-Windows-Legacy-x86.exe
+          electron: 22.3.27
+          sha256: d0b1a4e99c287e0aa64527d745f332498f6e4b7a33eea0784608dbb4eddd5b49
+    steps:
+    - name: Download verified published app and public logo
+      shell: pwsh
+      env:
+        ARCHIVE: ${{ matrix.archive }}
+        EXPECTED_SHA256: ${{ matrix.sha256 }}
+      run: |
+        $ErrorActionPreference = 'Stop'
+        curl.exe --fail --location --retry 3 -o $env:ARCHIVE "https://github.com/R2D27829/Farm-Client/releases/download/v1.37.0/$env:ARCHIVE"
+        if ($LASTEXITCODE -ne 0) { throw 'Download failed' }
+        if ((Get-FileHash $env:ARCHIVE -Algorithm SHA256).Hash.ToLower() -ne $env:EXPECTED_SHA256) { throw 'Archive SHA256 mismatch' }
+        Expand-Archive -Path $env:ARCHIVE -DestinationPath unpacked
+        if (-not (Test-Path unpacked/FarmClient/FarmClient.exe)) { throw 'Missing launcher' }
+        curl.exe --fail --location -o logo.png https://raw.githubusercontent.com/R2D27829/Farm-Client/main/assets/logo.png
+        if ($LASTEXITCODE -ne 0) { throw 'Logo download failed' }
+        python -m pip install --disable-pip-version-check Pillow
+        if ($LASTEXITCODE -ne 0) { throw 'Icon tool installation failed' }
+        python -c "from PIL import Image; Image.open('logo.png').convert('RGBA').save('farm.ico',sizes=[(16,16),(32,32),(48,48),(64,64),(128,128),(256,256)])"
+        if ($LASTEXITCODE -ne 0) { throw 'Icon conversion failed' }
+    - name: Build and verify genuine NSIS installer
+      shell: pwsh
+      env:
+        ARCH: ${{ matrix.arch }}
+        CHANNEL: ${{ matrix.channel }}
+        ELECTRON_VERSION: ${{ matrix.electron }}
+        INSTALLER_NAME: ${{ matrix.installer }}
+        CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $legacy = $env:CHANNEL -eq 'legacy'
+        $title = if ($legacy) { 'Farm Client Legacy Preview' } else { 'Farm Client Preview' }
+        $appId = if ($legacy) { 'com.farmclient.legacypreview' } else { 'com.farmclient.cosmeticsbeta' }
+        $config = @{
+         appId=$appId; productName=$title; executableName='FarmClient'; electronVersion=$env:ELECTRON_VERSION
+         directories=@{output='installers'}
+         win=@{target='nsis';icon='farm.ico';signAndEditExecutable=$false;artifactName=$env:INSTALLER_NAME}
+         nsis=@{oneClick=$false;perMachine=$false;allowElevation=$false;allowToChangeInstallationDirectory=$true;installerIcon='farm.ico';uninstallerIcon='farm.ico';installerHeaderIcon='farm.ico';createDesktopShortcut=$true;createStartMenuShortcut=$true;shortcutName=$title;uninstallDisplayName=($title+' 1.37.0');deleteAppDataOnUninstall=$false;runAfterFinish=$true;displayLanguageSelector=$true;installerLanguages=@('ru_RU','en_US')}
+        }
+        @{name='farmclient-installer-packaging';version='1.37.0';private=$true;description='Packaging existing Farm Client Preview binaries';author='Farm Client';build=$config} | ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 package.json
+        npm install --no-audit --no-fund --save-dev electron-builder@26.0.12
+        if ($LASTEXITCODE -ne 0) { throw 'Packaging tool installation failed' }
+        npx electron-builder --win nsis "--$env:ARCH" --prepackaged "$PWD/unpacked/FarmClient" --publish never
+        if ($LASTEXITCODE -ne 0) { throw 'Installer build failed' }
+        $file = Join-Path installers $env:INSTALLER_NAME
+        if ((Get-Item $file).Length -lt 10000000) { throw 'Installer unexpectedly small' }
+        & 'C:/Program Files/7-Zip/7z.exe' t $file
+        if ($LASTEXITCODE -ne 0) { throw 'Installer archive verification failed' }
+        $hash=(Get-FileHash $file -Algorithm SHA256).Hash.ToLower()
+        "$hash  $env:INSTALLER_NAME" | Set-Content -Encoding ascii "$file.sha256"
+    - name: Publish verified Windows installer only
+      shell: pwsh
+      env:
+        GH_TOKEN: ${{ github.token }}
+        INSTALLER_NAME: ${{ matrix.installer }}
+      run: |
+        gh release upload v1.37.0 "installers/$env:INSTALLER_NAME" "installers/$env:INSTALLER_NAME.sha256" --repo R2D27829/Farm-Client
+        if ($LASTEXITCODE -ne 0) { throw "Installer upload failed" }
