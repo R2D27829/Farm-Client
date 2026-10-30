@@ -1,0 +1,17 @@
+name: One-time hide 1.37.0
+on:
+  workflow_dispatch:
+permissions: {}
+jobs:
+  withdraw:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      contents: write
+    steps:
+      - name: Keep all assets and tag, change only draft status
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method PATCH repos/R2D27829/Farm-Client/releases/428213487 -F draft=true --silent
+          gh api repos/R2D27829/Farm-Client/releases/428213487 --jq '{tag: .tag_name, draft: .draft}'
