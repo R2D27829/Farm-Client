@@ -59,7 +59,7 @@ jobs:
       run: "set -euo pipefail\nmkdir seed outer app tools output\ncd tools\nnpm init -y >/dev/null\nnpm install --no-audit\
         \ --no-fund electron-builder@26.0.12 @electron/asar@3.4.1 7zip-bin@5.2.0 >/dev/null\ncd ..\ngh release download v1.37.1\
         \ --repo \"$GITHUB_REPOSITORY\" --pattern 'FarmClient-Setup-1.37.1-Windows-x64.exe' --dir seed\nprintf '%s  %s\\n'\
-        \ '91a424c5df898046ae69359c7d9052c81cb5bf80a433cb9f7528aadfa47efcaf' 'seed/FarmClient-Setup-1.37.1-Windows-x64.exe'\
+        \ 'e2be41ae60682eee9f6e8f84e9f0e5a4b12445942e02c1536a8f4e68dddefce9' 'seed/FarmClient-Setup-1.37.1-Windows-x64.exe'\
         \ | shasum -a 256 --check\nnode <<'JS'\nconst fs=require('fs'),cp=require('child_process'),path=require('path'),crypto=require('crypto'),asar=require('./tools/node_modules/@electron/asar');const\
         \ zip=require('./tools/node_modules/7zip-bin').path7za;try{fs.chmodSync(zip,0o755)}catch{}function run(a){cp.execFileSync(zip,a,{stdio:'pipe'})}run(['x','seed/FarmClient-Setup-1.37.1-Windows-x64.exe','-oouter','-y']);const\
         \ find=(d,f)=>{for(const e of fs.readdirSync(d,{withFileTypes:true})){const p=path.join(d,e.name);if(e.isDirectory()){const\
