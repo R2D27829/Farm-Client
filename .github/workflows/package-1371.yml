@@ -1,0 +1,97 @@
+name: Farm Client 1.37.1 installers only
+'on':
+  workflow_dispatch: null
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - os: windows-latest
+          target: win
+          arch: arm64
+          channel: modern
+        - os: windows-latest
+          target: win
+          arch: x64
+          channel: legacy
+        - os: windows-latest
+          target: win
+          arch: ia32
+          channel: legacy
+        - os: ubuntu-22.04
+          target: linux
+          arch: x64
+          channel: modern
+        - os: ubuntu-22.04
+          target: linux
+          arch: arm64
+          channel: modern
+        - os: macos-14
+          target: mac
+          arch: x64
+          channel: modern
+        - os: macos-14
+          target: mac
+          arch: arm64
+          channel: modern
+    steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    - name: Linux image tools
+      if: runner.os == 'Linux'
+      run: sudo apt-get update -qq && sudo apt-get install -y libfuse2 squashfs-tools
+    - name: Build original branded installers and verify payload
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        ARCH: ${{ matrix.arch }}
+        OS_TARGET: ${{ matrix.target }}
+        CHANNEL: ${{ matrix.channel }}
+        CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      run: "set -euo pipefail\nmkdir seed outer app tools output\ncd tools\nnpm init -y >/dev/null\nnpm install --no-audit\
+        \ --no-fund electron-builder@26.0.12 @electron/asar@3.4.1 7zip-bin@5.2.0 >/dev/null\ncd ..\ngh release download v1.37.1\
+        \ --repo \"$GITHUB_REPOSITORY\" --pattern 'FarmClient-Setup-1.37.1-Windows-x64.exe' --dir seed\nprintf '%s  %s\\n'\
+        \ '91a424c5df898046ae69359c7d9052c81cb5bf80a433cb9f7528aadfa47efcaf' 'seed/FarmClient-Setup-1.37.1-Windows-x64.exe'\
+        \ | shasum -a 256 --check\nnode <<'JS'\nconst fs=require('fs'),cp=require('child_process'),path=require('path'),crypto=require('crypto'),asar=require('./tools/node_modules/@electron/asar');const\
+        \ zip=require('./tools/node_modules/7zip-bin').path7za;try{fs.chmodSync(zip,0o755)}catch{}function run(a){cp.execFileSync(zip,a,{stdio:'pipe'})}run(['x','seed/FarmClient-Setup-1.37.1-Windows-x64.exe','-oouter','-y']);const\
+        \ find=(d,f)=>{for(const e of fs.readdirSync(d,{withFileTypes:true})){const p=path.join(d,e.name);if(e.isDirectory()){const\
+        \ x=find(p,f);if(x)return x}else if(f(p))return p}};let arc=find('outer',p=>p.endsWith('app.asar'));if(!arc){const\
+        \ a=find('outer',p=>/\\.7z$/.test(p));if(!a)throw Error('Missing embedded application');run(['x',a,'-ounpacked','-y']);arc=find('unpacked',p=>p.endsWith('app.asar'))}if(!arc)throw\
+        \ Error('Missing ASAR');asar.extractAll(arc,'app');const original=JSON.parse(fs.readFileSync('app/package.json'));if(original.version!=='1.37.1')throw\
+        \ Error('Wrong version');const mods=path.join(path.dirname(arc),'mods');if(!fs.existsSync(mods))throw Error('Missing\
+        \ bundled modules');fs.cpSync(mods,'mods',{recursive:true});const sums=fs.readdirSync('mods').map(n=>[n,crypto.createHash('sha256').update(fs.readFileSync('mods/'+n)).digest('hex')]);fs.writeFileSync('mod-hashes.json',JSON.stringify(sums));\n\
+        const win=process.env.OS_TARGET==='win',mac=process.env.OS_TARGET==='mac',arch=process.env.ARCH,legacy=process.env.CHANNEL==='legacy';const\
+        \ name=win?`FarmClient-Setup-1.37.1-Windows-${legacy?'Legacy-':''}${arch==='ia32'?'x86':arch}.exe`:mac?`FarmClient-1.37.1-macOS-${arch}.dmg`:`FarmClient-1.37.1-Linux-${arch}.AppImage`;\n\
+        fs.writeFileSync('artifact-name.txt',name);\nconst build={appId:'com.farmclient.launcher',productName:'Farm Client',executableName:'FarmClient',electronVersion:legacy?'22.3.27':'44.5.1',compression:'normal',asar:true,files:['src/**/*','assets/**/*','package.json','node_modules/**/*'],extraResources:[{from:'../mods',to:'mods'},{from:'assets/icon.ico',to:'icon.ico'}],directories:{output:'../output'},win:{target:['portable'],icon:'assets/icon.ico',signAndEditExecutable:false},portable:{artifactName:name,requestExecutionLevel:'user',unpackDirName:true,splashImage:'assets/splash.bmp'},mac:{target:['dmg'],icon:'assets/icon.icns',identity:null,category:'public.app-category.games',artifactName:name},dmg:{title:'Farm\
+        \ Client 1.37.1',contents:[{x:130,y:220,type:'file'},{x:410,y:220,type:'link',path:'/Applications'}]},linux:{target:['AppImage'],icon:'assets/icon.png',executableName:'farmclient',category:'Game',artifactName:name}};\n\
+        fs.writeFileSync('app/package.json',JSON.stringify({...original,private:true,build},null,2));\nJS\nnode tools/node_modules/electron-builder/out/cli/cli.js\
+        \ --projectDir app --${OS_TARGET} --${ARCH} --publish never\nFILE=\"output/$(cat artifact-name.txt)\"\ntest -s \"\
+        $FILE\"\nfile \"$FILE\"\nshasum -a 256 \"$FILE\"\nif [ \"$OS_TARGET\" = mac ]; then\n  hdiutil verify \"$FILE\"\n\
+        \  mkdir verify\n  hdiutil attach -readonly -nobrowse -mountpoint \"$PWD/verify\" \"$FILE\"\n  APP=$(find verify -maxdepth\
+        \ 1 -name '*.app' | head -1)\n  test -n \"$APP\"\n  test \"$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString'\
+        \ \"$APP/Contents/Info.plist\")\" = 1.37.1\n  file \"$APP/Contents/MacOS/FarmClient\"\n  cp \"$APP/Contents/Resources/app.asar\"\
+        \ packaged.asar\n  cp -R \"$APP/Contents/Resources/mods\" checked-mods\n  hdiutil detach \"$PWD/verify\"\nelif [ \"\
+        $OS_TARGET\" = linux ]; then\n  chmod +x \"$FILE\"\n  if [ \"$ARCH\" = x64 ]; then (cd output; \"./$(cat ../artifact-name.txt)\"\
+        \ --appimage-extract >/dev/null); else\n    node -e 'const fs=require(\"fs\"),b=fs.readFileSync(process.argv[1]);let\
+        \ i=b.indexOf(Buffer.from(\"hsqs\"),4096);if(i<0)throw Error(\"No squashfs\");console.log(i)' \"$FILE\" > squash-offset\n\
+        \    unsquashfs -o \"$(cat squash-offset)\" -d output/squashfs-root \"$FILE\" >/dev/null\n  fi\n  cp output/squashfs-root/resources/app.asar\
+        \ packaged.asar\n  cp -R output/squashfs-root/resources/mods checked-mods\nelse\n  node - <<'JS'\nconst fs=require('fs'),cp=require('child_process'),path=require('path');const\
+        \ zip=require('./tools/node_modules/7zip-bin').path7za;const file='output/'+fs.readFileSync('artifact-name.txt','utf8');const\
+        \ find=(d,f)=>{for(const e of fs.readdirSync(d,{withFileTypes:true})){const p=path.join(d,e.name);if(e.isDirectory()){const\
+        \ x=find(p,f);if(x)return x}else if(f(p))return p}};cp.execFileSync(zip,['x',file,'-overify','-y'],{stdio:'pipe'});let\
+        \ a=find('verify',p=>p.endsWith('app.asar'));if(!a){const inner=find('verify',p=>p.endsWith('.7z'));cp.execFileSync(zip,['x',inner,'-overify-app','-y'],{stdio:'pipe'});a=find('verify-app',p=>p.endsWith('app.asar'))}if(!a)throw\
+        \ Error('No packaged ASAR');fs.copyFileSync(a,'packaged.asar');fs.cpSync(path.join(path.dirname(a),'mods'),'checked-mods',{recursive:true});\n\
+        JS\nfi\nnode <<'JS'\nconst fs=require('fs'),a=require('./tools/node_modules/@electron/asar'),crypto=require('crypto');const\
+        \ pkg=JSON.parse(a.extractFile('packaged.asar','package.json'));if(pkg.version!=='1.37.1')throw Error('Wrong packaged\
+        \ version');for(const f of ['src/core/installation-profile.js','src/setup/setup-main.js','src/core/updater.js']){if(a.extractFile('packaged.asar',f).toString()!==fs.readFileSync('app/'+f,'utf8'))throw\
+        \ Error('Changed '+f)}for(const[n,h]of JSON.parse(fs.readFileSync('mod-hashes.json'))){if(crypto.createHash('sha256').update(fs.readFileSync('checked-mods/'+n)).digest('hex')!==h)throw\
+        \ Error('Changed module '+n)}console.log('PASS packaged version, update/profile code and all bundled mod hashes');\n\
+        JS\ngh release upload v1.37.1 \"$FILE\" --repo \"$GITHUB_REPOSITORY\"\n"
