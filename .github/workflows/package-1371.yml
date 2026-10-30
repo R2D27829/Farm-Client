@@ -1,6 +1,11 @@
 name: Farm Client 1.37.1 installers only
 'on':
-  workflow_dispatch: null
+  workflow_dispatch:
+    inputs:
+      windows_only:
+        description: Build only Windows packages (other platforms already verified)
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -12,35 +17,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-        - os: windows-latest
-          target: win
-          arch: arm64
-          channel: modern
-        - os: windows-latest
-          target: win
-          arch: x64
-          channel: legacy
-        - os: windows-latest
-          target: win
-          arch: ia32
-          channel: legacy
-        - os: ubuntu-22.04
-          target: linux
-          arch: x64
-          channel: modern
-        - os: ubuntu-22.04
-          target: linux
-          arch: arm64
-          channel: modern
-        - os: macos-14
-          target: mac
-          arch: x64
-          channel: modern
-        - os: macos-14
-          target: mac
-          arch: arm64
-          channel: modern
+        include: ${{ fromJSON(inputs.windows_only && '[{"os":"windows-latest","target":"win","arch":"arm64","channel":"modern"},{"os":"windows-latest","target":"win","arch":"x64","channel":"legacy"},{"os":"windows-latest","target":"win","arch":"ia32","channel":"legacy"}]'
+          || '[{"os":"windows-latest","target":"win","arch":"arm64","channel":"modern"},{"os":"windows-latest","target":"win","arch":"x64","channel":"legacy"},{"os":"windows-latest","target":"win","arch":"ia32","channel":"legacy"},{"os":"ubuntu-22.04","target":"linux","arch":"x64","channel":"modern"},{"os":"ubuntu-22.04","target":"linux","arch":"arm64","channel":"modern"},{"os":"macos-14","target":"mac","arch":"x64","channel":"modern"},{"os":"macos-14","target":"mac","arch":"arm64","channel":"modern"}]')
+          }}
     steps:
     - uses: actions/setup-node@v4
       with:
@@ -72,7 +51,7 @@ jobs:
         const win=process.env.OS_TARGET==='win',mac=process.env.OS_TARGET==='mac',arch=process.env.ARCH,legacy=process.env.CHANNEL==='legacy';const\
         \ name=win?`FarmClient-Setup-1.37.1-Windows-${legacy?'Legacy-':''}${arch==='ia32'?'x86':arch}.exe`:mac?`FarmClient-1.37.1-macOS-${arch}.dmg`:`FarmClient-1.37.1-Linux-${arch}.AppImage`;\n\
         fs.writeFileSync('artifact-name.txt',name);\nconst build={publish:{provider:'github',owner:'R2D27829',repo:'Farm-Client'},appId:'com.farmclient.launcher',productName:'Farm\
-        \ Client',executableName:'FarmClient',electronVersion:legacy?'22.3.27':'44.5.1',compression:'normal',asar:true,files:['src/**/*','assets/**/*','package.json','node_modules/**/*'],extraResources:[{from:'../mods',to:'mods'},{from:'assets/icon.ico',to:'icon.ico'}],directories:{output:'../output'},win:{target:['portable'],icon:'assets/icon.ico',signAndEditExecutable:false},portable:{artifactName:name,requestExecutionLevel:'user',unpackDirName:true,splashImage:'assets/splash.bmp'},mac:{target:['dmg'],icon:'assets/icon.icns',identity:null,category:'public.app-category.games',artifactName:name},dmg:{title:'Farm\
+        \ Client',executableName:'FarmClient',electronVersion:legacy?'22.3.27':'44.5.1',compression:'normal',asar:true,files:['src/**/*','assets/**/*','package.json','node_modules/**/*'],extraResources:[{from:'../mods',to:'mods'},{from:'assets/icon.ico',to:'icon.ico'}],directories:{output:'../output'},win:{target:['portable'],icon:'assets/icon.ico',signAndEditExecutable:true},portable:{artifactName:name,requestExecutionLevel:'user',unpackDirName:true,splashImage:'assets/splash.bmp'},mac:{target:['dmg'],icon:'assets/icon.icns',identity:null,category:'public.app-category.games',artifactName:name},dmg:{title:'Farm\
         \ Client 1.37.1',contents:[{x:130,y:220,type:'file'},{x:410,y:220,type:'link',path:'/Applications'}]},linux:{target:['AppImage'],icon:'assets/icon.png',executableName:'farmclient',category:'Game',artifactName:name}};\n\
         fs.writeFileSync('app/package.json',JSON.stringify({...original,repository:{type:'git',url:'https://github.com/R2D27829/Farm-Client.git'},private:true,build},null,2));\n\
         JS\nnode tools/node_modules/electron-builder/out/cli/cli.js --projectDir app --${OS_TARGET} --${ARCH} --publish never\n\
@@ -95,7 +74,7 @@ jobs:
         \ Error('No packaged ASAR');fs.copyFileSync(a,'packaged.asar');fs.cpSync(path.join(path.dirname(a),'mods'),'checked-mods',{recursive:true});\n\
         JS\nfi\nnode <<'JS'\nconst fs=require('fs'),a=require('./tools/node_modules/@electron/asar'),crypto=require('crypto');const\
         \ pkg=JSON.parse(a.extractFile('packaged.asar','package.json'));if(pkg.version!=='1.37.1')throw Error('Wrong packaged\
-        \ version');for(const f of ['src/core/installation-profile.js','src/setup/setup-main.js','src/core/updater.js']){if(a.extractFile('packaged.asar',f).toString()!==fs.readFileSync('app/'+f,'utf8'))throw\
+        \ version');for(const f of ['src/core/installation-profile.js','src/setup/setup-main.js','src/core/updater.js']){if(a.extractFile('packaged.asar',require('path').normalize(f)).toString()!==fs.readFileSync('app/'+f,'utf8'))throw\
         \ Error('Changed '+f)}for(const[n,h]of JSON.parse(fs.readFileSync('mod-hashes.json'))){if(crypto.createHash('sha256').update(fs.readFileSync('checked-mods/'+n)).digest('hex')!==h)throw\
         \ Error('Changed module '+n)}console.log('PASS packaged version, update/profile code and all bundled mod hashes');\n\
         JS\ngh release upload v1.37.1 \"$FILE\" --repo \"$GITHUB_REPOSITORY\"\n"
