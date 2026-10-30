@@ -3,9 +3,9 @@ const API='https://api.github.com/repos/R2D27829/Farm-Client/releases', BASE='ht
 function platform(n){if(/\.apk$/i.test(n))return 'android';if(/\.exe$/i.test(n)||/windows.*\.zip$/i.test(n))return /(?:^|[-_])legacy(?:[-_.]|$)/i.test(n)?'legacy':'windows';if(/\.(AppImage|deb|rpm)$/i.test(n))return 'linux';if(/\.(dmg|pkg)$/i.test(n)||/macos.*\.zip$/i.test(n))return 'mac';return null}
 function assetInfo(n){
  const os=platform(n), preview=/(?:^|[-_])(?:alpha|beta|preview|test)(?:[-_.]|$)/i.test(n);
- if(os==='legacy')return {label:'Windows Legacy · 7/8/8.1 · '+(/(?:x86|ia32)(?:[-_.]|$)/i.test(n)?'x86':'x64')+(/\.exe$/i.test(n)?' · установщик EXE':' · портативный ZIP')+' · тестовая сборка (Electron EOL)',preview:true,kind:'legacy'};
+ if(os==='legacy')return {label:'Windows Legacy · 7/8/8.1 · '+(/(?:x86|ia32)(?:[-_.]|$)/i.test(n)?'x86':'x64')+(/\.exe$/i.test(n)?' · установщик EXE':' · портативный ZIP')+' · устаревшая платформа (Electron EOL)',preview,kind:'legacy'};
  if(os==='android'){
-  if(/engine|unified/i.test(n)||/^FarmClient-Android-0\.3\.\d+(?:[-.].*)?\.apk$/i.test(n)||/^FarmClient-1\.37\.0-Android-Preview\.apk$/i.test(n))return {label:'Android · Игровой лаунчер'+((n.match(/(\d+\.\d+(?:\.\d+)?)(?:[-.]|$)/)||[])[1]?' · '+n.match(/(\d+\.\d+(?:\.\d+)?)(?:[-.]|$)/)[1]:'')+(preview?' · beta / тест':''),preview,kind:'engine'};
+  if(/engine|unified/i.test(n)||/^FarmClient-Android-0\.3\.\d+(?:[-.].*)?\.apk$/i.test(n)||/^FarmClient-\d+\.\d+\.\d+-Android(?:[-.].*)?\.apk$/i.test(n))return {label:'Android · Игровой лаунчер'+((n.match(/(\d+\.\d+(?:\.\d+)?)(?:[-.]|$)/)||[])[1]?' · '+n.match(/(\d+\.\d+(?:\.\d+)?)(?:[-.]|$)/)[1]:'')+(preview?' · beta / тест':''),preview,kind:'engine'};
   if(/^FarmClient(?:-Android)?-1\.[1-5]\.apk$/i.test(n))return {label:'Android · Компаньон (старое приложение)',preview,kind:'companion'};
   return {label:'Android · APK'+(preview?' · предварительная сборка':''),preview,kind:'apk'};
  }

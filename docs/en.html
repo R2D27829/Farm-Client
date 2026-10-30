@@ -232,7 +232,7 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
   <a class="badge rv" href="#news"><i>New</i><span id="ver">1.25.6 — mod UI and smooth transitions</span><span class="ar">→</span></a>
   <h1 class="rv">Minecraft, the way<br><span class="gt">it should be</span></h1>
   <p class="lead rv">Launcher and mod in one: mods and modpacks in one click, clans and friends, messenger, high FPS even on a weak PC — and it all looks great.</p>
-  <div class="cta rv" id="download"><a class="btn g" id="dl" href="https://github.com/R2D27829/Farm-Client/releases/download/v1.26.1/FarmClient-Setup-1.26.1.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg><span id="dl-t">Download for Windows</span></a><a class="btn farm-all-versions" href="versions.html">All versions <span aria-hidden="true">→</span></a><a class="btn" href="#features">See features</a></div>
+  <div class="cta rv" id="download"><a class="btn g" id="dl" href="https://github.com/R2D27829/Farm-Client/releases/download/v1.37.1/FarmClient-Setup-1.37.1-Windows-x64.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg><span id="dl-t">Download for Windows</span></a><a class="btn farm-all-versions" href="versions.html">All versions <span aria-hidden="true">→</span></a><a class="btn" href="#features">See features</a></div>
   <div class="dlinfo rv"><span id="dl-info">Free · Windows · Linux · Android</span> <span id="dl-other"></span></div>
   <div class="stage rv" id="stage">
     <div class="chip c1"><span class="e">🛡️</span><div>Farm Legends<small>Clan · 12 online</small></div></div>
@@ -307,7 +307,7 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
 
 <section id="how" class="wrap">
   <div class="head rv"><span class="eyebrow">Get started</span><h2>Three steps and you’re <span class="gt">in</span></h2></div>
-  <div class="steps"><div class="step rv"><div class="n">1</div><h3>Download</h3><p>Windows — .exe, Linux — .AppImage, phone — .apk. No installation needed.</p></div><div class="step rv"><div class="n">2</div><h3>Sign in</h3><p>Microsoft, Ely.by or an offline nickname. The first-run wizard sets everything up.</p></div><div class="step rv"><div class="n">3</div><h3>Play</h3><p>Pick a version and press Play. Friends and clans are in the “Friends” tab.</p></div></div>
+  <div class="steps"><div class="step rv"><div class="n">1</div><h3>Download</h3><p>Windows — EXE installer, macOS — DMG, Linux — AppImage, Android — APK. Existing Windows installations update in their original folder.</p></div><div class="step rv"><div class="n">2</div><h3>Sign in</h3><p>Microsoft, Ely.by or an offline nickname. The first-run wizard sets everything up.</p></div><div class="step rv"><div class="n">3</div><h3>Play</h3><p>Pick a version and press Play. Friends and clans are in the “Friends” tab.</p></div></div>
 </section>
 
 <section id="faq" class="wrap">
@@ -336,7 +336,7 @@ footer{margin-top:110px;border-top:1px solid var(--line);padding:56px 0 40px;col
   <div><h5>Help</h5><a href="faq.html">Knowledge base</a><a href="account.html">Account</a><a href="https://github.com/R2D27829/Farm-Client">GitHub</a><a href="index.html">Русский</a></div>
 </div><div class="fbot"><span>© 2026 Farm Client</span><span>Not affiliated with Mojang or Microsoft</span></div></div></footer>
 
-<script>const L={loc:"en",ver:v=>"Version {v} — UI and smooth transitions".replace('{v}',v),dl:o=>"Download for {o}".replace('{o}',o),info:(k,s,d)=>"Free · {k} · {s} MB · {d}".replace('{k}',k).replace('{s}',s).replace('{d}',d),other:"Other systems:",news:"News",more:"Read more",os:{"win": "Windows", "linux": "Linux", "android": "Android"},kind:{"win": "portable .exe", "linux": ".AppImage", "android": ".apk for phones"},themes:[["style-gold", "Classic", "Farm Client gold, dark panels and soft light."], ["style-minimal", "Minimal", "Quiet monochrome, clean lines and nothing extra."], ["style-apple", "Apple-inspired", "Early-iOS blues, cool glass and subtle highlights."], ["style-ocean", "Ocean", "Deep blue backgrounds and gentle sky-blue accents."]]}
+<script>const L={loc:"en",ver:v=>"Version {v} — UI and smooth transitions".replace('{v}',v),dl:o=>"Download for {o}".replace('{o}',o),info:(k,s,d)=>"Free · {k} · {s} MB · {d}".replace('{k}',k).replace('{s}',s).replace('{d}',d),other:"Other systems:",news:"News",more:"Read more",os:{"win": "Windows", "linux": "Linux", "android": "Android"},kind:{"win": ".exe installer", "linux": ".AppImage", "android": ".apk for phones"},themes:[["style-gold", "Classic", "Farm Client gold, dark panels and soft light."], ["style-minimal", "Minimal", "Quiet monochrome, clean lines and nothing extra."], ["style-apple", "Apple-inspired", "Early-iOS blues, cool glass and subtle highlights."], ["style-ocean", "Ocean", "Deep blue backgrounds and gentle sky-blue accents."]]}
 const R='R2D27829/Farm-Client',API='https://farmclient-api.farmclient.workers.dev',$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 try{const rf=new URLSearchParams(location.search).get('ref');if(rf)localStorage.setItem('fc_ref',rf)}catch(e){}
@@ -398,4 +398,4 @@ seg.onkeydown=e=>{let i=ti;if(e.key==='ArrowRight')i++;else if(e.key==='ArrowLef
 tset(0);TH.forEach(t=>{new Image().src='img/'+t[0]+'.webp'});
 </script>
 <script src="cookie-notice.js?v=2" defer></script>
-<script src="legal-links.js?v=1" defer></script><script src="downloads.js?v=2" defer></script></body></html>
+<script src="legal-links.js?v=1" defer></script><script src="downloads.js?v=1371" defer></script></body></html>

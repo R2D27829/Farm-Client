@@ -1,7 +1,10 @@
 {
-  "version": "1.5",
-  "versionCode": 6,
-  "url": "https://github.com/R2D27829/Farm-Client/releases/download/v1.23.0/FarmClient-1.5.apk",
-  "sha256": "46ab46a33851a1ab61c5723c047e91cdde5231e4c5fa96998c12f2e2e9bbd7e7",
-  "notes": "Отдельное скрытие каждой соцсети и чёрно-золотое оформление. Установи APK поверх предыдущей версии — аккаунт сохранится."
+  "applicationId": "com.farmclient.launcher",
+  "channel": "android-engine",
+  "versionCode": 15,
+  "version": "1.37.1",
+  "minSdk": 21,
+  "size": 151373830,
+  "sha256": "efa481d98b832badc539043282e7325f5712c4cda67f209d51f618499b0305ec",
+  "url": "https://github.com/R2D27829/Farm-Client/releases/download/v1.37.1/FarmClient-1.37.1-Android.apk"
 }
