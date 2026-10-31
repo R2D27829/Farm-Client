@@ -1,0 +1,29 @@
+name: Stage 1.38.0 macOS installers
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/stage-1380-macos.yml'
+permissions:
+  contents: write
+concurrency:
+  group: stage-1380-macos
+  cancel-in-progress: false
+jobs:
+  package:
+    runs-on: macos-15
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64, arm64]
+    env:
+      GH_TOKEN: ${{ github.token }}
+      FARM_ARCH: ${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure 7zip is available
+        run: command -v 7zz || brew install sevenzip
+      - name: Stage installer only in existing draft
+        run: python3 .github/scripts/stage-1380-macos.py
