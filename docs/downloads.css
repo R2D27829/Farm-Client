@@ -12,3 +12,7 @@
 
 /* One action row: download, all versions, features. */
 #download{align-items:center;gap:12px}#download>.btn{min-height:50px}.farm-all-versions{font-weight:650}.farm-all-versions span{margin-left:10px}@media(max-width:600px){#download{flex-direction:column}#download>.btn{width:100%}}
+
+/* Windows has distinct fresh-install and update packages; give both room. */
+@media(min-width:761px){.farm-os-card:first-child{grid-column:1/-1}.farm-os-card:first-child .farm-os-actions{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:20px}}
+@media(min-width:1050px){.farm-os-card:first-child .farm-os-actions{grid-template-columns:repeat(4,minmax(0,1fr))}}
