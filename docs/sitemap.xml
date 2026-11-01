@@ -1,11 +1,45 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://r2d27829.github.io/Farm-Client/</loc></url>
-  <url><loc>https://r2d27829.github.io/Farm-Client/en.html</loc></url>
-  <url><loc>https://r2d27829.github.io/Farm-Client/versions.html</loc></url>
-  <url><loc>https://r2d27829.github.io/Farm-Client/faq.html</loc></url>
-  <url><loc>https://r2d27829.github.io/Farm-Client/buy.html</loc></url>
-  <url><loc>https://r2d27829.github.io/Farm-Client/support.html</loc></url>
-  <url><loc>https://r2d27829.github.io/Farm-Client/privacy.html</loc></url>
-  <url><loc>https://r2d27829.github.io/Farm-Client/terms.html</loc></url>
+<?xml version='1.0' encoding='utf-8'?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://r2d27829.github.io/Farm-Client/</loc>
+    <lastmod>2026-11-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://r2d27829.github.io/Farm-Client/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://r2d27829.github.io/Farm-Client/en.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://r2d27829.github.io/Farm-Client/" />
+  </url>
+  <url>
+    <loc>https://r2d27829.github.io/Farm-Client/en.html</loc>
+    <lastmod>2026-11-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://r2d27829.github.io/Farm-Client/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://r2d27829.github.io/Farm-Client/en.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://r2d27829.github.io/Farm-Client/" />
+  </url>
+  <url>
+    <loc>https://r2d27829.github.io/Farm-Client/versions.html</loc>
+    <lastmod>2026-11-01</lastmod>
+  </url>
+  <url>
+    <loc>https://r2d27829.github.io/Farm-Client/faq.html</loc>
+    <lastmod>2026-11-01</lastmod>
+  </url>
+  <url>
+    <loc>https://r2d27829.github.io/Farm-Client/buy.html</loc>
+    <lastmod>2026-11-01</lastmod>
+  </url>
+  <url>
+    <loc>https://r2d27829.github.io/Farm-Client/support.html</loc>
+    <lastmod>2026-11-01</lastmod>
+  </url>
+  <url>
+    <loc>https://r2d27829.github.io/Farm-Client/privacy.html</loc>
+  </url>
+  <url>
+    <loc>https://r2d27829.github.io/Farm-Client/terms.html</loc>
+  </url>
+  <url>
+    <loc>https://r2d27829.github.io/Farm-Client/privacy-en.html</loc>
+  </url>
+  <url>
+    <loc>https://r2d27829.github.io/Farm-Client/terms-en.html</loc>
+  </url>
 </urlset>
