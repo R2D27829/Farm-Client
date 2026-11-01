@@ -205,6 +205,7 @@ async function loadMe() {
     const l = me.license;
     $('#me-lic').innerHTML = l ? `Лицензия <code>${FC.esc(l.id)}</code> · ${{ hwid: 'по HWID', free: 'без HWID', admin: 'админская' }[l.type] || l.type} · ${l.exp ? 'до ' + FC.date(l.exp) : 'бессрочно'} ${l.revoked ? '<span class="err">· отозвана</span>' : '<span class="ok">· активна</span>'}` : '<span class="muted">Лицензия не активирована</span>';
     const names = (me.chat && me.chat.names) || [];
+    if(!document.getElementById('wallet-entry')){const a=document.createElement('a');a.id='wallet-entry';a.className='btn sm';a.href='wallet.html';a.textContent='Кошелёк Farm Coins';a.style.margin='12px 0';document.getElementById('me-lic').after(a);}
     $('#chat-identity').innerHTML = `<div class="small">${me.chat && me.chat.discord ? 'Discord связан с этим Farm-аккаунтом ✅' : 'Привяжи Discord кнопкой ниже; голосовые доступны и по нику Minecraft.'}</div><div class="muted small" style="overflow-wrap:anywhere;margin-top:6px">Тебе можно написать: ${names.map((n) => '@' + FC.esc(n)).join(' · ') || 'укажи ник в лаунчере'}</div><a class="btn gold sm" style="margin-top:12px" href="chat.html">Открыть мессенджер · 🎤 голосовые</a>${['admin', 'developer'].includes(me.role) ? '<a class="btn sm" style="margin:12px 0 0 8px" href="admin.html#chat">Чат админов</a>' : ''}`;
     await provReady;
     hiddenProviders = new Set(me.privacy && me.privacy.hiddenProviders || []);

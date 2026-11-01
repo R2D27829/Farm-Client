@@ -18,6 +18,7 @@ FC.nav('account');
   who.innerHTML = `Вошёл как <b>${FC.esc(me.name)}</b> · ${me.role==='developer'?'🛠️ Разработчик':'Администратор'} · то же самое есть в лаунчере: Настройки → Админ-панель`;
   const root = document.getElementById('adm-root'); root.classList.remove('hidden');
   FarmAdmin.mount(root, (m, p, body) => FC.api(m, p, body === undefined ? {} : { body }), { toast: FC.toast, tab: (location.hash.slice(1) || 'keys') });
+  if(me.id==='u_R2D27829'&&me.role==='developer'){const tools=document.createElement('div');tools.className='row';tools.style.margin='20px 0';const a=document.createElement('a');a.className='btn gold';a.href='coin-admin.html';a.textContent='Farm Coins · выдача и управление';tools.append(a);root.before(tools);}
 })();
 </script>
 <script src="cookie-notice.js?v=2" defer></script>
